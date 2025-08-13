@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tinder Simple con Imágenes</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f0f0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100vh;
+    }
+
+    #card-container {
+      position: relative;
+      width: 90%;
+      max-width: 350px;
+      height: 60%;
+      margin-top: 40px;
+    }
+
+    .card {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      font-size: 24px;
+      text-align: center;
+      padding: 20px;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    .card img {
+      width: 80%;
+      max-height: 60%;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-bottom: 15px;
+    }
+
+    #buttons {
+      margin-top: 20px;
+      display: flex;
+      gap: 20px;
+    }
+
+    .btn {
+      padding: 15px 25px;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .accept {
+      background-color: #4caf50;
+      color: white;
+    }
+
+    .reject {
+      background-color: #f44336;
+      color: white;
+    }
+
+    #results {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .list {
+      margin: 10px 0;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      font-size: 18px;
+    }
+
+    h2, h3 {
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="card-container"></div>
+
+  <div id="buttons">
+    <button class="btn reject" onclick="handleDecision(-1)">Rechazar</button>
+    <button class="btn accept" onclick="handleDecision(1)">Aceptar</button>
+  </div>
+
+  <div id="results">
+    <h2>Resultados</h2>
+    <div class="list">
+      <h3>Aceptados:</h3>
+      <ul id="accepted-list"></ul>
+    </div>
+    <div class="list">
+      <h3>Rechazados:</h3>
+      <ul id="rejected-list"></ul>
+    </div>
+  </div>
+
+  <script>
+    const data = [
+      { name: "Disney Tokyo", img: "https://miatelierdeviajes.com/wp-content/uploads/2024/12/img_1030-2-1-768x1024.jpg" },
+      { name: "Gotokuji", img: "https://img.travesiasdigital.com/2019/07/Templo-Gotokuji-08.jpg" },
+      { name: "Pokemon Cafe", img: "https://live.staticflickr.com/65535/52628347935_33ce094682_o.jpg" },
+      { name: "Shikisai no oka", img: "https://e1.pxfuel.com/desktop-wallpaper/33/349/desktop-wallpaper-the-panoramic-flower-gardens-of-shikisai-shikisai-no-oka-flower-garden.jpg" },
+      { name: "Shinkansen de Hello Kitty", img: "https://fashionjournal.com.au/wp-content/uploads/2018/06/HK-bullet-thumb.jpg" }
+      { name: "Maid cafe", img: "https://i.pinimg.com/736x/e2/b2/90/e2b2902e107b1bd5fcab66fd1b1ce29a.jpg" }
+      { name: "Nabana no sato", img: "https://i.pinimg.com/736x/51/c2/2a/51c22adf97fc90e583e218700201e1d8.jpg" }
+      { name: "Otaru", img: "https://www.shutterstock.com/image-photo/historic-otaru-canal-hokkaido-prefecture-600nw-1614151456.jpg" }
+      { name: "Nagano y monos de nieve", img: "https://images.squarespace-cdn.com/content/v1/5bbcf00a9b8fe874ed2f03d0/5851c615-2c30-49e3-90ae-8b097bf628f0/japanese-snow-monkeys-park.jpg?format=2500w" }
+      { name: "RJ Cafe de Osaka", img: "https://static.cityspride.com/img/ciao_tomolina/pride/s/a77f522193a4db8266100e78cf30cdf80.jpg" }
+      { name: "Kumachan Onsen en Tokyo", img: "https://media.journoportfolio.com/users/77498/images/3b5f9e38-f322-4f3e-b560-9016ba38d325.jpg" }
+      { name: "Enoshima (junto a Kamakura)", img: "https://s3.voyapon.com/wp-content/uploads/sites/3/2020/12/29212256/enoshima46-2-682x1024.jpg" }
+      { name: "Ginzan Onsen", img: "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/05/31/91/e1/caption.jpg" }
+      { name: "Una tarde de recreativas", img: "https://touristtolocal.com/wp-content/uploads/2025/02/11-min-683x1024.jpg" }
+      { name: "Shibazakura park en Hokkaido", img: "https://highlightfinder.toocooljapan.com/wp/wp-content/uploads/2018/05/20180531-2-680x1024.jpg" }
+      { name: "Musical de Tokyo Revengers", img: "https://www.japabutai.com/sites/default/files/2024-11/MusicalTokyoRevengers2-2025-poster1.jpg" }
+      { name: "Lo que haya de eventos de Kisekoi y/o Sailor Moon", img: "https://64.media.tumblr.com/f37ebfabb0b74f72ee17521428377746/231296cadcf096e7-81/s640x960/4efe749b663490b0272d50f3fb158038c4de8576.jpg" }
+      { name: "Museo/cafe de los yokai en Chofu", img: "https://i0.wp.com/farm9.staticflickr.com/8281/7716912028_4b0abf0b55_b.jpg" }
+      { name: "Kumamoto", img: "https://pbs.twimg.com/media/DtP2Aw2WsAAUKxy.jpg" }
+      { name: "Beppu", img: "https://live.staticflickr.com/65535/53628206178_737639abdc_z.jpg" }
+      { name: "Bandai Museum", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Bandai-museum.jpg/330px-Bandai-museum.jpg" }
+      { name: "Bandai Museum", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Bandai-museum.jpg/330px-Bandai-museum.jpg" }
+    ];
+
+    const accepted = [];
+    const rejected = [];
+
+    const container = document.getElementById('card-container');
+
+    function createCard(person) {
+      const card = document.createElement('div');
+      card.className = 'card';
+
+      const img = document.createElement('img');
+      img.src = person.img;
+      img.alt = person.name;
+
+      const name = document.createElement('div');
+      name.textContent = person.name;
+
+      card.appendChild(img);
+      card.appendChild(name);
+
+      let startX = 0;
+
+      card.addEventListener('touchstart', (e) => {
+        startX = e.touches[0].clientX;
+      });
+
+      card.addEventListener('touchend', (e) => {
+        const endX = e.changedTouches[0].clientX;
+        const diffX = endX - startX;
+
+        if (diffX > 50) {
+          accepted.push(person.name);
+          swipeCard(card, 1);
+        } else if (diffX < -50) {
+          rejected.push(person.name);
+          swipeCard(card, -1);
+        }
+      });
+
+      container.appendChild(card);
+    }
+
+    function swipeCard(card, direction) {
+      card.style.transform = translateX(${direction * 500}px) rotate(${direction * 10}deg);
+      card.style.opacity = 0;
+
+      setTimeout(() => {
+        card.remove();
+        showNextCard();
+      }, 300);
+    }
+
+    let index = 0;
+
+    function showNextCard() {
+      if (index < data.length) {
+        createCard(data[index]);
+        index++;
+      } else {
+        showResults();
+      }
+    }
+
+    function handleDecision(direction) {
+      const currentCard = container.querySelector('.card:last-child');
+      if (!currentCard) return;
+
+      const name = currentCard.querySelector('div').textContent;
+      if (direction === 1) {
+        accepted.push(name);
+      } else {
+        rejected.push(name);
+      }
+
+      swipeCard(currentCard, direction);
+    }
+
+    function showResults() {
+      document.getElementById('card-container').style.display = 'none';
+      document.getElementById('buttons').style.display = 'none';
+      const results = document.getElementById('results');
+      results.style.display = 'flex';
+
+      const acceptedList = document.getElementById('accepted-list');
+      const rejectedList = document.getElementById('rejected-list');
+
+      accepted.forEach(name => {
+        const li = document.createElement('li');
+        li.textContent = name;
+        acceptedList.appendChild(li);
+      });
+
+      rejected.forEach(name => {
+        const li = document.createElement('li');
+        li.textContent = name;
+        rejectedList.appendChild(li);
+      });
+    }
+
+    showNextCard();
+  </script>
+
+</body>
+</html>
