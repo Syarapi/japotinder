@@ -1,25 +1,76 @@
-{
-  "cards": [
-    { "name": "Bandai Museum", "yes": 0, "no": 0 },
-    { "name": "Beppu", "yes": 0, "no": 0 },
-    { "name": "Disney Tokyo", "yes": 0, "no": 0 },
-    { "name": "Enoshima (junto a Kamakura)", "yes": 0, "no": 0 },
-    { "name": "Eventos de Kisekoi / Sailor Moon", "yes": 0, "no": 0 },
-    { "name": "Ginzan Onsen", "yes": 0, "no": 0 },
-    { "name": "Gotokuji", "yes": 0, "no": 0 },
-    { "name": "Kumachan Onsen en Tokyo", "yes": 0, "no": 0 },
-    { "name": "Kumamoto", "yes": 0, "no": 0 },
-    { "name": "Maid cafe", "yes": 0, "no": 0 },
-    { "name": "Museo/cafe de los yokai en Chofu", "yes": 0, "no": 0 },
-    { "name": "Nabana no sato", "yes": 0, "no": 0 },
-    { "name": "Nagano y monos de nieve", "yes": 0, "no": 0 },
-    { "name": "Otaru", "yes": 0, "no": 0 },
-    { "name": "Pokemon Cafe", "yes": 0, "no": 0 },
-    { "name": "RJ Cafe de Osaka", "yes": 0, "no": 0 },
-    { "name": "Shibazakura park en Hokkaido", "yes": 0, "no": 0 },
-    { "name": "Shikisai no oka", "yes": 0, "no": 0 },
-    { "name": "Shinkansen de Hello Kitty", "yes": 0, "no": 0 },
-    { "name": "Una tarde de recreativas", "yes": 0, "no": 0 }
-  ],
-  "games": []
+import fetch from 'node-fetch';
+
+const GITHUB_TOKEN = process.env.GH_TOKEN;
+const OWNER = process.env.GH_OWNER;
+const REPO = process.env.GH_REPO;
+const BRANCH = process.env.GH_BRANCH || 'main';
+const FILE_PATH = 'results/data.json';
+
+export default async function handler(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  const newResult = req.body;
+
+  try {
+    // 1️⃣ Intentar obtener el contenido actual de data.json
+    let currentData = [];
+    let sha = null;
+
+    const getRes = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${FILE_PATH}?ref=${BRANCH}`, {
+      headers: {
+        Authorization: `token ${GITHUB_TOKEN}`,
+        Accept: 'application/vnd.github.v3+json',
+      },
+    });
+
+    if (getRes.status === 200) {
+      const data = await getRes.json();
+      sha = data.sha;
+      try {
+        currentData = JSON.parse(Buffer.from(data.content, 'base64').toString());
+        if (!Array.isArray(currentData)) currentData = [];
+      } catch {
+        currentData = [];
+      }
+    } else if (getRes.status === 404) {
+      // Archivo no existe, se creará nuevo
+      currentData = [];
+    } else {
+      const errText = await getRes.text();
+      throw new Error(`GitHub GET error: ${errText}`);
+    }
+
+    // 2️⃣ Agregar el nuevo resultado
+    currentData.push(newResult);
+
+    // 3️⃣ Convertir a base64
+    const content = Buffer.from(JSON.stringify(currentData, null, 2)).toString('base64');
+
+    // 4️⃣ Subir o actualizar en GitHub
+    const putRes = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${FILE_PATH}`, {
+      method: 'PUT',
+      headers: {
+        Authorization: `token ${GITHUB_TOKEN}`,
+        Accept: 'application/vnd.github.v3+json',
+      },
+      body: JSON.stringify({
+        message: sha ? 'Actualizar resultado desde Japontinder' : 'Crear data.json desde Japontinder',
+        content,
+        sha,
+        branch: BRANCH,
+      }),
+    });
+
+    if (!putRes.ok) {
+      const errText = await putRes.text();
+      throw new Error(`GitHub PUT error: ${errText}`);
+    }
+
+    res.status(200).json({ message: 'Resultado guardado correctamente' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error guardando el resultado', details: err.message });
+  }
 }
