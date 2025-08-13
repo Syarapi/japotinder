@@ -1,0 +1,25 @@
+{
+  "cards": [
+    { "name": "Bandai Museum", "yes": 0, "no": 0 },
+    { "name": "Beppu", "yes": 0, "no": 0 },
+    { "name": "Disney Tokyo", "yes": 0, "no": 0 },
+    { "name": "Enoshima (junto a Kamakura)", "yes": 0, "no": 0 },
+    { "name": "Eventos de Kisekoi / Sailor Moon", "yes": 0, "no": 0 },
+    { "name": "Ginzan Onsen", "yes": 0, "no": 0 },
+    { "name": "Gotokuji", "yes": 0, "no": 0 },
+    { "name": "Kumachan Onsen en Tokyo", "yes": 0, "no": 0 },
+    { "name": "Kumamoto", "yes": 0, "no": 0 },
+    { "name": "Maid cafe", "yes": 0, "no": 0 },
+    { "name": "Museo/cafe de los yokai en Chofu", "yes": 0, "no": 0 },
+    { "name": "Nabana no sato", "yes": 0, "no": 0 },
+    { "name": "Nagano y monos de nieve", "yes": 0, "no": 0 },
+    { "name": "Otaru", "yes": 0, "no": 0 },
+    { "name": "Pokemon Cafe", "yes": 0, "no": 0 },
+    { "name": "RJ Cafe de Osaka", "yes": 0, "no": 0 },
+    { "name": "Shibazakura park en Hokkaido", "yes": 0, "no": 0 },
+    { "name": "Shikisai no oka", "yes": 0, "no": 0 },
+    { "name": "Shinkansen de Hello Kitty", "yes": 0, "no": 0 },
+    { "name": "Una tarde de recreativas", "yes": 0, "no": 0 }
+  ],
+  "games": []
+}
