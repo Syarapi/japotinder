@@ -3,8 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Japotinder 2026</title>
+  <title>Japontinder 2026</title>
+  <!-- Tipografía estilo asiático -->
+  <link href="https://fonts.googleapis.com/css2?family=Yuji+Syuku&display=swap" rel="stylesheet">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
+    :root {
+      --yes:#87cefa;   /* awww sí */
+      --no:#ffc0cb;    /* ew, no  */
+      --accent:#b22222;
+    }
+
+    * { box-sizing: border-box; }
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
@@ -15,160 +26,316 @@
       min-height: 100vh;
     }
 
-    #card-container {
-      position: relative;
-      width: 90%;
-      max-width: 500px;
-      margin-top: 20px;
+    #start-screen, #results, #past-games, #stats-screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      width: 100%;
+    }
+    #start-screen, #past-games, #stats-screen {
+      min-height: 100vh;
+      gap: 15px;
     }
 
+    /* Start screen */
+    #start-screen.active,
+    #game-screen.active,
+    #results.active,
+    #past-games.active,
+    #stats-screen.active { display: flex; }
+
+    #start-screen h1 {
+      font-family: 'Yuji Syuku', serif;
+      font-size: clamp(2rem, 4vw, 2.8rem);
+      color: var(--accent);
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.25);
+      margin: 0 0 8px 0;
+    }
+    #start-card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+      padding: 24px;
+      width: min(560px, 92%);
+      display: grid;
+      gap: 14px;
+      text-align: center;
+    }
+    #start-card label {
+      font-weight: 600;
+      color: #444;
+    }
+    #username {
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+      text-align: center;
+      outline: none;
+      transition: border .2s, box-shadow .2s;
+    }
+    #username:focus {
+      border-color: var(--yes);
+      box-shadow: 0 0 0 4px rgba(135,206,250,.2);
+    }
+    .error { color: #b00020; font-size: 14px; min-height: 18px; }
+
+    /* Card */
+    #game-screen {
+      width: 100%;
+      align-items: center;
+    }
+    #card-container {
+      position: relative;
+      width: min(90%, 520px);
+      height: 66vh; /* 2/3 de la altura de pantalla */
+      margin-top: 16px;
+    }
     .card {
       width: 100%;
+      height: 100%;
       background: white;
       border-radius: 15px;
       box-shadow: 0 10px 25px rgba(0,0,0,0.15);
       display: flex;
       flex-direction: column;
       align-items: center;
-      font-size: 24px;
+      justify-content: space-between;
+      font-size: 20px;
       text-align: center;
-      padding: 20px;
+      padding: 16px;
       transition: transform 0.3s ease, opacity 0.3s ease;
     }
-
     .card img {
-      height: 750px;
-      width: auto;
+      max-height: 85%;
       max-width: 100%;
       object-fit: cover;
       border-radius: 10px;
-      margin-bottom: 15px;
     }
 
+    /* Buttons */
     #buttons {
-      margin-top: 20px;
+      margin-top: 14px;
       display: flex;
-      gap: 20px;
+      gap: 14px;
       position: relative;
       z-index: 10;
     }
-
     .btn {
-      padding: 15px 25px;
-      font-size: 18px;
+      padding: 14px 22px;
+      font-size: 16px;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       cursor: pointer;
-      transition: background 0.3s ease, transform 0.2s ease;
+      transition: transform .15s ease, filter .2s ease;
+      box-shadow: 0 6px 18px rgba(0,0,0,.08);
     }
+    .accept { background: var(--yes); color: #fff; }
+    .reject { background: var(--no); color: #111; }
+    .btn:hover { transform: translateY(-2px); filter: brightness(.95); }
 
-    .accept {
-      background-color: #87cefa;
-      color: white;
+    /* Results two columns */
+    #results h2 { margin: 6px 0 0 0; }
+    #player-info { color:#444; margin: 6px 0 10px; }
+    #results-container {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(200px, 1fr));
+      gap: 18px;
+      width: min(900px, 92%);
+      margin-top: 10px;
     }
-
-    .reject {
-      background-color: #ffc0cb;
-      color: black;
-    }
-
-    .accept:hover {
-      background-color: #6fbde8;
-      transform: scale(1.05);
-    }
-
-    .reject:hover {
-      background-color: #ff9eb3;
-      transform: scale(1.05);
-    }
-
-    #results {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-    }
-
     .list {
-      margin: 10px 0;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+      padding: 14px;
     }
-
-    ul {
-      list-style: none;
-      padding: 0;
-      font-size: 18px;
-    }
-
-    h2, h3 {
+    .list h3 {
+      margin: 0 0 8px 0;
       text-align: center;
+      color: var(--accent);
+      font-size: 20px;
     }
+    ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+    ul li { padding: 6px 10px; border-radius: 8px; background: #fafafa; }
+
+    /* Past games & stats */
+    #games-list { width: min(700px, 92%); display: grid; gap: 8px; padding: 0; list-style: none; }
+    #games-list li { background:#fff; border-radius:10px; padding:10px; box-shadow:0 4px 12px rgba(0,0,0,.07); cursor:pointer; }
+    #stats-card {
+      width: min(1000px, 95%);
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0,0,0,.12);
+      padding: 16px;
+      display: grid;
+      gap: 14px;
+    }
+    #stats-summary { text-align:center; font-weight:600; color:#444; }
+
+    .top-actions { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
   </style>
 </head>
 <body>
 
-  <div id="card-container"></div>
-
-  <div id="buttons">
-    <button class="btn reject" onclick="handleDecision(-1)">ew, no</button>
-    <button class="btn accept" onclick="handleDecision(1)">awww sí</button>
+  <!-- Pantalla de inicio -->
+  <div id="start-screen" class="active">
+    <div id="start-card">
+      <h1>Japontinder</h1>
+      <label for="username">¿Quién eres? O no empiezo ò_ó</label>
+      <input type="text" id="username" placeholder="Tu nombre" />
+      <div id="name-error" class="error"></div>
+      <div class="top-actions">
+        <button class="btn accept" onclick="startGame()">Empezar</button>
+        <button class="btn reject" onclick="showPastGames()">Ver partidas anteriores</button>
+        <button class="btn accept" onclick="showStats()">Ver estadísticas generales</button>
+      </div>
+    </div>
   </div>
 
+  <!-- Juego -->
+  <div id="game-screen">
+    <div id="card-container"></div>
+    <div id="buttons">
+      <button class="btn reject" onclick="handleDecision(-1)">ew, no</button>
+      <button class="btn accept" onclick="handleDecision(1)">awww sí</button>
+    </div>
+  </div>
+
+  <!-- Resultados -->
   <div id="results">
     <h2>Resultados</h2>
-    <div class="list">
-      <h3>Aceptados:</h3>
-      <ul id="accepted-list"></ul>
+    <p id="player-info"></p>
+    <div id="results-container">
+      <div class="list">
+        <h3>Aquí sí</h3>
+        <ul id="accepted-list"></ul>
+      </div>
+      <div class="list">
+        <h3>Pasando</h3>
+        <ul id="rejected-list"></ul>
+      </div>
     </div>
-    <div class="list">
-      <h3>Rechazados:</h3>
-      <ul id="rejected-list"></ul>
+    <div class="top-actions" style="margin-top:14px;">
+      <button class="btn accept" onclick="showPastGames()">Ver partidas anteriores</button>
+      <button class="btn accept" onclick="showStats()">Ver estadísticas generales</button>
+      <button class="btn reject" onclick="restartGame()">Volver al inicio</button>
+    </div>
+  </div>
+
+  <!-- Partidas anteriores -->
+  <div id="past-games">
+    <h2>Partidas anteriores</h2>
+    <ul id="games-list"></ul>
+    <button class="btn reject" onclick="goToStart()">Volver</button>
+  </div>
+
+  <!-- Estadísticas generales -->
+  <div id="stats-screen">
+    <div id="stats-card">
+      <h2 style="text-align:center;margin:0;">Estadísticas Generales</h2>
+      <div id="stats-summary"></div>
+      <canvas id="barChart"></canvas>
+      <canvas id="pieChart"></canvas>
+      <div class="top-actions">
+        <button class="btn reject" onclick="goToStart()">Volver</button>
+      </div>
     </div>
   </div>
 
   <script>
-    const data = [
+    // --- Config ---
+    // Cambia estos valores a tu repo si vas a usar raw.githubusercontent.com para leer resultados
+    const GITHUB_OWNER = "<TU_OWNER>";   // p.ej. "midudev"
+    const GITHUB_REPO  = "<TU_REPO>";    // p.ej. "japontinder"
+    const GITHUB_BRANCH= "main";         // o "gh-pages"
+    const RESULTS_PATH = "results/data.json";
+
+    // Ruta de lectura del JSON global con estadísticas (se actualiza con los commits)
+    const RESULTS_URL =
+      `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${RESULTS_PATH}`;
+
+    // --- Datos del juego ---
+    let playerName = "";
+    const originalData = [
       { name: "Disney Tokyo", img: "img/disney.jpg" },
       { name: "Gotokuji", img: "img/gotokuji.jpg" },
       { name: "Pokemon Cafe", img: "img/pokemon.jpg" },
-      { name: "Shikisai no oka", img: "img/shikisai.jpg" }
-      // ... resto de imágenes
+      { name: "Shikisai no oka", img: "img/shikisai.jpg" },
+      { name: "Shinkansen de Hello Kitty", img: "img/hello-kitty.jpg" },
+      { name: "Maid cafe", img: "img/maid.jpg" },
+      { name: "Nabana no sato", img: "img/nabana.jpg" },
+      { name: "Otaru", img: "img/otaru.jpg" },
+      { name: "Nagano y monos de nieve", img: "img/nagano.jpg" },
+      { name: "RJ Cafe de Osaka", img: "img/rj-cafe.jpg" },
+      { name: "Kumachan Onsen en Tokyo", img: "img/kumachan.jpg" },
+      { name: "Enoshima (junto a Kamakura)", img: "img/enoshima.jpg" },
+      { name: "Ginzan Onsen", img: "img/ginzan.jpg" },
+      { name: "Una tarde de recreativas", img: "img/recreativas.jpg" },
+      { name: "Shibazakura park en Hokkaido", img: "img/shibazakura.jpg" },
+      { name: "Musical de Tokyo Revengers", img: "img/tokyo-revengers.jpg" },
+      { name: "Eventos de Kisekoi / Sailor Moon", img: "img/sailor-moon.jpg" },
+      { name: "Museo/cafe de los yokai en Chofu", img: "img/yokai.jpg" },
+      { name: "Kumamoto", img: "img/kumamoto.jpg" },
+      { name: "Beppu", img: "img/beppu.jpg" },
+      { name: "Bandai Museum", img: "img/bandai.jpg" }
     ];
-
-    const accepted = [];
-    const rejected = [];
-
+    let data = [];
+    let accepted = [];
+    let rejected = [];
+    let index = 0;
     const container = document.getElementById('card-container');
 
-    function createCard(person) {
+    // --- Navegación de pantallas ---
+    function showOnly(id) {
+      for (const el of ["start-screen","game-screen","results","past-games","stats-screen"]) {
+        document.getElementById(el).classList.remove("active");
+      }
+      document.getElementById(id).classList.add("active");
+    }
+
+    // --- Utilidades ---
+    function shuffleArray(array) { return array.sort(() => Math.random() - 0.5); }
+
+    function startGame() {
+      const nameInput = document.getElementById("username");
+      const err = document.getElementById("name-error");
+      const name = (nameInput.value || "").trim();
+      if (!name) {
+        err.textContent = "Que o me dices quién eres o no juegas ù3ú";
+        nameInput.focus();
+        return;
+      }
+      err.textContent = "";
+      playerName = name;
+
+      data = shuffleArray([...originalData]); // todas las imágenes, orden aleatorio
+      index = 0; accepted = []; rejected = [];
+      container.innerHTML = "";
+      showOnly("game-screen");
+      showNextCard();
+    }
+
+    function createCard(item) {
       const card = document.createElement('div');
       card.className = 'card';
-
       const img = document.createElement('img');
-      img.src = person.img;
-      img.alt = person.name;
-
+      img.src = item.img;
+      img.alt = item.name;
       const name = document.createElement('div');
-      name.textContent = person.name;
-
+      name.textContent = item.name;
       card.appendChild(img);
       card.appendChild(name);
 
+      // Gestos táctiles
       let startX = 0;
-      card.addEventListener('touchstart', (e) => {
-        startX = e.touches[0].clientX;
-      });
-
+      card.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; });
       card.addEventListener('touchend', (e) => {
-        const endX = e.changedTouches[0].clientX;
-        const diffX = endX - startX;
-
-        if (diffX > 50) {
-          accepted.push(person.name);
-          swipeCard(card, 1);
-        } else if (diffX < -50) {
-          rejected.push(person.name);
-          swipeCard(card, -1);
-        }
+        const diffX = e.changedTouches[0].clientX - startX;
+        if (diffX > 50) { accepted.push(item.name); swipeCard(card, 1); }
+        else if (diffX < -50) { rejected.push(item.name); swipeCard(card, -1); }
       });
 
       container.appendChild(card);
@@ -177,61 +344,174 @@
     function swipeCard(card, direction) {
       card.style.transform = `translateX(${direction * 500}px) rotate(${direction * 10}deg)`;
       card.style.opacity = 0;
-
-      setTimeout(() => {
-        card.remove();
-        showNextCard();
-      }, 300);
+      setTimeout(() => { card.remove(); showNextCard(); }, 260);
     }
 
-    let index = 0;
     function showNextCard() {
-      if (index < data.length) {
-        createCard(data[index]);
-        index++;
-      } else {
-        showResults();
-      }
+      if (index < data.length) { createCard(data[index]); index++; }
+      else { showResults(); }
     }
 
     function handleDecision(direction) {
       const currentCard = container.querySelector('.card:last-child');
       if (!currentCard) return;
-
       const name = currentCard.querySelector('div').textContent;
-      if (direction === 1) {
-        accepted.push(name);
-      } else {
-        rejected.push(name);
-      }
-
+      if (direction === 1) accepted.push(name); else rejected.push(name);
       swipeCard(currentCard, direction);
     }
 
-    function showResults() {
-      document.getElementById('card-container').style.display = 'none';
-      document.getElementById('buttons').style.display = 'none';
-      const results = document.getElementById('results');
-      results.style.display = 'flex';
+    async function showResults() {
+      showOnly('results');
+      const now = new Date().toLocaleString();
+      document.getElementById('player-info').textContent = `Jugador: ${playerName} | Fecha y hora: ${now}`;
 
       const acceptedList = document.getElementById('accepted-list');
       const rejectedList = document.getElementById('rejected-list');
+      acceptedList.innerHTML = ""; rejectedList.innerHTML = "";
+      accepted.forEach(name => { const li = document.createElement('li'); li.textContent = name; acceptedList.appendChild(li); });
+      rejected.forEach(name => { const li = document.createElement('li'); li.textContent = name; rejectedList.appendChild(li); });
 
-      accepted.forEach(name => {
-        const li = document.createElement('li');
-        li.textContent = name;
-        acceptedList.appendChild(li);
-      });
+      // Enviar resultados globales (guardados en repo)
+      try {
+        await sendResultsToRepo({
+          player: playerName,
+          date: now,
+          accepted,
+          rejected
+        });
+      } catch (e) {
+        console.error("Error guardando resultados:", e);
+        alert("No se han podido guardar los resultados globales. Revisa la configuración del backend.");
+      }
 
-      rejected.forEach(name => {
-        const li = document.createElement('li');
-        li.textContent = name;
-        rejectedList.appendChild(li);
+      // Guardado local de partidas para la pantalla "anteriores" (opcional)
+      saveLocalGame({ player: playerName, date: now, accepted, rejected });
+    }
+
+    // --- Guardado local para "partidas anteriores" ---
+    function saveLocalGame(gameData) {
+      const games = JSON.parse(localStorage.getItem("pastGames") || "[]");
+      games.push(gameData);
+      localStorage.setItem("pastGames", JSON.stringify(games));
+    }
+
+    function showPastGames() {
+      showOnly("past-games");
+      const gamesList = document.getElementById("games-list");
+      gamesList.innerHTML = "";
+      const games = JSON.parse(localStorage.getItem("pastGames") || "[]");
+      if (games.length === 0) {
+        gamesList.innerHTML = "<li>No hay partidas guardadas en este dispositivo</li>";
+        return;
+      }
+      games.forEach((game) => {
+        const li = document.createElement("li");
+        li.innerHTML = `<strong>${game.player}</strong> · ${game.date}<br><small>Aquí sí: ${game.accepted.length} · Pasando: ${game.rejected.length}</small>`;
+        li.onclick = () => viewGame(game);
+        gamesList.appendChild(li);
       });
     }
 
-    showNextCard();
-  </script>
+    function viewGame(game) {
+      showOnly("results");
+      document.getElementById("player-info").textContent = `Jugador: ${game.player} | Fecha y hora: ${game.date}`;
+      const acceptedList = document.getElementById('accepted-list');
+      const rejectedList = document.getElementById('rejected-list');
+      acceptedList.innerHTML = ""; rejectedList.innerHTML = "";
+      game.accepted.forEach(name => { const li = document.createElement('li'); li.textContent = name; acceptedList.appendChild(li); });
+      game.rejected.forEach(name => { const li = document.createElement('li'); li.textContent = name; rejectedList.appendChild(li); });
+    }
 
+    function restartGame() { showOnly("start-screen"); }
+    function goToStart()   { showOnly("start-screen"); }
+
+    // --- Estadísticas globales (por tarjeta) ---
+    let barChart, pieChart;
+
+    async function showStats() {
+      showOnly("stats-screen");
+      const summary = document.getElementById("stats-summary");
+      summary.textContent = "Cargando estadísticas…";
+      let json = await fetchGlobalResults();
+      if (!json) { summary.textContent = "No hay datos globales aún."; return; }
+
+      const labels = [];
+      const yes = [];
+      const no  = [];
+      let totalYes = 0, totalNo = 0;
+      for (const item of json.cards) {
+        labels.push(item.name);
+        yes.push(item.yes || 0);
+        no.push(item.no  || 0);
+        totalYes += item.yes || 0;
+        totalNo  += item.no  || 0;
+      }
+
+      summary.textContent = `Total "Aquí sí": ${totalYes} · Total "Pasando": ${totalNo} · Tarjetas: ${labels.length}`;
+
+      // Destruir si ya existen (evita duplicar)
+      if (barChart) barChart.destroy();
+      if (pieChart) pieChart.destroy();
+
+      const barCtx = document.getElementById('barChart').getContext('2d');
+      barChart = new Chart(barCtx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            { label: 'Aquí sí', data: yes, backgroundColor: 'rgba(135,206,250,0.7)' },
+            { label: 'Pasando', data: no,  backgroundColor: 'rgba(255,192,203,0.8)' }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'top' } },
+          scales: { x: { ticks: { autoSkip: true, maxRotation: 45, minRotation: 0 } }, y: { beginAtZero: true } }
+        }
+      });
+      // Ajuste de altura dinámico
+      document.getElementById('barChart').height = 340;
+
+      const pieCtx = document.getElementById('pieChart').getContext('2d');
+      pieChart = new Chart(pieCtx, {
+        type: 'pie',
+        data: {
+          labels: ['Aquí sí', 'Pasando'],
+          datasets: [{
+            data: [totalYes, totalNo],
+            backgroundColor: ['rgba(135,206,250,0.9)','rgba(255,192,203,0.95)']
+          }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+      });
+      document.getElementById('pieChart').height = 260;
+    }
+
+    async function fetchGlobalResults() {
+      try {
+        const res = await fetch(RESULTS_URL + `?t=${Date.now()}`); // cache-bust
+        if (!res.ok) return null;
+        return await res.json();
+      } catch (e) { console.warn(e); return null; }
+    }
+
+    // --- Envío al backend que hace commit en GitHub ---
+    async function sendResultsToRepo(payload) {
+      // La función serverless debe estar desplegada en /api/save
+      // (Vercel: /api/save.js) en el mismo dominio o en el que configures.
+      const saveEndpoint = "/api/save";
+      const res = await fetch(saveEndpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      return await res.json();
+    }
+
+    // Inicialmente, solo pantalla de inicio
+    showOnly("start-screen");
+  </script>
 </body>
 </html>
