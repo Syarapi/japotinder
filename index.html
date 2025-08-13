@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tinder Simple con Imágenes</title>
   <style>
@@ -14,12 +14,23 @@
       align-items: center;
       height: 100vh;
     }
+    #start-screen, #results, #past-games {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    #start-screen, #past-games {
+      height: 100vh;
+      gap: 15px;
+    }
     #card-container {
       position: relative;
       width: 90%;
-      max-width: 350px;
+      max-width: 400px;
       height: 60%;
-      margin-top: 40px;
+      margin-top: 20px;
     }
     .card {
       position: absolute;
@@ -38,8 +49,9 @@
       transition: transform 0.3s ease, opacity 0.3s ease;
     }
     .card img {
-      width: 80%;
-      max-height: 60%;
+      height: 750px;
+      width: auto;
+      max-width: 100%;
       object-fit: cover;
       border-radius: 10px;
       margin-bottom: 15px;
@@ -59,26 +71,19 @@
       color: white;
     }
     .accept {
-      background-color: #87cefa; /* Azul claro */
+      background-color: #87cefa;
     }
     .reject {
-      background-color: #ffc0cb; /* Rosa claro */
+      background-color: #ffc0cb;
       color: black;
     }
-    /* Hover effects */
     .accept:hover {
-      background-color: #6fbde8; /* Azul un poco más oscuro */
+      background-color: #6fbde8;
       transform: scale(1.05);
     }
     .reject:hover {
-      background-color: #ff9eb3; /* Rosa un poco más intenso */
+      background-color: #ff9eb3;
       transform: scale(1.05);
-    }
-    #results {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
     }
     .list {
       margin: 10px 0;
@@ -95,15 +100,28 @@
 </head>
 <body>
 
-  <div id="card-container"></div>
-
-  <div id="buttons">
-    <button class="btn reject" onclick="handleDecision(-1)">ew, no</button>
-    <button class="btn accept" onclick="handleDecision(1)">awww sí</button>
+  <!-- Pantalla de inicio -->
+  <div id="start-screen">
+    <h1>Bienvenido</h1>
+    <p>Introduce tu nombre para comenzar</p>
+    <input type="text" id="username" placeholder="Tu nombre" />
+    <button class="btn accept" onclick="startGame()">Empezar</button>
+    <button class="btn reject" onclick="showPastGames()">Ver partidas anteriores</button>
   </div>
 
-  <div id="results">
+  <!-- Juego -->
+  <div id="game-screen" style="display:none;">
+    <div id="card-container"></div>
+    <div id="buttons">
+      <button class="btn reject" onclick="handleDecision(-1)">ew, no</button>
+      <button class="btn accept" onclick="handleDecision(1)">awww sí</button>
+    </div>
+  </div>
+
+  <!-- Resultados -->
+  <div id="results" style="display:none;">
     <h2>Resultados</h2>
+    <p id="player-info"></p>
     <div class="list">
       <h3>Aceptados:</h3>
       <ul id="accepted-list"></ul>
@@ -112,37 +130,64 @@
       <h3>Rechazados:</h3>
       <ul id="rejected-list"></ul>
     </div>
+    <button class="btn accept" onclick="showPastGames()">Ver partidas anteriores</button>
+    <button class="btn reject" onclick="restartGame()">Volver al inicio</button>
+  </div>
+
+  <!-- Partidas anteriores -->
+  <div id="past-games" style="display:none;">
+    <h2>Partidas anteriores</h2>
+    <ul id="games-list"></ul>
+    <button class="btn reject" onclick="goToStart()">Volver</button>
   </div>
 
   <script>
+    let playerName = "";
     const data = [
-      { name: "Disney Tokyo", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Tokyo_Disneyland_Castle_2019.jpg/480px-Tokyo_Disneyland_Castle_2019.jpg" },
-      { name: "Gotokuji", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Gotokuji_Temple_Maneki-neko.JPG/480px-Gotokuji_Temple_Maneki-neko.JPG" },
-      { name: "Pokemon Cafe", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Pokemon_Cafe.jpg/480px-Pokemon_Cafe.jpg" },
-      { name: "Shikisai no oka", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Shikisai_no_Oka.jpg/480px-Shikisai_no_Oka.jpg" },
-      { name: "Shinkansen de Hello Kitty", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Hello_Kitty_Shinkansen_500_type.jpg/480px-Hello_Kitty_Shinkansen_500_type.jpg" },
-      { name: "Maid cafe", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Maid_cafe_in_Akihabara.jpg/480px-Maid_cafe_in_Akihabara.jpg" },
-      { name: "Nabana no sato", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/Nabana_no_Sato_illumination.jpg/480px-Nabana_no_Sato_illumination.jpg" },
-      { name: "Otaru", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Otaru_Canal_in_winter.jpg/480px-Otaru_Canal_in_winter.jpg" },
-      { name: "Nagano y monos de nieve", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Snow_monkey_Jigokudani.jpg/480px-Snow_monkey_Jigokudani.jpg" },
-      { name: "RJ Cafe de Osaka", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Cafe_in_Osaka.jpg/480px-Cafe_in_Osaka.jpg" },
-      { name: "Kumachan Onsen en Tokyo", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Japanese_onsen.jpg/480px-Japanese_onsen.jpg" },
-      { name: "Enoshima (junto a Kamakura)", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Enoshima_and_Fuji.jpg/480px-Enoshima_and_Fuji.jpg" },
-      { name: "Ginzan Onsen", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Ginzan_Onsen.jpg/480px-Ginzan_Onsen.jpg" },
-      { name: "Una tarde de recreativas", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Game_center_in_Japan.jpg/480px-Game_center_in_Japan.jpg" },
-      { name: "Shibazakura park en Hokkaido", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Shibazakura_Park.jpg/480px-Shibazakura_Park.jpg" },
-      { name: "Musical de Tokyo Revengers", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Tokyo_theatre.jpg/480px-Tokyo_theatre.jpg" },
-      { name: "Lo que haya de eventos de Kisekoi y/o Sailor Moon", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Sailor_Moon_event.jpg/480px-Sailor_Moon_event.jpg" },
-      { name: "Museo/cafe de los yokai en Chofu", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Japan_folklore_museum.jpg/480px-Japan_folklore_museum.jpg" },
-      { name: "Kumamoto", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Kumamoto_Castle.jpg/480px-Kumamoto_Castle.jpg" },
-      { name: "Beppu", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Beppu_hot_springs.jpg/480px-Beppu_hot_springs.jpg" },
-      { name: "Bandai Museum", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Bandai-museum.jpg/480px-Bandai-museum.jpg" }
+      { name: "Disney Tokyo", img: "img/disney.jpg" },
+      { name: "Gotokuji", img: "img/gotokuji.jpg" },
+      { name: "Pokemon Cafe", img: "img/pokemon.jpg" },
+      { name: "Shikisai no oka", img: "img/shikisai.jpg" },
+      { name: "Shinkansen de Hello Kitty", img: "img/hello-kitty.jpg" },
+      { name: "Maid cafe", img: "img/maid.jpg" },
+      { name: "Nabana no sato", img: "img/nabana.jpg" },
+      { name: "Otaru", img: "img/otaru.jpg" },
+      { name: "Nagano y monos de nieve", img: "img/nagano.jpg" },
+      { name: "RJ Cafe de Osaka", img: "img/rj-cafe.jpg" },
+      { name: "Kumachan Onsen en Tokyo", img: "img/kumachan.jpg" },
+      { name: "Enoshima", img: "img/enoshima.jpg" },
+      { name: "Ginzan Onsen", img: "img/ginzan.jpg" },
+      { name: "Una tarde de recreativas", img: "img/recreativas.jpg" },
+      { name: "Shibazakura park en Hokkaido", img: "img/shibazakura.jpg" },
+      { name: "Musical de Tokyo Revengers", img: "img/tokyo-revengers.jpg" },
+      { name: "Evento Kisekoi/Sailor Moon", img: "img/sailor-moon.jpg" },
+      { name: "Museo Yokai en Chofu", img: "img/yokai.jpg" },
+      { name: "Kumamoto", img: "img/kumamoto.jpg" },
+      { name: "Beppu", img: "img/beppu.jpg" },
+      { name: "Bandai Museum", img: "img/bandai.jpg" }
     ];
 
-    const accepted = [];
-    const rejected = [];
-    const container = document.getElementById('card-container');
+    let accepted = [];
+    let rejected = [];
     let index = 0;
+
+    function startGame() {
+      const nameInput = document.getElementById("username").value.trim();
+      if (!nameInput) {
+        alert("Por favor, introduce tu nombre.");
+        return;
+      }
+      playerName = nameInput;
+      document.getElementById("start-screen").style.display = "none";
+      document.getElementById("game-screen").style.display = "block";
+      index = 0;
+      accepted = [];
+      rejected = [];
+      container.innerHTML = "";
+      showNextCard();
+    }
+
+    const container = document.getElementById('card-container');
 
     function createCard(person) {
       const card = document.createElement('div');
@@ -205,25 +250,94 @@
     }
 
     function showResults() {
-      document.getElementById('card-container').style.display = 'none';
-      document.getElementById('buttons').style.display = 'none';
+      document.getElementById('game-screen').style.display = 'none';
       const results = document.getElementById('results');
       results.style.display = 'flex';
+
+      const now = new Date();
+      const dateTime = now.toLocaleString();
+
+      document.getElementById('player-info').textContent = `Jugador: ${playerName} | Fecha y hora: ${dateTime}`;
       const acceptedList = document.getElementById('accepted-list');
       const rejectedList = document.getElementById('rejected-list');
+      acceptedList.innerHTML = "";
+      rejectedList.innerHTML = "";
+
       accepted.forEach(name => {
         const li = document.createElement('li');
         li.textContent = name;
         acceptedList.appendChild(li);
       });
+
       rejected.forEach(name => {
+        const li = document.createElement('li');
+        li.textContent = name;
+        rejectedList.appendChild(li);
+      });
+
+      saveGame({ player: playerName, date: dateTime, accepted, rejected });
+    }
+
+    function saveGame(gameData) {
+      const games = JSON.parse(localStorage.getItem("pastGames") || "[]");
+      games.push(gameData);
+      localStorage.setItem("pastGames", JSON.stringify(games));
+    }
+
+    function showPastGames() {
+      document.getElementById("start-screen").style.display = "none";
+      document.getElementById("results").style.display = "none";
+      document.getElementById("game-screen").style.display = "none";
+      const pastGames = document.getElementById("past-games");
+      pastGames.style.display = "flex";
+
+      const gamesList = document.getElementById("games-list");
+      gamesList.innerHTML = "";
+      const games = JSON.parse(localStorage.getItem("pastGames") || "[]");
+
+      if (games.length === 0) {
+        gamesList.innerHTML = "<li>No hay partidas guardadas</li>";
+        return;
+      }
+
+      games.forEach((game, i) => {
+        const li = document.createElement("li");
+        li.innerHTML = `<strong>${game.player}</strong> - ${game.date}`;
+        li.style.cursor = "pointer";
+        li.onclick = () => viewGame(game);
+        gamesList.appendChild(li);
+      });
+    }
+
+    function viewGame(game) {
+      document.getElementById("past-games").style.display = "none";
+      document.getElementById("results").style.display = "flex";
+      document.getElementById("player-info").textContent = `Jugador: ${game.player} | Fecha y hora: ${game.date}`;
+      const acceptedList = document.getElementById('accepted-list');
+      const rejectedList = document.getElementById('rejected-list');
+      acceptedList.innerHTML = "";
+      rejectedList.innerHTML = "";
+      game.accepted.forEach(name => {
+        const li = document.createElement('li');
+        li.textContent = name;
+        acceptedList.appendChild(li);
+      });
+      game.rejected.forEach(name => {
         const li = document.createElement('li');
         li.textContent = name;
         rejectedList.appendChild(li);
       });
     }
 
-    showNextCard();
+    function restartGame() {
+      document.getElementById("results").style.display = "none";
+      document.getElementById("start-screen").style.display = "flex";
+    }
+
+    function goToStart() {
+      document.getElementById("past-games").style.display = "none";
+      document.getElementById("start-screen").style.display = "flex";
+    }
   </script>
 
 </body>
