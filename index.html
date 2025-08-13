@@ -26,12 +26,12 @@
       gap: 15px;
     }
     #card-container {
-      position: relative;
-      width: 90%;
-      max-width: 400px;
-      height: 60%;
-      margin-top: 20px;
-    }
+  position: relative;
+  width: 90%;
+  max-width: 500px; /* más ancho para imágenes verticales */
+  height: auto;     /* que se ajuste al contenido */
+  margin-top: 40px;
+}
     .card {
       position: absolute;
       width: 100%;
@@ -49,13 +49,13 @@
       transition: transform 0.3s ease, opacity 0.3s ease;
     }
     .card img {
-      height: 750px;
-      width: auto;
-      max-width: 100%;
-      object-fit: cover;
-      border-radius: 10px;
-      margin-bottom: 15px;
-    }
+  height: 750px;
+  width: auto;
+  max-width: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+  margin-bottom: 15px;
+}
     #buttons {
       margin-top: 20px;
       display: flex;
@@ -342,4 +342,5 @@
 
 </body>
 </html>
+
 
