@@ -1,76 +1,70 @@
-import fetch from 'node-fetch';
+const fs = require('fs');
+const path = require('path');
+const fetch = require('node-fetch');
 
-const GITHUB_TOKEN = process.env.GH_TOKEN;
-const OWNER = process.env.GH_OWNER;
-const REPO = process.env.GH_REPO;
-const BRANCH = process.env.GH_BRANCH || 'main';
-const FILE_PATH = 'results/data.json';
+const DATA_FILE = path.join(__dirname, '..', 'results', 'data.json');
 
-export default async function handler(req, res) {
+async function saveToGitHub(data) {
+  const GH_TOKEN = process.env.GH_TOKEN;
+  const GH_OWNER = process.env.GH_OWNER;
+  const GH_REPO = process.env.GH_REPO;
+  const GH_BRANCH = process.env.GH_BRANCH || 'main';
+
+  const url = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/results/data.json`;
+
+  // Obtener SHA actual para actualizar archivo
+  const res = await fetch(url, {
+    headers: {
+      Authorization: `token ${GH_TOKEN}`,
+      Accept: 'application/vnd.github+json',
+    },
+  });
+
+  const json = await res.json();
+  const sha = json.sha;
+
+  const updateRes = await fetch(url, {
+    method: 'PUT',
+    headers: {
+      Authorization: `token ${GH_TOKEN}`,
+      Accept: 'application/vnd.github+json',
+    },
+    body: JSON.stringify({
+      message: `Update data.json`,
+      content: Buffer.from(JSON.stringify(data, null, 2)).toString('base64'),
+      sha,
+      branch: GH_BRANCH,
+    }),
+  });
+
+  return updateRes.json();
+}
+
+module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return res.status(405).json({ error: 'Only POST allowed' });
   }
 
-  const newResult = req.body;
+  let newEntry = req.body;
 
   try {
-    // 1️⃣ Intentar obtener el contenido actual de data.json
     let currentData = [];
-    let sha = null;
-
-    const getRes = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${FILE_PATH}?ref=${BRANCH}`, {
-      headers: {
-        Authorization: `token ${GITHUB_TOKEN}`,
-        Accept: 'application/vnd.github.v3+json',
-      },
-    });
-
-    if (getRes.status === 200) {
-      const data = await getRes.json();
-      sha = data.sha;
-      try {
-        currentData = JSON.parse(Buffer.from(data.content, 'base64').toString());
-        if (!Array.isArray(currentData)) currentData = [];
-      } catch {
-        currentData = [];
-      }
-    } else if (getRes.status === 404) {
-      // Archivo no existe, se creará nuevo
-      currentData = [];
-    } else {
-      const errText = await getRes.text();
-      throw new Error(`GitHub GET error: ${errText}`);
+    if (fs.existsSync(DATA_FILE)) {
+      const fileContent = fs.readFileSync(DATA_FILE, 'utf8');
+      currentData = JSON.parse(fileContent);
+      if (!Array.isArray(currentData)) currentData = [];
     }
 
-    // 2️⃣ Agregar el nuevo resultado
-    currentData.push(newResult);
+    currentData.push(newEntry);
 
-    // 3️⃣ Convertir a base64
-    const content = Buffer.from(JSON.stringify(currentData, null, 2)).toString('base64');
+    fs.writeFileSync(DATA_FILE, JSON.stringify(currentData, null, 2), 'utf8');
 
-    // 4️⃣ Subir o actualizar en GitHub
-    const putRes = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${FILE_PATH}`, {
-      method: 'PUT',
-      headers: {
-        Authorization: `token ${GITHUB_TOKEN}`,
-        Accept: 'application/vnd.github.v3+json',
-      },
-      body: JSON.stringify({
-        message: sha ? 'Actualizar resultado desde Japontinder' : 'Crear data.json desde Japontinder',
-        content,
-        sha,
-        branch: BRANCH,
-      }),
-    });
+    // También guardar en GitHub
+    await saveToGitHub(currentData);
 
-    if (!putRes.ok) {
-      const errText = await putRes.text();
-      throw new Error(`GitHub PUT error: ${errText}`);
-    }
-
-    res.status(200).json({ message: 'Resultado guardado correctamente' });
+    res.status(200).json({ success: true });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Error guardando el resultado', details: err.message });
+    res.status(500).json({ error: 'Failed to save data' });
   }
-}
+};
