@@ -12,55 +12,47 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      height: 100vh;
+      min-height: 100vh;
     }
-    #start-screen, #results, #past-games {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-    #start-screen, #past-games {
-      height: 100vh;
-      gap: 15px;
-    }
+
     #card-container {
-  position: relative;
-  width: 90%;
-  max-width: 500px; /* más ancho para imágenes verticales */
-  height: auto;     /* que se ajuste al contenido */
-  margin-top: 40px;
-}
+      position: relative;
+      width: 90%;
+      max-width: 500px;
+      margin-top: 20px;
+    }
+
     .card {
-      position: absolute;
       width: 100%;
-      height: 100%;
       background: white;
       border-radius: 15px;
       box-shadow: 0 10px 25px rgba(0,0,0,0.15);
       display: flex;
       flex-direction: column;
-      justify-content: center;
       align-items: center;
       font-size: 24px;
       text-align: center;
       padding: 20px;
       transition: transform 0.3s ease, opacity 0.3s ease;
     }
+
     .card img {
-  height: 750px;
-  width: auto;
-  max-width: 100%;
-  object-fit: cover;
-  border-radius: 10px;
-  margin-bottom: 15px;
-}
+      height: 750px;
+      width: auto;
+      max-width: 100%;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-bottom: 15px;
+    }
+
     #buttons {
       margin-top: 20px;
       display: flex;
       gap: 20px;
+      position: relative;
+      z-index: 10;
     }
+
     .btn {
       padding: 15px 25px;
       font-size: 18px;
@@ -68,31 +60,45 @@
       border-radius: 8px;
       cursor: pointer;
       transition: background 0.3s ease, transform 0.2s ease;
-      color: white;
     }
+
     .accept {
       background-color: #87cefa;
+      color: white;
     }
+
     .reject {
       background-color: #ffc0cb;
       color: black;
     }
+
     .accept:hover {
       background-color: #6fbde8;
       transform: scale(1.05);
     }
+
     .reject:hover {
       background-color: #ff9eb3;
       transform: scale(1.05);
     }
+
+    #results {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
     .list {
       margin: 10px 0;
     }
+
     ul {
       list-style: none;
       padding: 0;
       font-size: 18px;
     }
+
     h2, h3 {
       text-align: center;
     }
@@ -100,28 +106,15 @@
 </head>
 <body>
 
-  <!-- Pantalla de inicio -->
-  <div id="start-screen">
-    <h1>Bienvenido</h1>
-    <p>Introduce tu nombre para comenzar</p>
-    <input type="text" id="username" placeholder="Tu nombre" />
-    <button class="btn accept" onclick="startGame()">Empezar</button>
-    <button class="btn reject" onclick="showPastGames()">Ver partidas anteriores</button>
+  <div id="card-container"></div>
+
+  <div id="buttons">
+    <button class="btn reject" onclick="handleDecision(-1)">ew, no</button>
+    <button class="btn accept" onclick="handleDecision(1)">awww sí</button>
   </div>
 
-  <!-- Juego -->
-  <div id="game-screen" style="display:none;">
-    <div id="card-container"></div>
-    <div id="buttons">
-      <button class="btn reject" onclick="handleDecision(-1)">ew, no</button>
-      <button class="btn accept" onclick="handleDecision(1)">awww sí</button>
-    </div>
-  </div>
-
-  <!-- Resultados -->
-  <div id="results" style="display:none;">
+  <div id="results">
     <h2>Resultados</h2>
-    <p id="player-info"></p>
     <div class="list">
       <h3>Aceptados:</h3>
       <ul id="accepted-list"></ul>
@@ -130,73 +123,33 @@
       <h3>Rechazados:</h3>
       <ul id="rejected-list"></ul>
     </div>
-    <button class="btn accept" onclick="showPastGames()">Ver partidas anteriores</button>
-    <button class="btn reject" onclick="restartGame()">Volver al inicio</button>
-  </div>
-
-  <!-- Partidas anteriores -->
-  <div id="past-games" style="display:none;">
-    <h2>Partidas anteriores</h2>
-    <ul id="games-list"></ul>
-    <button class="btn reject" onclick="goToStart()">Volver</button>
   </div>
 
   <script>
-    let playerName = "";
     const data = [
       { name: "Disney Tokyo", img: "img/disney.jpg" },
       { name: "Gotokuji", img: "img/gotokuji.jpg" },
       { name: "Pokemon Cafe", img: "img/pokemon.jpg" },
-      { name: "Shikisai no oka", img: "img/shikisai.jpg" },
-      { name: "Shinkansen de Hello Kitty", img: "img/hello-kitty.jpg" },
-      { name: "Maid cafe", img: "img/maid.jpg" },
-      { name: "Nabana no sato", img: "img/nabana.jpg" },
-      { name: "Otaru", img: "img/otaru.jpg" },
-      { name: "Nagano y monos de nieve", img: "img/nagano.jpg" },
-      { name: "RJ Cafe de Osaka", img: "img/rj-cafe.jpg" },
-      { name: "Kumachan Onsen en Tokyo", img: "img/kumachan.jpg" },
-      { name: "Enoshima", img: "img/enoshima.jpg" },
-      { name: "Ginzan Onsen", img: "img/ginzan.jpg" },
-      { name: "Una tarde de recreativas", img: "img/recreativas.jpg" },
-      { name: "Shibazakura park en Hokkaido", img: "img/shibazakura.jpg" },
-      { name: "Musical de Tokyo Revengers", img: "img/tokyo-revengers.jpg" },
-      { name: "Evento Kisekoi/Sailor Moon", img: "img/sailor-moon.jpg" },
-      { name: "Museo Yokai en Chofu", img: "img/yokai.jpg" },
-      { name: "Kumamoto", img: "img/kumamoto.jpg" },
-      { name: "Beppu", img: "img/beppu.jpg" },
-      { name: "Bandai Museum", img: "img/bandai.jpg" }
+      { name: "Shikisai no oka", img: "img/shikisai.jpg" }
+      // ... resto de imágenes
     ];
 
-    let accepted = [];
-    let rejected = [];
-    let index = 0;
-
-    function startGame() {
-      const nameInput = document.getElementById("username").value.trim();
-      if (!nameInput) {
-        alert("Por favor, introduce tu nombre.");
-        return;
-      }
-      playerName = nameInput;
-      document.getElementById("start-screen").style.display = "none";
-      document.getElementById("game-screen").style.display = "block";
-      index = 0;
-      accepted = [];
-      rejected = [];
-      container.innerHTML = "";
-      showNextCard();
-    }
+    const accepted = [];
+    const rejected = [];
 
     const container = document.getElementById('card-container');
 
     function createCard(person) {
       const card = document.createElement('div');
       card.className = 'card';
+
       const img = document.createElement('img');
       img.src = person.img;
       img.alt = person.name;
+
       const name = document.createElement('div');
       name.textContent = person.name;
+
       card.appendChild(img);
       card.appendChild(name);
 
@@ -204,9 +157,11 @@
       card.addEventListener('touchstart', (e) => {
         startX = e.touches[0].clientX;
       });
+
       card.addEventListener('touchend', (e) => {
         const endX = e.changedTouches[0].clientX;
         const diffX = endX - startX;
+
         if (diffX > 50) {
           accepted.push(person.name);
           swipeCard(card, 1);
@@ -222,12 +177,14 @@
     function swipeCard(card, direction) {
       card.style.transform = `translateX(${direction * 500}px) rotate(${direction * 10}deg)`;
       card.style.opacity = 0;
+
       setTimeout(() => {
         card.remove();
         showNextCard();
       }, 300);
     }
 
+    let index = 0;
     function showNextCard() {
       if (index < data.length) {
         createCard(data[index]);
@@ -240,28 +197,25 @@
     function handleDecision(direction) {
       const currentCard = container.querySelector('.card:last-child');
       if (!currentCard) return;
+
       const name = currentCard.querySelector('div').textContent;
       if (direction === 1) {
         accepted.push(name);
       } else {
         rejected.push(name);
       }
+
       swipeCard(currentCard, direction);
     }
 
     function showResults() {
-      document.getElementById('game-screen').style.display = 'none';
+      document.getElementById('card-container').style.display = 'none';
+      document.getElementById('buttons').style.display = 'none';
       const results = document.getElementById('results');
       results.style.display = 'flex';
 
-      const now = new Date();
-      const dateTime = now.toLocaleString();
-
-      document.getElementById('player-info').textContent = `Jugador: ${playerName} | Fecha y hora: ${dateTime}`;
       const acceptedList = document.getElementById('accepted-list');
       const rejectedList = document.getElementById('rejected-list');
-      acceptedList.innerHTML = "";
-      rejectedList.innerHTML = "";
 
       accepted.forEach(name => {
         const li = document.createElement('li');
@@ -274,73 +228,10 @@
         li.textContent = name;
         rejectedList.appendChild(li);
       });
-
-      saveGame({ player: playerName, date: dateTime, accepted, rejected });
     }
 
-    function saveGame(gameData) {
-      const games = JSON.parse(localStorage.getItem("pastGames") || "[]");
-      games.push(gameData);
-      localStorage.setItem("pastGames", JSON.stringify(games));
-    }
-
-    function showPastGames() {
-      document.getElementById("start-screen").style.display = "none";
-      document.getElementById("results").style.display = "none";
-      document.getElementById("game-screen").style.display = "none";
-      const pastGames = document.getElementById("past-games");
-      pastGames.style.display = "flex";
-
-      const gamesList = document.getElementById("games-list");
-      gamesList.innerHTML = "";
-      const games = JSON.parse(localStorage.getItem("pastGames") || "[]");
-
-      if (games.length === 0) {
-        gamesList.innerHTML = "<li>No hay partidas guardadas</li>";
-        return;
-      }
-
-      games.forEach((game, i) => {
-        const li = document.createElement("li");
-        li.innerHTML = `<strong>${game.player}</strong> - ${game.date}`;
-        li.style.cursor = "pointer";
-        li.onclick = () => viewGame(game);
-        gamesList.appendChild(li);
-      });
-    }
-
-    function viewGame(game) {
-      document.getElementById("past-games").style.display = "none";
-      document.getElementById("results").style.display = "flex";
-      document.getElementById("player-info").textContent = `Jugador: ${game.player} | Fecha y hora: ${game.date}`;
-      const acceptedList = document.getElementById('accepted-list');
-      const rejectedList = document.getElementById('rejected-list');
-      acceptedList.innerHTML = "";
-      rejectedList.innerHTML = "";
-      game.accepted.forEach(name => {
-        const li = document.createElement('li');
-        li.textContent = name;
-        acceptedList.appendChild(li);
-      });
-      game.rejected.forEach(name => {
-        const li = document.createElement('li');
-        li.textContent = name;
-        rejectedList.appendChild(li);
-      });
-    }
-
-    function restartGame() {
-      document.getElementById("results").style.display = "none";
-      document.getElementById("start-screen").style.display = "flex";
-    }
-
-    function goToStart() {
-      document.getElementById("past-games").style.display = "none";
-      document.getElementById("start-screen").style.display = "flex";
-    }
+    showNextCard();
   </script>
 
 </body>
 </html>
-
-
