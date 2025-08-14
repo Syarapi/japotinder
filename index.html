@@ -133,19 +133,32 @@
     max-width: 1100px;
     margin: 0 auto;
   }
+  /* Columna del gráfico: máx. 1/3 y scroll horizontal interno */
   .chart-container {
     flex: 0 0 33%;
     max-width: 400px;
     width: 100%;
   }
-  .chart-container canvas {
-    width: 100% !important;
-    height: auto !important;
+  .chart-scroll {
+    width: 100%;
+    overflow-x: auto;  /* permite scroll horizontal si el canvas es ancho */
+    overflow-y: hidden;
   }
+  .chart-scroll canvas {
+    display: block;
+  }
+  /* El canvas se adaptará en altura; el ancho lo fijamos por JS según nº de barras */
+  .chart-container canvas {
+    height: 360px !important; /* altura cómoda y fija dentro de la columna */
+  }
+
+  /* Zona de tablas/extra stats ocupa el resto */
   #extraStats {
     flex: 1 1 auto;
     min-width: 280px;
   }
+
+  /* Responsive: apilar en pantallas pequeñas */
   @media (max-width: 900px) {
     .stats-layout {
       flex-direction: column;
@@ -203,7 +216,9 @@
   <h2>Estadísticas globales</h2>
   <div class="stats-layout">
     <div class="chart-container">
-      <canvas id="statsChart"></canvas>
+      <div class="chart-scroll">
+        <canvas id="statsChart"></canvas>
+      </div>
     </div>
     <div id="extraStats"></div>
   </div>
@@ -352,8 +367,15 @@
     const yesData = labels.map(l => stats[l].yes);
     const noData  = labels.map(l => stats[l].no);
 
+    // === Ajuste de ancho del canvas para permitir scroll horizontal ===
+    const canvas = document.getElementById('statsChart');
+    // 40px por etiqueta aprox., mínimo 400px
+    const desiredWidth = Math.max(labels.length * 40, 400);
+    canvas.width = desiredWidth;       // hace el canvas "más ancho" que su contenedor
+    canvas.height = 360;               // altura fija para una columna compacta
+
     destroyChart();
-    statsChartInstance = new Chart(document.getElementById('statsChart'), {
+    statsChartInstance = new Chart(canvas.getContext('2d'), {
       type: 'bar',
       data: {
         labels,
@@ -363,10 +385,11 @@
         ]
       },
       options: {
-        responsive: true,
+        responsive: false,             // usamos tamaños del canvas fijados arriba
         maintainAspectRatio: false,
         scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } },
-        plugins: { legend: { labels: { color: '#333' } } }
+        plugins: { legend: { labels: { color: '#333' } } },
+        animation: false
       }
     });
 
@@ -426,6 +449,7 @@
     document.getElementById("start-screen").style.display = "flex";
   }
 
+  // Al cargar la página, muestra la pantalla de inicio
   document.getElementById("start-screen").style.display = "flex";
 </script>
 </body>
