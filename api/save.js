@@ -1,104 +1,90 @@
-// api/save.js
+// /api/save.js
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Método no permitido' });
   }
 
-  try {
-    const { player, date, accepted, rejected } = req.body || {};
-    if (
-      typeof player !== 'string' ||
-      typeof date !== 'string' ||
-      !Array.isArray(accepted) ||
-      !Array.isArray(rejected)
-    ) {
-      return res.status(400).json({ error: 'Payload inválido' });
-    }
+  const { player, date, accepted, rejected } = req.body || {};
+  if (!player || !Array.isArray(accepted) || !Array.isArray(rejected)) {
+    return res.status(400).json({ error: 'Payload inválido' });
+  }
 
-    const owner  = process.env.GH_OWNER;
-    const repo   = process.env.GH_REPO;
-    const branch = process.env.GH_BRANCH || 'main';
-    const token  = process.env.GH_TOKEN;
-    const filePath = 'results/data.json';
+  const owner  = process.env.GH_OWNER;   // p.ej. "Syarapi"
+  const repo   = process.env.GH_REPO;    // p.ej. "japotinder"
+  const branch = process.env.GH_BRANCH || 'main';
+  const token  = process.env.GH_TOKEN;
+  const path   = 'results/data.json';
 
-    if (!owner || !repo || !token) {
-      return res.status(500).json({ error: 'Faltan variables de entorno GH_OWNER, GH_REPO o GH_TOKEN' });
-    }
+  if (!owner || !repo || !token) {
+    return res.status(500).json({ error: 'Faltan variables de entorno GH_OWNER, GH_REPO o GH_TOKEN' });
+  }
 
-    // 1) Leer el archivo actual (puede no existir todavía)
-    const getUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}?ref=${encodeURIComponent(branch)}`;
-    const getRes = await fetch(getUrl, {
+  const baseUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${encodeURIComponent(path)}`;
+
+  async function getCurrent() {
+    const r = await fetch(`${baseUrl}?ref=${encodeURIComponent(branch)}`, {
       headers: {
-        Authorization: `token ${token}`,
-        Accept: 'application/vnd.github+json'
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/vnd.github+json',
+        'Cache-Control': 'no-store'
       }
     });
 
-    let currentData = [];
-    let sha; // solo se envía al hacer PUT si el archivo existe
-
-    if (getRes.status === 200) {
-      const getData = await getRes.json();
-      sha = getData.sha;
-
-      if (getData && getData.content) {
-        const decoded = Buffer.from(getData.content, 'base64').toString('utf8').trim();
-
-        // Acepta array puro o { games: [...] } por compatibilidad con el HTML
-        try {
-          const parsed = JSON.parse(decoded);
-          if (Array.isArray(parsed)) {
-            currentData = parsed;
-          } else if (parsed && Array.isArray(parsed.games)) {
-            currentData = parsed.games;
-          } else {
-            // Si es otra cosa, re-inicia como array para no romper estadísticas
-            currentData = [];
-          }
-        } catch {
-          // Si el contenido no es JSON válido, empezamos de cero
-          currentData = [];
-        }
-      }
-    } else if (getRes.status === 404) {
-      // Archivo aún no existe en el repo
-      currentData = [];
-      sha = undefined;
-    } else {
-      const txt = await getRes.text();
-      return res.status(502).json({ error: 'Error leyendo data.json en GitHub', details: txt });
+    if (r.status === 404) {
+      return { sha: null, data: [] };
+    }
+    if (!r.ok) {
+      throw new Error(`GET ${path} -> ${r.status}`);
     }
 
-    // 2) Agregar la nueva partida (array plano, el HTML ya lo sabe leer)
-    currentData.push({ player, date, accepted, rejected });
+    const json = await r.json();
+    let data = [];
+    try {
+      const decoded = Buffer.from(json.content || '', 'base64').toString('utf8');
+      const parsed = JSON.parse(decoded);
+      data = Array.isArray(parsed) ? parsed : (Array.isArray(parsed?.games) ? parsed.games : []);
+    } catch {
+      // Si el archivo está corrupto, empezamos con array vacío
+      data = [];
+    }
+    return { sha: json.sha, data };
+  }
 
-    // 3) Subir el archivo actualizado (con SHA si existe; sin SHA si es la primera vez)
-    const putUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}`;
+  async function putFile(contentBase64, sha) {
     const body = {
       message: `Guardar partida de ${player} - ${date}`,
-      content: Buffer.from(JSON.stringify(currentData, null, 2), 'utf8').toString('base64'),
+      content: contentBase64,
       branch
     };
     if (sha) body.sha = sha;
 
-    const putRes = await fetch(putUrl, {
+    const r = await fetch(baseUrl, {
       method: 'PUT',
       headers: {
-        Authorization: `token ${token}`,
+        Authorization: `Bearer ${token}`,
         Accept: 'application/vnd.github+json',
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(body)
     });
 
-    if (!putRes.ok) {
-      const details = await putRes.text();
-      return res.status(500).json({ error: 'Error al guardar en GitHub', details });
+    // Manejo de conflicto por carreras de commits
+    if (r.status === 409) return { conflict: true };
+
+    if (!r.ok) {
+      const err = await r.text().catch(() => '');
+      throw new Error(`PUT ${path} -> ${r.status} ${err}`);
     }
 
-    return res.status(200).json({ ok: true });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: 'Error interno', details: err.message });
+    const json = await r.json();
+    return { ok: true, json };
   }
-}
+
+  try {
+    // 1) Leer versión actual (o crear desde vacío)
+    let { sha, data } = await getCurrent();
+
+    // 2) Agregar nueva partida
+    data.push({ player, date, accepted, rejected });
+
+    // 3) Subir
