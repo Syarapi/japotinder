@@ -56,5 +56,34 @@
       "Kumamoto",
       "Enoshima"
     ]
+  },
+  {
+    "player": "PRueba 1",
+    "date": "14/8/2025, 9:59:57 a.m.",
+    "accepted": [
+      "Maid cafe",
+      "Gotokuji",
+      "Museo/cafe de los yokai",
+      "Disney Tokyo",
+      "Kumachan Onsen Tokyo",
+      "Musical Tokyo Revengers",
+      "Nabana no sato",
+      "Ginzan Onsen"
+    ],
+    "rejected": [
+      "Enoshima",
+      "Tarde de recreativas",
+      "Shikisai no oka",
+      "Shinkansen Hello Kitty",
+      "Bandai Museum",
+      "Pokemon Cafe",
+      "Nagano y monos de nieve",
+      "Otaru",
+      "Kumamoto",
+      "Eventos Kisekoi/Sailor Moon",
+      "RJ Cafe Osaka",
+      "Shibazakura park Hokkaido",
+      "Beppu"
+    ]
   }
 ]
