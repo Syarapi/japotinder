@@ -396,5 +396,37 @@
       "Shikisai no oka",
       "Shinkansen Hello Kitty"
     ]
+  },
+  {
+    "player": "Sara",
+    "date": "14/8/2025, 1:22:25 p.m.",
+    "mode": "long",
+    "accepted": [
+      "Otaru",
+      "Kumamoto",
+      "Nabana no sato",
+      "Gotokuji",
+      "Shikisai no oka"
+    ],
+    "meh": [
+      "Disney Tokyo",
+      "Ginzan Onsen",
+      "Kumachan Onsen Tokyo",
+      "Eventos Kisekoi/Sailor Moon",
+      "Pokemon Cafe",
+      "Shinkansen Hello Kitty",
+      "Musical Tokyo Revengers",
+      "Nagano y monos de nieve",
+      "Enoshima",
+      "Maid cafe"
+    ],
+    "rejected": [
+      "RJ Cafe Osaka",
+      "Tarde de recreativas",
+      "Museo/cafe de los yokai",
+      "Beppu",
+      "Shibazakura park Hokkaido",
+      "Bandai Museum"
+    ]
   }
 ]
