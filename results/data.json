@@ -27,5 +27,34 @@
       "Bandai Museum",
       "Otaru"
     ]
+  },
+  {
+    "player": "PRueba 1",
+    "date": "14/8/2025, 9:59:36 a.m.",
+    "accepted": [
+      "Shibazakura park Hokkaido",
+      "Gotokuji",
+      "Nabana no sato",
+      "Museo/cafe de los yokai",
+      "Shikisai no oka",
+      "Disney Tokyo",
+      "RJ Cafe Osaka",
+      "Kumachan Onsen Tokyo",
+      "Otaru"
+    ],
+    "rejected": [
+      "Ginzan Onsen",
+      "Nagano y monos de nieve",
+      "Maid cafe",
+      "Beppu",
+      "Bandai Museum",
+      "Musical Tokyo Revengers",
+      "Pokemon Cafe",
+      "Tarde de recreativas",
+      "Shinkansen Hello Kitty",
+      "Eventos Kisekoi/Sailor Moon",
+      "Kumamoto",
+      "Enoshima"
+    ]
   }
 ]
