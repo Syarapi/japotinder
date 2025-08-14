@@ -365,5 +365,36 @@
       "Kumamoto"
     ],
     "rejected": []
+  },
+  {
+    "player": "Sara",
+    "date": "14/8/2025, 1:17:01 p.m.",
+    "mode": "short",
+    "accepted": [
+      "Nagano y monos de nieve",
+      "Tarde de recreativas",
+      "Disney Tokyo",
+      "Museo/cafe de los yokai",
+      "Kumachan Onsen Tokyo",
+      "Shibazakura park Hokkaido",
+      "Otaru",
+      "Enoshima",
+      "Bandai Museum",
+      "Gotokuji",
+      "RJ Cafe Osaka",
+      "Maid cafe",
+      "Beppu",
+      "Kumamoto",
+      "Pokemon Cafe"
+    ],
+    "meh": [
+      "Ginzan Onsen"
+    ],
+    "rejected": [
+      "Eventos Kisekoi/Sailor Moon",
+      "Nabana no sato",
+      "Shikisai no oka",
+      "Shinkansen Hello Kitty"
+    ]
   }
 ]
