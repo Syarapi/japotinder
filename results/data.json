@@ -428,5 +428,35 @@
       "Shibazakura park Hokkaido",
       "Bandai Museum"
     ]
+  },
+  {
+    "player": "Vaini",
+    "date": "14/8/2025, 1:23:36 p.m.",
+    "mode": "short",
+    "accepted": [
+      "Otaru",
+      "Beppu",
+      "Enoshima",
+      "Musical Tokyo Revengers",
+      "Kumachan Onsen Tokyo",
+      "Bandai Museum",
+      "Shinkansen Hello Kitty",
+      "RJ Cafe Osaka",
+      "Museo/cafe de los yokai",
+      "Disney Tokyo",
+      "Kumamoto",
+      "Gotokuji",
+      "Pokemon Cafe",
+      "Nagano y monos de nieve",
+      "Shikisai no oka",
+      "Maid cafe",
+      "Ginzan Onsen",
+      "Tarde de recreativas",
+      "Eventos Kisekoi/Sailor Moon"
+    ],
+    "meh": [
+      "Nabana no sato"
+    ],
+    "rejected": []
   }
 ]
