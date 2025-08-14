@@ -146,7 +146,7 @@
     border: 2px solid var(--accent-1);
   }
   table th, table td {
-    padding: 10px 12px;
+    padding: 8px 10px;
     border-bottom: 1px solid #f0e7f8;
     text-align: left;
     word-break: break-word;
@@ -155,28 +155,28 @@
     background: linear-gradient(180deg, var(--accent-2) 0%, var(--accent-1) 100%);
     color: white; letter-spacing:.3px; font-size: 14px;
   }
-  table td { font-size: 13.5px; }
+  table td { font-size: 13px; }
   table tr:nth-child(even) { background-color: #faf7ff; }
   table tr:hover { background-color: #f4ecff; transition: background .2s ease; }
 
   .cards-small { line-height: 1.4; }
 
   /* ===== Layout estadísticas ===== */
-  #stats-screen{
-    height: 100vh;
+  #stats-screen {
+    min-height: 100vh;
     padding: 6px 10px 10px;
     box-sizing: border-box;
-    overflow: hidden;
+    overflow-y: auto; /* scroll general */
   }
-  .stats-grid{
+
+  .stats-grid {
     display:grid;
     grid-template-columns: minmax(340px, 1fr) minmax(420px, 1.2fr);
     gap: 12px;
-    height: calc(100vh - 120px);
-    align-items: stretch;
+    align-items: start;
   }
 
-  .chart-card, .top-card, .aff-card{
+  .chart-card, .top-card, .aff-card {
     background: var(--card-bg);
     border: 2px solid var(--accent-1);
     border-radius: 16px;
@@ -184,38 +184,58 @@
     padding: 8px;
     display:flex; flex-direction:column;
   }
-  .chart-scroll, .top-scroll, .aff-scroll {
-    flex:1 1 auto;
-    overflow:auto;
-    border-radius: 12px;
-    max-height: calc(100vh - 200px);
+
+  /* Gráficos con límite */
+  .chart-scroll {
+    overflow-y: auto;
+    max-height: 360px;
     padding-bottom: 6px;
   }
-  .chart-scroll { overflow-x: auto; overflow-y: hidden; }
-  .chart-container canvas { height: 320px !important; }
-  .top-card table th { font-size: 13.5px; }
-  .top-card table td { font-size: 12.5px; }
-  .affinity-wrap{
+  .chart-container canvas {
+    height: auto !important;
+    max-width: 100%;
+  }
+
+  /* Tablas TOP con límite */
+  .top-scroll {
+    overflow-y: auto;
+    max-height: 280px;
+    padding-bottom: 6px;
+  }
+
+  /* Tablas de afinidad sin límite */
+  .aff-scroll {
+    overflow: visible;
+    max-height: none;
+    padding-bottom: 6px;
+  }
+
+  .affinity-wrap {
     margin-top: 8px;
     display:grid;
     grid-template-columns: 1fr 1fr;
     gap: 12px;
-    height: calc(100vh - 120px);
   }
   .aff-card td.cards-small { font-size: 12px; line-height: 1.25; }
 
   /* ===== Responsive ===== */
-  @media (max-width: 980px){
+  @media (max-width: 980px) {
     body { overflow:auto; }
-    .stats-grid { grid-template-columns: 1fr; height: auto; }
-    .affinity-wrap { grid-template-columns: 1fr; height: auto; }
+    .stats-grid { grid-template-columns: 1fr; }
+    .affinity-wrap { grid-template-columns: 1fr; }
   }
+
   @media (max-width: 760px) {
     .stats-grid, .affinity-wrap { grid-template-columns: 1fr !important; gap: 16px; }
-    table th, table td { font-size: 13px; padding: 8px 10px; }
+    table th, table td { font-size: 13px; padding: 6px 8px; }
     .top-card table td, .aff-card table td { font-size: 12px; }
+
+    /* Gráficos y tablas más compactos en móvil */
+    .chart-scroll { max-height: 240px; }
+    .top-scroll { max-height: 200px; }
   }
 </style>
+
 
 </head>
 <body>
@@ -822,5 +842,6 @@
 </script>
 </body>
 </html>
+
 
 
