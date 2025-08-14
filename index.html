@@ -8,235 +8,250 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
   :root{
-    /* Paleta base (claros = fondos, oscuros = pétalos) */
-    --pink-light:#FFD6E0;   --pink-base:#FFB7C5;   --pink-dark:#E69CA8;
-    --purple-light:#D6C9F2; --purple-base:#B19CD9; --purple-dark:#8A73B3;
-    --blue-light:#BFE4F9;   --blue-base:#89CFF0;   --blue-dark:#5BA4D6;
-    --mint-light:#D0F5E3;   --mint-base:#A8E6CF;   --mint-dark:#7FCCAA;
-    --yellow-light:#FFFBE8; --yellow-base:#FFF6CC; --yellow-dark:#E6DCA8;
+    /* Paleta fija para botones/series (NO aleatoria) */
+    --yes:#87cefa;          /* azul – Aquí sí */
+    --meh:#8a5adf;          /* morado – Me da igual */
+    --no:#ff7aa3;           /* rosa – Pasando */
 
-    /* Colores de botones fijos */
-    --yes:#89CFF0;     /* Aquí sí (azul) */
-    --meh:#B19CD9;     /* Me da igual (morado) */
-    --no:#FFB7C5;      /* Pasando (rosa) */
-
-    /* Variables que se asignan dinámicamente según el fondo elegido */
-    --bg: var(--pink-light);
-    --petal: var(--pink-dark);
-
+    /* Variables de tema aleatorio (sí cambian) */
     --ink:#333;
+    --bg-light:#fff7fb;
+    --bg-mid:#ffe3ef;
+    --bg-dark:#d38cb1;
     --card-bg:#ffffffee;
-    --shadow:0 10px 25px rgba(0,0,0,.15);
-    --border-soft: #ffe1ea;
+    --accent-1:#d7a6f1;     /* títulos/contornos */
+    --accent-2:#b48ad6;
+    --petal-rgba: 255,182,193; /* se sobreescribe desde JS */
   }
 
-  *{box-sizing:border-box}
-  html,body{height:100%}
+  /* ===== Fondo temático con pétalos (sin degradado) ===== */
   body {
-    margin:0;
-    font-family:'Segoe UI',sans-serif;
-    color:var(--ink);
-    background:var(--bg);
-    min-height:100vh;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    overflow-x:hidden;
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: var(--bg-light);
+    position: relative;
+    overflow-x: hidden;
   }
-
-  /* Canvas de pétalos */
-  #petals {
-    position:fixed;
-    inset:0;
-    width:100%;
-    height:100%;
+  /* Capa de pétalos 1 */
+  body::before, body::after{
+    content:"";
+    position: fixed;
+    inset: 0;
     pointer-events:none;
-    z-index:-1;
+    background-image:
+      radial-gradient(14px 9px at 10px 10px, rgba(var(--petal-rgba),0.25) 40%, transparent 41%),
+      radial-gradient(12px 8px at 40% 30%, rgba(var(--petal-rgba),0.18) 40%, transparent 41%),
+      radial-gradient(10px 7px at 70% 60%, rgba(var(--petal-rgba),0.15) 40%, transparent 41%),
+      radial-gradient(12px 8px at 85% 20%, rgba(var(--petal-rgba),0.18) 40%, transparent 41%);
+    animation: petals 24s linear infinite;
+    filter: blur(0.2px);
+  }
+  /* Capa de pétalos 2 (más lenta) */
+  body::after{
+    animation-duration: 32s;
+    opacity: .6;
+  }
+  @keyframes petals {
+    0% { background-position: 0 -10vh, 20vw -20vh, 60vw -15vh, 85vw -25vh; }
+    100% { background-position: 0 120vh, 20vw 130vh, 60vw 125vh, 85vw 135vh; }
   }
 
-  h1,h2,h3{font-family:'Yuji Syuku',serif;text-align:center;margin:0.4rem 0}
-  h1{color:#7c3a66}
-  h2{color:#3a5a7c}
-  h3{color:#7c3a66}
+  h1, h2, h3 { font-family: 'Yuji Syuku', serif; text-align: center; }
+  h1 { color: var(--accent-1); text-shadow: 0 2px 0 #fff; }
+  h2 { color: var(--accent-2); }
+  h3 { color: var(--accent-1); }
 
-  /* Pantallas */
-  .screen{display:none; flex-direction:column; align-items:center; padding:20px; width:100%;}
-  #start-screen{display:flex; justify-content:center; min-height:100vh; gap:14px}
-  #mode-screen{min-height:100vh; justify-content:center}
-  #game-screen{flex-direction:column; align-items:center}
-  #results{ }
-  #stats-screen{ }
-
-  /* Inputs y botones */
-  input{
-    padding:12px 14px;
-    font-size:16px;
-    border-radius:10px;
-    border:2px solid var(--border-soft);
-    width:240px;
-    text-align:center;
-    background:#fff;
-    box-shadow:0 6px 16px rgba(0,0,0,.08);
+  /* Contenedores principales */
+  #start-screen, #mode-screen, #results, #stats-screen {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    width: 100%;
   }
-  .row{display:flex; gap:10px; flex-wrap:wrap; justify-content:center}
-  .btn{
-    padding:14px 22px;
-    font-size:17px;
-    border:none;
-    border-radius:12px;
-    cursor:pointer;
-    transition:transform .15s ease, box-shadow .15s ease, opacity .2s ease;
-    box-shadow:0 8px 18px rgba(0,0,0,.12);
-    color:#fff;
+  #start-screen { display: flex; justify-content: center; gap: 15px; min-height: 100vh; }
+
+  /* Tarjetas */
+  #card-container {
+    position: relative;
+    width: 90%;
+    max-width: 520px;
+    height: 66vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
-  .btn:hover{transform:translateY(-1px); box-shadow:0 10px 20px rgba(0,0,0,.16)}
-  .btn:active{transform:translateY(0); opacity:.95}
+  .card {
+    width: 100%;
+    height: 100%;
+    background: var(--card-bg);
+    backdrop-filter: blur(3px);
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px;
+    box-sizing: border-box;
+    border: 2px solid var(--accent-1);
+    will-change: transform;
+  }
+  .card img {
+    max-height: 85%;
+    max-width: 100%;
+    object-fit: cover;
+    border-radius: 14px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+  .card div { font-weight: 600; color: var(--ink); padding-top: 6px; }
 
-  /* Botones fijos de juego */
-  .btn-yes{background:linear-gradient(180deg,var(--yes),#5BA4D6)}
-  .btn-meh{background:linear-gradient(180deg,var(--meh),#8A73B3)}
-  .btn-no{background:linear-gradient(180deg,var(--no),#E69CA8)}
+  /* Botonera */
+  #buttons {
+    margin-top: 20px;
+    display: flex;
+    gap: 16px;
+    z-index: 10;
+  }
+  .btn {
+    padding: 14px 22px;
+    font-size: 17px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: transform .15s ease, box-shadow .15s ease, opacity .2s ease;
+    box-shadow: 0 8px 18px rgba(0,0,0,.12);
+    color: white;
+  }
+  .accept { background: linear-gradient(180deg, var(--yes) 0%, #5fb5ef 100%); }
+  .meh    { background: linear-gradient(180deg, var(--meh) 0%, #7343d8 100%); }
+  .reject { background: linear-gradient(180deg, var(--no) 0%, #ff5f93 100%); }
+  .stats-btn { background: linear-gradient(180deg, var(--accent-1) 0%, var(--accent-2) 100%); color: #fff; }
+  .btn:hover { transform: translateY(-1px); box-shadow: 0 10px 20px rgba(0,0,0,.16); }
+  .btn:active { transform: translateY(0); opacity:.95; }
 
-  /* Botones secundarios (color aleatorio suave sobre fondo) */
-  .btn-secondary{
-    background:#ffffffcc; color:#333;
-    border:2px solid #ffffff99;
+  .results-container { display: flex; gap: 50px; justify-content: center; flex-wrap: wrap; }
+  .list { margin: 10px 0; }
+  ul { list-style: none; padding: 0; font-size: 18px; }
+  input {
+    padding: 12px 14px; font-size: 16px; border-radius: 10px;
+    border: 2px solid var(--accent-1); width: 220px; text-align: center; background: #fff;
+    box-shadow: 0 6px 16px rgba(0,0,0,.08);
   }
 
-  /* Modo select cards */
+  /* Modo elección */
+  .mode-grid{
+    display:grid; grid-template-columns: 1fr; gap:16px; max-width:720px; width:100%;
+  }
   .mode-card{
-    width:min(620px,92vw);
-    background:var(--card-bg);
-    border:2px solid var(--border-soft);
-    border-radius:16px;
-    box-shadow:var(--shadow);
-    padding:18px;
-    margin:8px;
+    background: var(--card-bg); border:2px solid var(--accent-1); border-radius:16px;
+    padding:16px; box-shadow: 0 8px 24px rgba(0,0,0,.12);
   }
-  .mode-title{font-size:22px; margin-bottom:6px}
-  .mode-desc{color:#555; margin:0 0 8px 0}
-
-  /* Tarjetas de juego */
-  #card-container{
-    position:relative;
-    width:min(520px,92vw);
-    height:66vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-  }
-  .card{
-    position:absolute;
-    inset:0;
-    background:var(--card-bg);
-    border:2px solid var(--border-soft);
-    border-radius:20px;
-    box-shadow:var(--shadow);
-    display:flex; flex-direction:column; align-items:center; justify-content:space-between;
-    padding:16px;
-  }
-  .card img{
-    max-height:85%; max-width:100%;
-    object-fit:cover; border-radius:14px;
-    box-shadow:0 6px 16px rgba(0,0,0,.12);
-  }
-  .card-name{font-weight:700; color:#7c3a66; padding-top:6px}
-
-  #buttons{margin-top:14px; display:flex; gap:12px; z-index:10}
-
-  /* Resultados */
-  .results-container{display:flex; gap:40px; justify-content:center; flex-wrap:wrap}
-  .list{margin:10px 0}
-  ul{list-style:none; padding:0; font-size:18px}
+  .mode-card p{ margin:8px 0 0 0; color:#555; }
+  @media (min-width:760px){ .mode-grid{ grid-template-columns: 1fr 1fr; } }
 
   /* Tablas */
-  table{
-    border-collapse:collapse; margin-top:12px;
-    width:90%; max-width:740px;
-    background:#fff; border-radius:14px; overflow:hidden;
-    box-shadow:0 8px 24px rgba(0,0,0,.12);
-    border:2px solid var(--border-soft);
+  table {
+    border-collapse: collapse;
+    margin-top: 15px;
+    width: 90%;
+    max-width: 680px;
+    background: #fff;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    border: 2px solid var(--accent-1);
   }
-  th,td{padding:10px 12px; border-bottom:1px solid #f1e6ea; text-align:left}
-  th{background:#f3e6f9; color:#4a3b57; letter-spacing:.3px}
-  tr:nth-child(even){background:#fff7fa}
-  tr:hover{background:#fff0f6; transition:background .2s ease}
-
-  .notice{color:#7c3a66; margin-top:10px}
-  .error{color:#d6456a; margin-top:10px}
-  .muted{color:#777}
-
-  /* Estadísticas layout */
-  .stats-layout{
-    display:flex; gap:20px; align-items:flex-start; justify-content:center;
-    width:100%; max-width:1250px; margin:0 auto; padding-inline:10px;
+  table th, table td { padding: 10px 14px; border-bottom: 1px solid #f0e7f8; text-align: left; }
+  table th {
+    background: linear-gradient(180deg, var(--accent-2) 0%, var(--accent-1) 100%);
+    color: white; letter-spacing:.3px;
   }
-  .chart-col{flex:0 0 33%; max-width:420px; width:100%}
-  .chart-card{background:var(--card-bg); border:2px solid var(--border-soft); border-radius:16px; box-shadow:var(--shadow); padding:10px}
-  .chart-scroll{width:100%; overflow-x:auto; overflow-y:hidden}
-  .chart-scroll canvas{display:block}
-  .chart-col canvas{height:360px!important}
+  table tr:nth-child(even) { background-color: #faf7ff; }
+  table tr:hover { background-color: #f4ecff; transition: background .2s ease; }
 
-  .tables-col{flex:1 1 auto; min-width:320px}
+  .notice { color: var(--accent-2); margin-top: 10px; }
+  .error { color: #d6456a; margin-top: 10px; }
+  .muted { color: #777; }
+
+  /* ===== Layout de estadísticas ===== */
+  .stats-layout {
+    display: flex; flex-direction: column; gap: 24px; align-items: stretch;
+    width: 100%; max-width: 1200px; margin: 0 auto; padding-inline: 10px;
+  }
+  .chart-container {
+    width: 100%;
+  }
+  .chart-card{
+    background: var(--card-bg); border: 2px solid var(--accent-1);
+    border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    padding: 10px 10px 6px;
+  }
+  .chart-scroll { width: 100%; overflow-x: auto; overflow-y: hidden; }
+  .chart-scroll canvas { display: block; }
+  .chart-container canvas { height: 360px !important; }
+
+  /* Doble columna para afinidades */
   .affinity-grid{
-    display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:12px;
+    display:grid; grid-template-columns: 1fr; gap:20px; align-items:start; width:100%;
   }
-  .affinity-wrap h3{margin-top:6px}
-
-  @media (max-width:1000px){
-    .stats-layout{flex-direction:column; align-items:stretch}
-    .chart-col{flex:none; width:100%; max-width:640px; margin:0 auto}
-    .affinity-grid{grid-template-columns:1fr}
+  @media (min-width:980px){
+    .affinity-grid{ grid-template-columns: 1fr 1fr; }
   }
 </style>
 </head>
 <body>
 
-<canvas id="petals"></canvas>
-
 <!-- Pantalla de inicio -->
-<div id="start-screen" class="screen">
+<div id="start-screen">
   <div style="text-align:center">
     <h1>Japontinder</h1>
     <p>¿Quién eres? O no empezamos ò_ó</p>
     <input type="text" id="username" placeholder="Tu nombre" />
-    <div class="row" style="margin-top:12px">
-      <button class="btn btn-secondary" onclick="goToMode()">Elegir versión</button>
-      <button class="btn btn-secondary" onclick="showStats()">Ver estadísticas</button>
+    <div style="margin-top:12px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+      <button class="btn accept" id="btnNameNext">Siguiente</button>
+      <button class="btn stats-btn" onclick="showStats()">Ver estadísticas</button>
     </div>
   </div>
 </div>
 
-<!-- Pantalla de elección de modo -->
-<div id="mode-screen" class="screen">
-  <h2>Elige cómo quieres jugar</h2>
-  <div class="mode-card">
-    <div class="mode-title">Versión corta</div>
-    <p class="mode-desc">20 tarjetas al azar. Puedes usar “Me da igual” <strong>hasta 5 veces</strong>. Fondo azul.</p>
-    <button class="btn btn-secondary" onclick="startGame('short')">Empezar versión corta</button>
+<!-- Elección de modo -->
+<div id="mode-screen">
+  <h2>Elige cómo jugar</h2>
+  <div class="mode-grid">
+    <div class="mode-card">
+      <button class="btn stats-btn" id="btnShort">Versión corta</button>
+      <p>20 tarjetas al azar. Puedes usar “Me da igual” <strong>5 veces</strong>.</p>
+    </div>
+    <div class="mode-card">
+      <button class="btn stats-btn" id="btnFull">Completo</button>
+      <p>Todas las tarjetas en orden aleatorio. “Me da igual” disponible <strong>10 veces</strong>.</p>
+    </div>
   </div>
-  <div class="mode-card">
-    <div class="mode-title">Versión completa</div>
-    <p class="mode-desc">Todas las tarjetas, orden aleatorio. “Me da igual” <strong>hasta 10 veces</strong>. Fondo rosa.</p>
-    <button class="btn btn-secondary" onclick="startGame('long')">Empezar versión completa</button>
-  </div>
-  <div class="row" style="margin-top:8px">
-    <button class="btn btn-secondary" onclick="goToStart()">Volver</button>
+  <div style="margin-top:14px">
+    <button class="btn reject" onclick="goToStart()">Volver</button>
   </div>
 </div>
 
 <!-- Juego -->
-<div id="game-screen" class="screen">
+<div id="game-screen" style="display:none; flex-direction: column; align-items: center;">
   <div id="card-container"></div>
   <div id="buttons">
-    <button class="btn btn-no" onclick="handleDecision(-1)">Pasando</button>
-    <button class="btn btn-meh" onclick="handleMeh()">Me da igual</button>
-    <button class="btn btn-yes" onclick="handleDecision(1)">Aquí sí</button>
+    <button class="btn reject" onclick="handleDecision(-1)">Pasando</button>
+    <button class="btn meh" onclick="handleDecision(0)">Me da igual</button>
+    <button class="btn accept" onclick="handleDecision(1)">Aquí sí</button>
   </div>
 </div>
 
 <!-- Resultados -->
-<div id="results" class="screen">
+<div id="results">
   <h2>Resultados</h2>
   <p id="player-info"></p>
   <div class="results-container">
@@ -253,46 +268,49 @@
       <ul id="rejected-list"></ul>
     </div>
   </div>
-  <div class="row" style="margin-top:14px">
-    <button class="btn btn-secondary" onclick="showStats()">Ver estadísticas</button>
-    <button class="btn btn-no" onclick="restartGame()">Volver al inicio</button>
+  <div style="margin-top:14px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+    <button class="btn stats-btn" onclick="showStats()">Ver estadísticas</button>
+    <button class="btn reject" onclick="restartGame()">Volver al inicio</button>
   </div>
 </div>
 
 <!-- Pantalla de estadísticas -->
-<div id="stats-screen" class="screen">
+<div id="stats-screen">
   <h2>Estadísticas globales</h2>
   <div class="stats-layout">
-    <div class="chart-col">
+    <div class="chart-container">
       <div class="chart-card">
-        <div class="chart-scroll"><canvas id="statsChart"></canvas></div>
+        <div class="chart-scroll">
+          <canvas id="statsChart"></canvas>
+        </div>
       </div>
     </div>
-    <div class="tables-col">
-      <div id="extraStats"></div>
-      <div class="affinity-grid">
-        <div class="affinity-wrap">
-          <h3>Ranking afinidad global (por coincidencias de “sí”)</h3>
-          <div id="affinity-global"></div>
-        </div>
-        <div class="affinity-wrap">
-          <h3>Afinidad contigo</h3>
-          <div id="affinity-my"></div>
-        </div>
+
+    <div id="extraStats"></div>
+
+    <!-- Afinidades: izquierda global, derecha jugador actual -->
+    <div class="affinity-grid" id="affinityGrids" style="display:none;">
+      <div>
+        <h3>Ranking de afinidad (todos los jugadores)</h3>
+        <div id="affinityGlobal"></div>
+      </div>
+      <div>
+        <h3>Jugadores más afines contigo</h3>
+        <div id="affinityPersonal"></div>
       </div>
     </div>
   </div>
-  <div class="row" style="margin-top:14px">
-    <button class="btn btn-no" onclick="goToStart()">Volver</button>
+  <div style="margin-top:14px;">
+    <button class="btn reject" onclick="goToStart()">Volver</button>
   </div>
 </div>
 
 <script>
-  /* ===== Config ===== */
-  const saveEndpoint = "https://japotinder.vercel.app/api/save"; // ajusta si es necesario
+  /************ Config ************/
+  const saveEndpoint = "/api/save"; // deja tu ruta del backend
   const dataUrl = "https://raw.githubusercontent.com/Syarapi/japotinder/main/results/data.json";
 
-  /* ===== Datos ===== */
+  /************ Datos base ************/
   const originalData = [
     { name: "Disney Tokyo", img: "img/disney.jpg" },
     { name: "Gotokuji", img: "img/gotokuji.jpg" },
@@ -317,230 +335,243 @@
     { name: "Bandai Museum", img: "img/bandai.jpg" }
   ];
 
-  /* ===== Estado ===== */
+  /************ Estado ************/
   let playerName = "";
-  let mode = "long"; // 'short' | 'long'
+  let mode = "short"; // "short" | "full"
   let data = [];
   let accepted = [];
-  let meh = [];
   let rejected = [];
+  let meh = [];
   let index = 0;
-  let mehLimit = 10; // 5 en short, 10 en long
+  let mehLimit = 5;
+  let statsChartInstance = null;
+
   const container = document.getElementById('card-container');
-  const canvasPetals = document.getElementById('petals');
 
-  /* ===== Helpers UI / Paleta aleatoria (fondos/acentos = aleatorios salvo botones de decisión) ===== */
-  const themeChoices = [
-    { bg:'--pink-light', petal:'--pink-dark' },
-    { bg:'--purple-light', petal:'--purple-dark' },
-    { bg:'--blue-light', petal:'--blue-dark' },
-    { bg:'--mint-light', petal:'--mint-dark' },
-    { bg:'--yellow-light', petal:'--yellow-dark' }
-  ];
-  function pickRandom(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+  /************ Utilidades ************/
+  const shuffleArray = (array) => array.slice().sort(() => Math.random() - 0.5);
 
-  function setRandomTheme(preferred){ // preferred: 'blue' | 'pink' | undefined
-    let choice;
-    if(preferred==='blue'){ choice = {bg:'--blue-light', petal:'--blue-dark'}; }
-    else if(preferred==='pink'){ choice = {bg:'--pink-light', petal:'--pink-dark'}; }
-    else choice = pickRandom(themeChoices);
-    const rs = document.documentElement.style;
-    rs.setProperty('--bg', getComputedStyle(document.documentElement).getPropertyValue(choice.bg));
-    rs.setProperty('--petal', getComputedStyle(document.documentElement).getPropertyValue(choice.petal));
-    // recolor headings ligeramente aleatorio para variar
-    const accents = ['#7c3a66','#3a5a7c','#6b3f87','#375b6f','#725f2a'];
-    const h = pickRandom(accents);
-    document.querySelectorAll('h1,h2,h3').forEach(el=>{ el.style.color = h; });
-    // Re-dibujar pétalos con nuevo color
-    startPetals();
+  // Colores fijos para nombres: Alba=azul, Alicia/Vaini=morados, Sara=rosa, otros: amarillo pastel o verde menta pero fijo por hash
+  function getNameColor(name){
+    const n = (name || "").trim().toLowerCase();
+    if(n === "alba")   return "#2f7bdc";          // azul
+    if(n === "alicia" || n === "vaini") return "#8a5adf"; // morado
+    if(n === "sara")   return "#ff6fa1";          // rosa
+    // Otros: asignación determinista entre amarillo pastel legible y verde menta
+    const options = ["#ffd666", "#56e0b5"]; // sun pastel (legible), mint
+    let hash = 0; for(let i=0;i<n.length;i++){ hash = (hash*31 + n.charCodeAt(i))|0; }
+    return options[Math.abs(hash)%options.length];
   }
 
-  /* ===== Sakura petals (canvas) ===== */
-  let petalsArr = [];
-  let petalRAF = null;
-  function startPetals(){
-    const ctx = canvasPetals.getContext('2d');
-    const DPR = (window.devicePixelRatio||1);
-    const w = canvasPetals.width = Math.floor(window.innerWidth*DPR);
-    const h = canvasPetals.height = Math.floor(window.innerHeight*DPR);
-    const color = getComputedStyle(document.documentElement).getPropertyValue('--petal').trim() || '#E69CA8';
-
-    // Crear pétalos
-    const count = Math.floor((window.innerWidth*window.innerHeight)/16000); // densidad adaptativa
-    petalsArr = Array.from({length: count}, ()=>({
-      x: Math.random()*w,
-      y: Math.random()*-h,
-      r: 6 + Math.random()*10,
-      s: 0.3 + Math.random()*0.8,
-      a: Math.random()*Math.PI*2,
-      va: (Math.random()*0.02)+0.005
-    }));
-
-    cancelAnimationFrame(petalRAF);
-    (function loop(){
-      ctx.clearRect(0,0,w,h);
-      ctx.fillStyle = color;
-      petalsArr.forEach(p=>{
-        p.y += p.s*DPR*1.2;
-        p.x += Math.sin(p.a)*0.6*DPR;
-        p.a += p.va;
-        if(p.y > h+20) { p.y = -20; p.x = Math.random()*w; }
-        // pétalo ovalado
-        ctx.beginPath();
-        ctx.ellipse(p.x, p.y, p.r, p.r*0.6, p.a, 0, Math.PI*2);
-        ctx.fill();
-      });
-      petalRAF = requestAnimationFrame(loop);
-    })();
-  }
-  window.addEventListener('resize', startPetals);
-
-  /* ===== Nombre -> color fijo en estadísticas ===== */
-  function colorForNameStable(name){
-    const n = (name||"").trim().toLowerCase();
-    if(n==="alba") return "#2f7bdc";
-    if(n==="alicia"||n==="vaini") return "#8a5adf";
-    if(n==="sara") return "#ff6fa1";
-    // Otros: amarillo pastel o menta, estable por hash (para nombres en estadísticas)
-    const candidates = ["#FFF6CC","#A8E6CF"]; // amarillo pastel legible y verde menta
-    let h=0; for(let i=0;i<n.length;i++) h=(h*31 + n.charCodeAt(i))|0;
-    return candidates[Math.abs(h)%candidates.length];
-  }
-
-  /* ===== Navegación de pantallas ===== */
-  function hideAll(){
-    document.querySelectorAll('.screen').forEach(s=>s.style.display='none');
-  }
-  function goToStart(){
-    hideAll(); document.getElementById('start-screen').style.display='flex';
-    setRandomTheme(); // fondo aleatorio al volver
-  }
-  function goToMode(){
-    const nameInput = document.getElementById("username").value.trim();
-    if (!nameInput){ alert("Que me digas quién eres o no jugamos ù3ú"); return; }
-    playerName = nameInput;
-    hideAll(); document.getElementById('mode-screen').style.display='flex';
-    setRandomTheme(); // aleatorio en pantalla de modo
-  }
-
-  /* ===== Juego ===== */
-  function shuffleArray(array){ return array.map(v=>[Math.random(),v]).sort((a,b)=>a[0]-b[0]).map(x=>x[1]); }
-
-  function startGame(selectedMode){
-    mode = selectedMode || 'long';
-    mehLimit = (mode==='short') ? 5 : 10;
-
-    // Fondo específico por modo
-    if(mode==='short') setRandomTheme('blue');  // versión corta → azul
-    else setRandomTheme('pink');                // versión larga → rosa
-
-    data = shuffleArray([...originalData]);
-    if(mode==='short') data = data.slice(0,20);
-
-    index = 0; accepted = []; meh = []; rejected = [];
-    container.innerHTML = "";
-    hideAll(); document.getElementById('game-screen').style.display='flex';
-    showNextCard();
-  }
-
-  function createCard(person){
-    // Siempre 1 tarjeta visible: borra la anterior si existe
-    const existing = container.querySelector('.card');
-    if(existing) existing.remove();
-
-    const card = document.createElement('div'); card.className='card';
-    const img = document.createElement('img'); img.src = person.img; img.alt = person.name;
-    const name = document.createElement('div'); name.className='card-name'; name.textContent = person.name;
-    card.appendChild(img); card.appendChild(name); container.appendChild(card);
-  }
-
-  function showNextCard(){
-    if(index < data.length){ createCard(data[index]); index++; }
-    else { showResults(); }
-  }
-
-  function handleDecision(direction){
-    const currentCard = container.querySelector('.card');
-    if(!currentCard) return;
-    const name = currentCard.querySelector('.card-name').textContent;
-    if(direction===1) accepted.push(name); else rejected.push(name);
-    showNextCard();
-  }
-
-  function handleMeh(){
-    if(meh.length >= mehLimit){
-      alert("Por favor, mójate un poco más...");
-      return;
-    }
-    const currentCard = container.querySelector('.card');
-    if(!currentCard) return;
-    const name = currentCard.querySelector('.card-name').textContent;
-    meh.push(name);
-    showNextCard();
+  // Tema aleatorio (afecta fondos, bordes, acentos; NO los botones ni colores de series)
+  function applyRandomTheme(){
+    const themes = [
+      { name:"sakura", light:"#fff7fb", mid:"#ffe3ef", dark:"#d38cb1", accent1:"#d7a6f1", accent2:"#b48ad6", petal:[220,120,160] },
+      { name:"sky",    light:"#f2f9ff", mid:"#e0f1ff", dark:"#8dbfe6", accent1:"#a3c9ff", accent2:"#7fb2f0", petal:[120,160,220] },
+      { name:"lav",    light:"#faf5ff", mid:"#efe3ff", dark:"#b48ad6", accent1:"#d7a6f1", accent2:"#b48ad6", petal:[150,110,200] },
+      { name:"sun",    light:"#fff9e0", mid:"#ffefb0", dark:"#e0c050", accent1:"#f0d46a", accent2:"#e1b84f", petal:[220,190,80] },
+      { name:"mint",   light:"#edfff7", mid:"#d8ffee", dark:"#68cba7", accent1:"#9fe6cc", accent2:"#68cba7", petal:[90,170,140] }
+    ];
+    const pick = themes[Math.floor(Math.random()*themes.length)];
+    const root = document.documentElement.style;
+    root.setProperty('--bg-light', pick.light);
+    root.setProperty('--bg-mid', pick.mid);
+    root.setProperty('--bg-dark', pick.dark);
+    root.setProperty('--accent-1', pick.accent1);
+    root.setProperty('--accent-2', pick.accent2);
+    root.setProperty('--petal-rgba', `${pick.petal[0]},${pick.petal[1]},${pick.petal[2]}`);
   }
 
   function setPlayerInfo(dateTime){
-    const color = colorForNameStable(playerName);
-    document.getElementById('player-info').innerHTML =
-      `Jugador: <span style="font-weight:700; color:${color}">${playerName}</span> | ${dateTime}`;
+    const spanColor = getNameColor(playerName);
+    const html = `Jugador: <span style="font-weight:700; color:${spanColor}">${playerName}</span> | ${dateTime} | Modo: ${mode === 'short' ? 'Corto' : 'Completo'}`;
+    document.getElementById('player-info').innerHTML = html;
   }
 
-  async function showResults(){
-    hideAll(); document.getElementById('results').style.display='flex';
-    const dateTime = new Date().toLocaleString();
-    setPlayerInfo(dateTime);
-
-    const aL = document.getElementById('accepted-list');
-    const mL = document.getElementById('meh-list');
-    const rL = document.getElementById('rejected-list');
-    aL.innerHTML=""; mL.innerHTML=""; rL.innerHTML="";
-    accepted.forEach(n=>{ const li=document.createElement('li'); li.textContent=n; aL.appendChild(li); });
-    meh.forEach(n=>{ const li=document.createElement('li'); li.textContent=n; mL.appendChild(li); });
-    rejected.forEach(n=>{ const li=document.createElement('li'); li.textContent=n; rL.appendChild(li); });
-
-    try{
-      await fetch(saveEndpoint,{
-        method:"POST",
-        headers:{ "Content-Type":"application/json" },
-        body:JSON.stringify({ player: playerName, date: dateTime, accepted, meh, rejected })
-      });
-    }catch(e){ console.warn("No se pudo guardar en la API:", e); }
-  }
-
-  /* ===== Estadísticas ===== */
-  let statsChartInstance = null;
-  function destroyChart(){ if(statsChartInstance){ statsChartInstance.destroy(); statsChartInstance=null; } }
-
-  function ensureArray(maybe){
-    if(Array.isArray(maybe)) return maybe;
-    if(maybe && Array.isArray(maybe.games)) return maybe.games;
+  // Lectura robusta de data.json
+  function ensureArray(maybeArray) {
+    if (Array.isArray(maybeArray)) return maybeArray;
+    if (maybeArray && Array.isArray(maybeArray.games)) return maybeArray.games;
     return [];
   }
 
-  function intersect(aSet, arr){ let c=[]; arr.forEach(x=>{ if(aSet.has(x)) c.push(x); }); return c; }
+  /************ Flujo UI ************/
+  document.getElementById("btnNameNext").addEventListener("click", () => {
+    const nameInput = document.getElementById("username").value.trim();
+    if (!nameInput) { alert("Que me digas quién eres o no jugamos ù3ú"); return; }
+    playerName = nameInput;
+    document.getElementById("start-screen").style.display = "none";
+    document.getElementById("mode-screen").style.display = "flex";
+  });
 
-  async function showStats(){
-    hideAll(); document.getElementById('stats-screen').style.display='flex';
-    setRandomTheme(); // paleta aleatoria también en estadísticas (pétalos coherentes)
+  document.getElementById("btnShort").addEventListener("click", () => {
+    mode = "short";
+    mehLimit = 5;
+    startGameWithMode();
+  });
+  document.getElementById("btnFull").addEventListener("click", () => {
+    mode = "full";
+    mehLimit = 10;
+    startGameWithMode();
+  });
+
+  function startGameWithMode(){
+    data = shuffleArray(originalData);
+    if (mode === "short") data = data.slice(0, 20);
+    index = 0; accepted = []; rejected = []; meh = [];
+    container.innerHTML = "";
+    document.getElementById("mode-screen").style.display = "none";
+    document.getElementById("game-screen").style.display = "flex";
+    showNextCard(true);
+  }
+
+  function restartGame() {
+    document.getElementById("results").style.display = "none";
+    document.getElementById("start-screen").style.display = "flex";
+  }
+  function goToStart() {
+    document.getElementById("stats-screen").style.display = "none";
+    document.getElementById("start-screen").style.display = "flex";
+  }
+
+  /************ Tarjetas + Swipe ************/
+  function createCard(item) {
+    const card = document.createElement('div'); card.className = 'card';
+    const img = document.createElement('img'); img.src = item.img; img.alt = item.name;
+    const name = document.createElement('div'); name.textContent = item.name;
+    card.appendChild(img); card.appendChild(name);
+    attachSwipe(card);
+    return card;
+  }
+
+  function showNextCard(initial=false) {
+    if (!initial) {
+      // limpiar cualquier resto
+      container.innerHTML = "";
+    }
+    if (index < data.length) {
+      const card = createCard(data[index]);
+      container.appendChild(card);
+    } else {
+      showResults();
+    }
+  }
+
+  // Swipe (izquierda=-1, derecha=1, arriba=0)
+  function attachSwipe(el){
+    let startX=0, startY=0, dx=0, dy=0, active=false;
+
+    const onStart = (x,y) => { active=true; startX=x; startY=y; dx=0; dy=0; el.style.transition=""; };
+    const onMove = (x,y) => {
+      if(!active) return;
+      dx = x - startX; dy = y - startY;
+      const rot = dx * 0.05;
+      el.style.transform = `translate(${dx}px, ${dy}px) rotate(${rot}deg)`;
+      el.style.opacity = String(1 - Math.min(0.6, Math.abs(dx)/300 + Math.max(0, -dy)/300));
+    };
+    const onEnd = () => {
+      if(!active) return;
+      active=false;
+      const THX = 80, THY = -80; // arriba es negativo
+      if (dx <= -THX) { commitDecision(-1, el); return; }   // izquierda -> no
+      if (dx >=  THX) { commitDecision( 1, el); return; }   // derecha  -> sí
+      if (dy <=  THY) { commitDecision( 0, el); return; }   // arriba   -> meh
+      // volver al centro
+      el.style.transition="transform .2s ease, opacity .2s ease";
+      el.style.transform="translate(0,0) rotate(0)";
+      el.style.opacity="1";
+    };
+
+    // Touch
+    el.addEventListener("touchstart", (e)=>onStart(e.touches[0].clientX, e.touches[0].clientY), {passive:true});
+    el.addEventListener("touchmove",  (e)=>onMove(e.touches[0].clientX, e.touches[0].clientY), {passive:true});
+    el.addEventListener("touchend",   onEnd);
+
+    // Mouse (desktop)
+    el.addEventListener("mousedown", (e)=>onStart(e.clientX, e.clientY));
+    window.addEventListener("mousemove", (e)=>onMove(e.clientX, e.clientY));
+    window.addEventListener("mouseup", onEnd);
+  }
+
+  function commitDecision(direction, el){
+    const name = el.querySelector('div').textContent;
+    if (direction === 1) accepted.push(name);
+    else if (direction === -1) rejected.push(name);
+    else {
+      if (meh.length >= mehLimit) {
+        alert("Por favor, mójate un poco más…");
+        // vuelve al centro
+        el.style.transition="transform .2s ease, opacity .2s ease";
+        el.style.transform="translate(0,0) rotate(0)";
+        el.style.opacity="1";
+        return;
+      }
+      meh.push(name);
+    }
+    index++;
+    container.innerHTML = "";
+    showNextCard();
+  }
+
+  function handleDecision(direction){ // -1 no | 0 meh | 1 sí
+    const el = container.querySelector('.card');
+    if (!el) return;
+    commitDecision(direction, el);
+  }
+
+  /************ Resultados + Guardado ************/
+  async function showResults() {
+    document.getElementById('game-screen').style.display = 'none';
+    document.getElementById('results').style.display = 'flex';
+    const now = new Date(); const dateTime = now.toLocaleString();
+    setPlayerInfo(dateTime);
+
+    const fillList = (id, arr) => {
+      const ul = document.getElementById(id); ul.innerHTML="";
+      arr.forEach(n => { const li = document.createElement('li'); li.textContent = n; ul.appendChild(li); });
+    };
+    fillList('accepted-list', accepted);
+    fillList('meh-list', meh);
+    fillList('rejected-list', rejected);
+
+    try {
+      await fetch(saveEndpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ player: playerName, date: dateTime, mode, accepted, meh, rejected })
+      });
+    } catch (e) {
+      console.warn("No se pudo guardar en la API:", e);
+    }
+  }
+
+  /************ Estadísticas ************/
+  async function showStats() {
+    document.getElementById('start-screen').style.display = 'none';
+    document.getElementById('mode-screen').style.display = 'none';
+    document.getElementById('results').style.display = 'none';
+    document.getElementById('stats-screen').style.display = 'flex';
+
     const extraStats = document.getElementById('extraStats');
-    const globalBox = document.getElementById('affinity-global');
-    const myBox = document.getElementById('affinity-my');
+    document.getElementById('affinityGrids').style.display = "none";
     extraStats.innerHTML = `<p class="muted">Cargando datos...</p>`;
-    globalBox.innerHTML = ""; myBox.innerHTML = "";
 
-    let games=[];
-    try{
+    let games = [];
+    try {
       const res = await fetch(`${dataUrl}?t=${Date.now()}`);
-      if(!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = await res.json();
       games = ensureArray(json);
-    }catch(err){
+    } catch (err) {
       extraStats.innerHTML = `<p class="error">No se pudo cargar <code>results/data.json</code>. Detalle: ${err.message}</p>`;
-      destroyChart(); return;
+      destroyChart();
+      return;
     }
-    if(!games.length){
+
+    if (!games.length) {
       extraStats.innerHTML = `<p class="notice">No hay partidas guardadas aún.</p>`;
-      destroyChart(); return;
+      destroyChart();
+      return;
     }
 
     // Normalizar
@@ -548,146 +579,163 @@
       .filter(g => g && Array.isArray(g.accepted) && Array.isArray(g.rejected))
       .map(g => ({
         player: g.player || "¿anon?",
+        mode: g.mode || "unknown",
         accepted: Array.isArray(g.accepted) ? g.accepted : [],
         meh: Array.isArray(g.meh) ? g.meh : [],
         rejected: Array.isArray(g.rejected) ? g.rejected : []
       }));
 
-    // Conteo por tarjeta: sí / meh / no
+    // Conteos por tarjeta
     const stats = {};
-    safeGames.forEach(g=>{
-      g.accepted.forEach(a=>{ stats[a] = stats[a] || {yes:0, meh:0, no:0}; stats[a].yes++; });
-      g.meh.forEach(m=>{ stats[m] = stats[m] || {yes:0, meh:0, no:0}; stats[m].meh++; });
-      g.rejected.forEach(r=>{ stats[r] = stats[r] || {yes:0, meh:0, no:0}; stats[r].no++; });
+    const upsert = (name, key) => {
+      stats[name] = stats[name] || { yes:0, meh:0, no:0 };
+      stats[name][key] += 1;
+    };
+    safeGames.forEach(g => {
+      g.accepted.forEach(a => upsert(a, 'yes'));
+      g.meh.forEach(m => upsert(m, 'meh'));
+      g.rejected.forEach(r => upsert(r, 'no'));
     });
-    const labels = Object.keys(stats);
-    const yesData = labels.map(l=>stats[l].yes);
-    const mehData = labels.map(l=>stats[l].meh);
-    const noData  = labels.map(l=>stats[l].no);
 
-    // Canvas ancho para scroll horizontal
+    const labels = Object.keys(stats).sort((a,b)=>a.localeCompare(b));
+    const yesData = labels.map(l => stats[l].yes);
+    const mehData = labels.map(l => stats[l].meh);
+    const noData  = labels.map(l => stats[l].no);
+
+    // Canvas ancho (máx 1/3 visual con scroll)
     const canvas = document.getElementById('statsChart');
     const desiredWidth = Math.max(labels.length * 42, 420);
     canvas.width = desiredWidth; canvas.height = 360;
     const ctx = canvas.getContext('2d');
 
-    // Colores de barras = botones
-    const colYes = getComputedStyle(document.documentElement).getPropertyValue('--yes').trim() || '#89CFF0';
-    const colMeh = getComputedStyle(document.documentElement).getPropertyValue('--meh').trim() || '#B19CD9';
-    const colNo  = getComputedStyle(document.documentElement).getPropertyValue('--no').trim()  || '#FFB7C5';
+    // Gradientes que igualan los botones
+    const grad = (hex) => {
+      const g = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      // degradado simple del color hacia un tono algo más oscuro
+      g.addColorStop(0, hex);
+      g.addColorStop(1, hex);
+      return g;
+    };
 
     destroyChart();
-    statsChartInstance = new Chart(ctx,{
-      type:'bar',
-      data:{
+    statsChartInstance = new Chart(ctx, {
+      type: 'bar',
+      data: {
         labels,
-        datasets:[
-          { label:'Aquí sí',    data: yesData, backgroundColor: colYes, borderRadius:8, stack:'stack1' },
-          { label:'Me da igual',data: mehData, backgroundColor: colMeh, borderRadius:8, stack:'stack1' },
-          { label:'Pasando',    data: noData,  backgroundColor: colNo,  borderRadius:8, stack:'stack1' }
+        datasets: [
+          { label: 'Aquí sí',   data: yesData, backgroundColor: grad(getComputedStyle(document.documentElement).getPropertyValue('--yes').trim()), borderRadius: 8, stack: 'stack' },
+          { label: 'Me da igual', data: mehData, backgroundColor: grad(getComputedStyle(document.documentElement).getPropertyValue('--meh').trim()), borderRadius: 8, stack: 'stack' },
+          { label: 'Pasando',  data: noData,  backgroundColor: grad(getComputedStyle(document.documentElement).getPropertyValue('--no').trim()),  borderRadius: 8, stack: 'stack' }
         ]
       },
-      options:{
-        responsive:false, maintainAspectRatio:false,
-        scales:{
-          x:{ stacked:true, ticks:{ maxRotation:60, minRotation:0 }},
-          y:{ stacked:true, beginAtZero:true }
+      options: {
+        responsive: false, maintainAspectRatio: false,
+        scales: {
+          x: { stacked: true, ticks: { maxRotation: 60, minRotation: 0 } },
+          y: { stacked: true, beginAtZero: true }
         },
-        plugins:{
-          legend:{ labels:{ color:'#4a3b57', boxWidth:18, usePointStyle:true, pointStyle:'rectRounded' } },
-          tooltip:{
-            backgroundColor:'rgba(255,255,255,.95)',
-            titleColor:'#5c2a4a', bodyColor:'#5c2a4a',
-            borderColor:'#e8d7ef', borderWidth:1
+        plugins: {
+          legend: {
+            labels: { color: '#333', boxWidth: 18, usePointStyle: true, pointStyle: 'rectRounded' }
+          },
+          tooltip: {
+            backgroundColor: 'rgba(255,255,255,.95)',
+            titleColor: '#333', bodyColor: '#333',
+            borderColor: '#ddd', borderWidth: 1
           }
         },
-        animation:{ duration:300 }
+        animation: { duration: 250 }
       }
     });
 
-    // Top 5 tarjetas por “sí”
+    // TOP 5 tarjetas por "sí"
     const topCards = Object.entries(stats)
-      .sort((a,b)=> b[1].yes - a[1].yes || a[0].localeCompare(b[0]))
-      .slice(0,5);
+      .sort((a, b) => b[1].yes - a[1].yes || a[0].localeCompare(b[0]))
+      .slice(0, 5);
 
-    // Tabla de "TOP tarjetas sí"
+    // Afinidad por intersección de SÍ (no cuenta cantidades totales, solo coincidencias)
+    // Global: ranking de pares (A,B) con lista de coincidencias
+    const byPlayer = {};
+    safeGames.forEach(g => {
+      byPlayer[g.player] = byPlayer[g.player] || [];
+      byPlayer[g.player].push(new Set(g.accepted));
+    });
+    // Reducir por jugador a conjunto unión de sus "sí" (para no romper por sesiones)
+    Object.keys(byPlayer).forEach(p => {
+      const union = new Set();
+      byPlayer[p].forEach(s => s.forEach(x => union.add(x)));
+      byPlayer[p] = union;
+    });
+
+    // Construir ranking global
+    const players = Object.keys(byPlayer).sort((a,b)=>a.localeCompare(b));
+    const pairs = [];
+    for(let i=0;i<players.length;i++){
+      for(let j=i+1;j<players.length;j++){
+        const p1 = players[i], p2 = players[j];
+        const s1 = byPlayer[p1], s2 = byPlayer[p2];
+        const inter = [];
+        s1.forEach(x => { if (s2.has(x)) inter.push(x); });
+        if (inter.length>0) pairs.push({ a:p1, b:p2, common:inter, count:inter.length });
+      }
+    }
+    pairs.sort((x,y)=> y.count - x.count || (x.a+x.b).localeCompare(y.a+y.b));
+
+    // Afinidad del jugador actual (si hay)
+    let personalRows = [];
+    if (playerName && byPlayer[playerName]) {
+      const mine = byPlayer[playerName];
+      players.filter(p=>p!==playerName).forEach(p => {
+        const inter = [];
+        byPlayer[p].forEach(x => { if (mine.has(x)) inter.push(x); });
+        if (inter.length>0) personalRows.push({ player:p, count:inter.length, list:inter.sort() });
+      });
+      personalRows.sort((x,y)=> y.count - x.count || x.player.localeCompare(y.player));
+    }
+
+    // Render tablas
     let html = "";
     html += "<h3>TOP 5 tarjetas con más 'sí'</h3>";
-    html += "<table><tr><th>Tarjeta</th><th>Aquí sí</th><th>Me da igual</th><th>Pasando</th></tr>";
-    topCards.forEach(([name, v])=>{
+    html += "<table><tr><th>Tarjeta</th><th>Sí</th><th>Meh</th><th>No</th></tr>";
+    topCards.forEach(([name, v]) => {
       html += `<tr><td>${name}</td><td>${v.yes}</td><td>${v.meh}</td><td>${v.no}</td></tr>`;
     });
     html += "</table>";
     extraStats.innerHTML = html;
 
-    // ===== Afinidad por coincidencia de tarjetas “sí” (intersección) =====
-    // Global: pares (A,B) con lista de coincidencias y conteo
-    const byPlayer = {};
-    safeGames.forEach(g=>{ byPlayer[g.player] = new Set(g.accepted); });
-    const players = Object.keys(byPlayer);
+    // Afinidades
+    const affinityGlobal = document.getElementById("affinityGlobal");
+    const affinityPersonal = document.getElementById("affinityPersonal");
 
-    const pairs = [];
-    for(let i=0;i<players.length;i++){
-      for(let j=i+1;j<players.length;j++){
-        const p1 = players[i], p2 = players[j];
-        const common = intersect(byPlayer[p1], Array.from(byPlayer[p2]));
-        if(common.length>0){
-          pairs.push({ a:p1, b:p2, matches: common, count: common.length });
-        }
-      }
-    }
-    pairs.sort((x,y)=> y.count - x.count || (x.a+x.b).localeCompare(y.a+y.b));
-    const topGlobal = pairs.slice(0,5);
+    let ghtml = "<table><tr><th>Par</th><th># Coincidencias SÍ</th><th>Tarjetas en común (SÍ)</th></tr>";
+    (pairs.slice(0,20)).forEach(row=>{
+      ghtml += `<tr><td>${row.a} &amp; ${row.b}</td><td>${row.count}</td><td>${row.common.sort().join(", ")}</td></tr>`;
+    });
+    ghtml += "</table>";
+    affinityGlobal.innerHTML = ghtml;
 
-    // Afinidad contigo
-    const my = safeGames.find(g=>g.player===playerName);
-    let myRows = [];
-    if(my){
-      const mySet = new Set(my.accepted);
-      const map = [];
-      players.forEach(p=>{
-        if(p===playerName) return;
-        const common = intersect(mySet, Array.from(byPlayer[p]));
-        if(common.length>0) map.push({ player:p, matches:common, count:common.length });
+    if (personalRows.length){
+      let phtml = "<table><tr><th>Jugador</th><th># Coincidencias SÍ</th><th>Tarjetas en común (SÍ)</th></tr>";
+      personalRows.slice(0,20).forEach(r=>{
+        const c = getNameColor(r.player);
+        phtml += `<tr><td style="font-weight:600; color:${c}">${r.player}</td><td>${r.count}</td><td>${r.list.join(", ")}</td></tr>`;
       });
-      map.sort((a,b)=> b.count - a.count || a.player.localeCompare(b.player));
-      myRows = map.slice(0,5);
+      phtml += "</table>";
+      affinityPersonal.innerHTML = phtml;
+    } else {
+      affinityPersonal.innerHTML = `<p class="notice">Juega una partida para ver tu afinidad personal.</p>`;
     }
 
-    // Render tablas de afinidad
-    function renderAffinityTable(rows, headers){
-      if(!rows.length) return `<p class="notice">Sin datos suficientes.</p>`;
-      let t = `<table><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr>`;
-      rows.forEach(r=>{
-        if(r.a){ // global
-          const cA = colorForNameStable(r.a), cB = colorForNameStable(r.b);
-          t += `<tr>
-                  <td><span style="font-weight:700;color:${cA}">${r.a}</span> &amp; <span style="font-weight:700;color:${cB}">${r.b}</span></td>
-                  <td>${r.count}</td>
-                  <td>${r.matches.join(', ')}</td>
-                </tr>`;
-        }else{   // my
-          const c = colorForNameStable(r.player);
-          t += `<tr>
-                  <td style="font-weight:700;color:${c}">${r.player}</td>
-                  <td>${r.count}</td>
-                  <td>${r.matches.join(', ')}</td>
-                </tr>`;
-        }
-      });
-      t += `</table>`;
-      return t;
-    }
-
-    globalBox.innerHTML = renderAffinityTable(topGlobal, ["Pareja", "Coincidencias", "Tarjetas"]);
-    myBox.innerHTML = my ? renderAffinityTable(myRows, ["Jugador", "Coincidencias", "Tarjetas"])
-                         : `<p class="notice">Juega una partida para calcular tu afinidad.</p>`;
+    document.getElementById('affinityGrids').style.display = "grid";
   }
 
-  /* ===== Init ===== */
-  document.getElementById('start-screen').style.display='flex';
-  setRandomTheme(); // paleta al entrar
-  startPetals();    // pétalos iniciales
+  function destroyChart() {
+    if (statsChartInstance) { statsChartInstance.destroy(); statsChartInstance = null; }
+  }
+
+  /************ Init ************/
+  applyRandomTheme();
+  document.getElementById("start-screen").style.display = "flex";
 </script>
 </body>
 </html>
