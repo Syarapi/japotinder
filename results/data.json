@@ -1,70 +1,14 @@
-const fs = require('fs');
-const path = require('path');
-const fetch = require('node-fetch');
-
-const DATA_FILE = path.join(__dirname, '..', 'results', 'data.json');
-
-async function saveToGitHub(data) {
-  const GH_TOKEN = process.env.GH_TOKEN;
-  const GH_OWNER = process.env.GH_OWNER;
-  const GH_REPO = process.env.GH_REPO;
-  const GH_BRANCH = process.env.GH_BRANCH || 'main';
-
-  const url = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/results/data.json`;
-
-  // Obtener SHA actual para actualizar archivo
-  const res = await fetch(url, {
-    headers: {
-      Authorization: `token ${GH_TOKEN}`,
-      Accept: 'application/vnd.github+json',
-    },
-  });
-
-  const json = await res.json();
-  const sha = json.sha;
-
-  const updateRes = await fetch(url, {
-    method: 'PUT',
-    headers: {
-      Authorization: `token ${GH_TOKEN}`,
-      Accept: 'application/vnd.github+json',
-    },
-    body: JSON.stringify({
-      message: `Update data.json`,
-      content: Buffer.from(JSON.stringify(data, null, 2)).toString('base64'),
-      sha,
-      branch: GH_BRANCH,
-    }),
-  });
-
-  return updateRes.json();
-}
-
-module.exports = async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Only POST allowed' });
+[
+  {
+    "player": "Sakura",
+    "date": "2025-08-14 12:34:56",
+    "accepted": ["Disney Tokyo", "Gotokuji", "Pokemon Cafe"],
+    "rejected": ["Maid cafe", "Nagano y monos de nieve"]
+  },
+  {
+    "player": "Kenji",
+    "date": "2025-08-14 13:20:10",
+    "accepted": ["Pokemon Cafe", "Enoshima"],
+    "rejected": ["Disney Tokyo", "Gotokuji"]
   }
-
-  let newEntry = req.body;
-
-  try {
-    let currentData = [];
-    if (fs.existsSync(DATA_FILE)) {
-      const fileContent = fs.readFileSync(DATA_FILE, 'utf8');
-      currentData = JSON.parse(fileContent);
-      if (!Array.isArray(currentData)) currentData = [];
-    }
-
-    currentData.push(newEntry);
-
-    fs.writeFileSync(DATA_FILE, JSON.stringify(currentData, null, 2), 'utf8');
-
-    // También guardar en GitHub
-    await saveToGitHub(currentData);
-
-    res.status(200).json({ success: true });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Failed to save data' });
-  }
-};
+]
