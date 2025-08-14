@@ -209,5 +209,37 @@
       "Eventos Kisekoi/Sailor Moon",
       "Bandai Museum"
     ]
+  },
+  {
+    "player": "mario33",
+    "date": "14/8/2025, 11:23:59 a.m.",
+    "mode": "full",
+    "accepted": [
+      "Shikisai no oka",
+      "Disney Tokyo",
+      "Bandai Museum",
+      "Kumamoto",
+      "Maid cafe",
+      "Otaru",
+      "RJ Cafe Osaka",
+      "Ginzan Onsen",
+      "Gotokuji",
+      "Kumachan Onsen Tokyo",
+      "Beppu",
+      "Museo/cafe de los yokai",
+      "Eventos Kisekoi/Sailor Moon",
+      "Musical Tokyo Revengers"
+    ],
+    "meh": [
+      "Shinkansen Hello Kitty",
+      "Shinkansen Hello Kitty",
+      "Pokemon Cafe",
+      "Eventos Kisekoi/Sailor Moon",
+      "Nagano y monos de nieve"
+    ],
+    "rejected": [
+      "Shibazakura park Hokkaido",
+      "Nagano y monos de nieve"
+    ]
   }
 ]
