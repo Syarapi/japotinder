@@ -1,741 +1,291 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Japontinder</title>
-<link href="https://fonts.googleapis.com/css2?family=Yuji+Syuku&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Japotinder2</title>
 <style>
-  :root{
-    /* Paleta fija para botones/series (NO aleatoria) */
-    --yes:#87cefa;          /* azul – Aquí sí */
-    --meh:#8a5adf;          /* morado – Me da igual */
-    --no:#ff7aa3;           /* rosa – Pasando */
+:root {
+  --sakura-light:#fff7fb; --sakura-mid:#ffe3ef; --sakura-dark:#d38cb1;
+  --sky-light:#f2f9ff; --sky-mid:#e0f1ff; --sky-dark:#8dbfe6;
+  --lav-light:#faf5ff; --lav-mid:#efe3ff; --lav-dark:#b48ad6;
+  --sun-light:#fff9e0; --sun-mid:#ffefb0; --sun-dark:#e0c050;
+  --mint-light:#edfff7; --mint-mid:#d8ffee; --mint-dark:#68cba7;
 
-    /* Variables de tema aleatorio (sí cambian) */
-    --ink:#333;
-    --bg-light:#fff7fb;
-    --bg-mid:#ffe3ef;
-    --bg-dark:#d38cb1;
-    --card-bg:#ffffffee;
-    --accent-1:#d7a6f1;     /* títulos/contornos */
-    --accent-2:#b48ad6;
-    --petal-rgba: 255,182,193; /* se sobreescribe desde JS */
-  }
+  --btn-accept:#87cefa; --btn-reject:#ffc0cb; --btn-me:#dda0dd; --btn-stats:#dda0dd;
+}
 
-  /* ===== Fondo temático con pétalos (sin degradado) ===== */
-  body {
-    margin: 0;
-    font-family: 'Segoe UI', sans-serif;
-    color: var(--ink);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background: var(--bg-light);
-    position: relative;
-    overflow-x: hidden;
-  }
-  /* Capa de pétalos 1 */
-  body::before, body::after{
-    content:"";
-    position: fixed;
-    inset: 0;
-    pointer-events:none;
-    background-image:
-      radial-gradient(14px 9px at 10px 10px, rgba(var(--petal-rgba),0.25) 40%, transparent 41%),
-      radial-gradient(12px 8px at 40% 30%, rgba(var(--petal-rgba),0.18) 40%, transparent 41%),
-      radial-gradient(10px 7px at 70% 60%, rgba(var(--petal-rgba),0.15) 40%, transparent 41%),
-      radial-gradient(12px 8px at 85% 20%, rgba(var(--petal-rgba),0.18) 40%, transparent 41%);
-    animation: petals 24s linear infinite;
-    filter: blur(0.2px);
-  }
-  /* Capa de pétalos 2 (más lenta) */
-  body::after{
-    animation-duration: 32s;
-    opacity: .6;
-  }
-  @keyframes petals {
-    0% { background-position: 0 -10vh, 20vw -20vh, 60vw -15vh, 85vw -25vh; }
-    100% { background-position: 0 120vh, 20vw 130vh, 60vw 125vh, 85vw 135vh; }
-  }
+/* General */
+body{margin:0;font-family:'Yuji Syuku', serif;background:var(--sakura-light);display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.hidden{display:none;}
 
-  h1, h2, h3 { font-family: 'Yuji Syuku', serif; text-align: center; }
-  h1 { color: var(--accent-1); text-shadow: 0 2px 0 #fff; }
-  h2 { color: var(--accent-2); }
-  h3 { color: var(--accent-1); }
+/* Inicio */
+#start-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;gap:20px;padding:20px;}
+#start-screen input{padding:10px;font-size:1rem;border-radius:8px;border:1px solid #ccc;}
+#start-screen button{padding:10px 20px;font-size:1rem;border:none;border-radius:8px;cursor:pointer;background:var(--btn-accept);color:#fff;}
 
-  /* Contenedores principales */
-  #start-screen, #mode-screen, #results, #stats-screen {
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px;
-    width: 100%;
-  }
-  #start-screen { display: flex; justify-content: center; gap: 15px; min-height: 100vh; }
+/* Elección de modo vertical */
+#mode-screen{display:flex;width:100vw;height:100vh;}
+.mode-half{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;padding:20px;transition:transform .15s ease;}
+.mode-half:hover{transform:scale(1.02);}
+.mode-half h2{font-size:clamp(26px,4vw,40px);font-weight:800;text-align:center;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.2);}
+.mode-half p{font-size:clamp(14px,2vw,18px);text-align:center;max-width:90%;color:#fff;}
+.mode-short{background:var(--sun-mid);}
+.mode-full{background:var(--sky-mid);}
 
-  /* Tarjetas */
-  #card-container {
-    position: relative;
-    width: 90%;
-    max-width: 520px;
-    height: 66vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  .card {
-    width: 100%;
-    height: 100%;
-    background: var(--card-bg);
-    backdrop-filter: blur(3px);
-    border-radius: 20px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
-    padding: 18px;
-    box-sizing: border-box;
-    border: 2px solid var(--accent-1);
-    will-change: transform;
-  }
-  .card img {
-    max-height: 85%;
-    max-width: 100%;
-    object-fit: cover;
-    border-radius: 14px;
-    box-shadow: 0 6px 16px rgba(0,0,0,0.12);
-    user-select: none;
-    -webkit-user-drag: none;
-  }
-  .card div { font-weight: 600; color: var(--ink); padding-top: 6px; }
+/* Juego */
+#game-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;width:100vw;position:relative;touch-action: none;}
+#card-container{display:flex;flex-direction:column;align-items:center;justify-content:center;width:90%;height:70%;background:#fff;border-radius:16px;box-shadow:0 4px 12px rgba(0,0,0,.2);}
+#card-container img{max-width:100%;max-height:100%;border-radius:12px;}
+#card-container h2{margin:10px 0;}
+.btn-row{display:flex;gap:12px;margin-top:20px;}
+.btn{padding:10px 16px;border:none;border-radius:12px;font-weight:700;cursor:pointer;}
+#accept-btn{background:var(--btn-accept);}
+#reject-btn{background:var(--btn-reject);}
+#me-btn{background:var(--btn-me);}
 
-  /* Botonera */
-  #buttons {
-    margin-top: 20px;
-    display: flex;
-    gap: 16px;
-    z-index: 10;
-  }
-  .btn {
-    padding: 14px 22px;
-    font-size: 17px;
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: transform .15s ease, box-shadow .15s ease, opacity .2s ease;
-    box-shadow: 0 8px 18px rgba(0,0,0,.12);
-    color: white;
-  }
-  .accept { background: linear-gradient(180deg, var(--yes) 0%, #5fb5ef 100%); }
-  .meh    { background: linear-gradient(180deg, var(--meh) 0%, #7343d8 100%); }
-  .reject { background: linear-gradient(180deg, var(--no) 0%, #ff5f93 100%); }
-  .stats-btn { background: linear-gradient(180deg, var(--accent-1) 0%, var(--accent-2) 100%); color: #fff; }
-  .btn:hover { transform: translateY(-1px); box-shadow: 0 10px 20px rgba(0,0,0,.16); }
-  .btn:active { transform: translateY(0); opacity:.95; }
+/* Resultados */
+#result-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;width:100vw;gap:16px;padding:20px;}
+#result-screen h2{margin:0;}
+#result-screen button{padding:10px 20px;border:none;border-radius:8px;background:var(--btn-stats);color:#fff;font-weight:700;cursor:pointer;}
 
-  .results-container { display: flex; gap: 50px; justify-content: center; flex-wrap: wrap; }
-  .list { margin: 10px 0; }
-  ul { list-style: none; padding: 0; font-size: 18px; }
-  input {
-    padding: 12px 14px; font-size: 16px; border-radius: 10px;
-    border: 2px solid var(--accent-1); width: 220px; text-align: center; background: #fff;
-    box-shadow: 0 6px 16px rgba(0,0,0,.08);
-  }
+/* Estadísticas: dos tablas en fila */
+#stats-screen{display:flex;flex-direction:row;align-items:flex-start;justify-content:center;height:100vh;width:100vw;overflow-x:auto;padding:20px;gap:20px;}
+.stats-table-container{flex:1;overflow:auto;}
+#stats-screen table{border-collapse:collapse;width:100%;max-width:600px;}
+#stats-screen th, #stats-screen td{border:1px solid #ccc;padding:4px;text-align:center;}
+#stats-screen th{background:#eee;font-weight:700;}
+#stats-screen td.card-name{font-size:0.8rem;}
+#stats-screen tbody tr:hover{background:rgba(0,0,0,0.05);}
+#back-from-stats{padding:10px 20px;border:none;border-radius:8px;background:var(--btn-stats);color:#fff;font-weight:700;cursor:pointer;margin-top:10px;}
 
-  /* Modo elección */
-  .mode-grid{
-    display:grid; grid-template-columns: 1fr; gap:16px; max-width:720px; width:100%;
-  }
-  .mode-card{
-    background: var(--card-bg); border:2px solid var(--accent-1); border-radius:16px;
-    padding:16px; box-shadow: 0 8px 24px rgba(0,0,0,.12);
-  }
-  .mode-card p{ margin:8px 0 0 0; color:#555; }
-  @media (min-width:760px){ .mode-grid{ grid-template-columns: 1fr 1fr; } }
-
-  /* Tablas */
-  table {
-    border-collapse: collapse;
-    margin-top: 15px;
-    width: 90%;
-    max-width: 680px;
-    background: #fff;
-    border-radius: 14px;
-    overflow: hidden;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-    border: 2px solid var(--accent-1);
-  }
-  table th, table td { padding: 10px 14px; border-bottom: 1px solid #f0e7f8; text-align: left; }
-  table th {
-    background: linear-gradient(180deg, var(--accent-2) 0%, var(--accent-1) 100%);
-    color: white; letter-spacing:.3px;
-  }
-  table tr:nth-child(even) { background-color: #faf7ff; }
-  table tr:hover { background-color: #f4ecff; transition: background .2s ease; }
-
-  .notice { color: var(--accent-2); margin-top: 10px; }
-  .error { color: #d6456a; margin-top: 10px; }
-  .muted { color: #777; }
-
-  /* ===== Layout de estadísticas ===== */
-  .stats-layout {
-    display: flex; flex-direction: column; gap: 24px; align-items: stretch;
-    width: 100%; max-width: 1200px; margin: 0 auto; padding-inline: 10px;
-  }
-  .chart-container {
-    width: 100%;
-  }
-  .chart-card{
-    background: var(--card-bg); border: 2px solid var(--accent-1);
-    border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-    padding: 10px 10px 6px;
-  }
-  .chart-scroll { width: 100%; overflow-x: auto; overflow-y: hidden; }
-  .chart-scroll canvas { display: block; }
-  .chart-container canvas { height: 360px !important; }
-
-  /* Doble columna para afinidades */
-  .affinity-grid{
-    display:grid; grid-template-columns: 1fr; gap:20px; align-items:start; width:100%;
-  }
-  @media (min-width:980px){
-    .affinity-grid{ grid-template-columns: 1fr 1fr; }
-  }
 </style>
 </head>
 <body>
 
 <!-- Pantalla de inicio -->
 <div id="start-screen">
-  <div style="text-align:center">
-    <h1>Japontinder</h1>
-    <p>¿Quién eres? O no empezamos ò_ó</p>
-    <input type="text" id="username" placeholder="Tu nombre" />
-    <div style="margin-top:12px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
-      <button class="btn accept" id="btnNameNext">Siguiente</button>
-      <button class="btn stats-btn" onclick="showStats()">Ver estadísticas</button>
-    </div>
+  <h1>Bienvenido a Japotinder2</h1>
+  <p>Introduce tu nombre:</p>
+  <input type="text" id="player-name" placeholder="Nombre">
+  <button id="start-btn">Empezar</button>
+  <p>Tutorial: Selecciona tarjetas con los botones o haciendo swipe. Derecha: Sí, izquierda: No, arriba: Me da igual.</p>
+  <button id="view-stats-btn">Ver estadísticas</button>
+</div>
+
+<!-- Selección de modo -->
+<div id="mode-screen" class="hidden">
+  <div class="mode-half mode-short" data-mode="short">
+    <h2>Modo Corto</h2>
+    <p>20 tarjetas, solo 5 "Me da igual"</p>
+  </div>
+  <div class="mode-half mode-full" data-mode="full">
+    <h2>Modo Completo</h2>
+    <p>Todas las tarjetas, solo 10 "Me da igual"</p>
   </div>
 </div>
 
-<!-- Elección de modo -->
-<div id="mode-screen">
-  <h2>Elige cómo jugar</h2>
-  <div class="mode-grid">
-    <div class="mode-card">
-      <button class="btn stats-btn" id="btnShort">Versión corta</button>
-      <p>20 tarjetas al azar. Puedes usar “Me da igual” <strong>5 veces</strong>.</p>
-    </div>
-    <div class="mode-card">
-      <button class="btn stats-btn" id="btnFull">Completo</button>
-      <p>Todas las tarjetas en orden aleatorio. “Me da igual” disponible <strong>10 veces</strong>.</p>
-    </div>
+<!-- Pantalla de juego -->
+<div id="game-screen" class="hidden">
+  <div id="card-container">
+    <img id="card-img" src="" alt="">
+    <h2 id="card-name"></h2>
   </div>
-  <div style="margin-top:14px">
-    <button class="btn reject" onclick="goToStart()">Volver</button>
-  </div>
-</div>
-
-<!-- Juego -->
-<div id="game-screen" style="display:none; flex-direction: column; align-items: center;">
-  <div id="card-container"></div>
-  <div id="buttons">
-    <button class="btn reject" onclick="handleDecision(-1)">Pasando</button>
-    <button class="btn meh" onclick="handleDecision(0)">Me da igual</button>
-    <button class="btn accept" onclick="handleDecision(1)">Aquí sí</button>
+  <div class="btn-row">
+    <button id="accept-btn" class="btn">Sí</button>
+    <button id="me-btn" class="btn">Me da igual</button>
+    <button id="reject-btn" class="btn">No</button>
   </div>
 </div>
 
 <!-- Resultados -->
-<div id="results">
+<div id="result-screen" class="hidden">
   <h2>Resultados</h2>
-  <p id="player-info"></p>
-  <div class="results-container">
-    <div class="list">
-      <h3>Aquí sí</h3>
-      <ul id="accepted-list"></ul>
-    </div>
-    <div class="list">
-      <h3>Me da igual</h3>
-      <ul id="meh-list"></ul>
-    </div>
-    <div class="list">
-      <h3>Pasando</h3>
-      <ul id="rejected-list"></ul>
-    </div>
-  </div>
-  <div style="margin-top:14px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
-    <button class="btn stats-btn" onclick="showStats()">Ver estadísticas</button>
-    <button class="btn reject" onclick="restartGame()">Volver al inicio</button>
-  </div>
+  <button id="stats-btn-result">Ver estadísticas</button>
 </div>
 
-<!-- Pantalla de estadísticas -->
-<div id="stats-screen">
-  <h2>Estadísticas globales</h2>
-  <div class="stats-layout">
-    <div class="chart-container">
-      <div class="chart-card">
-        <div class="chart-scroll">
-          <canvas id="statsChart"></canvas>
-        </div>
-      </div>
-    </div>
-
-    <div id="extraStats"></div>
-
-    <!-- Afinidades: izquierda global, derecha jugador actual -->
-    <div class="affinity-grid" id="affinityGrids" style="display:none;">
-      <div>
-        <h3>Ranking de afinidad (todos los jugadores)</h3>
-        <div id="affinityGlobal"></div>
-      </div>
-      <div>
-        <h3>Jugadores más afines contigo</h3>
-        <div id="affinityPersonal"></div>
-      </div>
-    </div>
+<!-- Estadísticas -->
+<div id="stats-screen" class="hidden">
+  <div class="stats-table-container">
+    <h2>Estadísticas Globales</h2>
+    <table id="stats-table">
+      <thead>
+        <tr>
+          <th>Jugador</th>
+          <th>Tarjeta</th>
+          <th>Elección</th>
+          <th>Fecha</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
   </div>
-  <div style="margin-top:14px;">
-    <button class="btn reject" onclick="goToStart()">Volver</button>
+  <div class="stats-table-container">
+    <h2>Comparativa de Afinidad</h2>
+    <table id="affinity-table">
+      <thead>
+        <tr><th>Jugador 1</th><th>Jugador 2</th><th>Tarjetas coincidencia</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
   </div>
+  <button id="back-from-stats">Volver</button>
 </div>
 
 <script>
-  /************ Config ************/
-  const saveEndpoint = "/api/save"; // deja tu ruta del backend
-  const dataUrl = "https://raw.githubusercontent.com/Syarapi/japotinder/main/results/data.json";
+const BASE_CARDS = [
+  { name: "Disney Tokyo", img: "img/disney.jpg" },
+  { name: "Gotokuji", img: "img/gotokuji.jpg" },
+  { name: "Pokemon Cafe", img: "img/pokemon.jpg" },
+  { name: "Shikisai no oka", img: "img/shikisai.jpg" },
+  { name: "Shinkansen Hello Kitty", img: "img/hello-kitty.jpg" },
+  { name: "Maid cafe", img: "img/maid.jpg" },
+  { name: "Nabana no sato", img: "img/nabana.jpg" },
+  { name: "Otaru", img: "img/otaru.jpg" },
+  { name: "Nagano y monos de nieve", img: "img/nagano.jpg" },
+  { name: "RJ Cafe Osaka", img: "img/rj-cafe.jpg" },
+  { name: "Kumachan Onsen Tokyo", img: "img/kumachan.jpg" },
+  { name: "Enoshima", img: "img/enoshima.jpg" },
+  { name: "Ginzan Onsen", img: "img/ginzan.jpg" },
+  { name: "Tarde de recreativas", img: "img/arcade.jpg" },
+  { name: "Shibazakura park Hokkaido", img: "img/shibazakura.jpg" },
+  { name: "Musical Tokyo Revengers", img: "img/tokyo-revengers.jpg" },
+  { name: "Eventos Kisekoi/Sailor Moon", img: "img/kisekoi.jpg" },
+  { name: "Museo/cafe de los yokai", img: "img/yokai.jpg" },
+  { name: "Kumamoto", img: "img/kumamoto.jpg" },
+  { name: "Beppu", img: "img/beppu.jpg" },
+  { name: "Bandai Museum", img: "img/bandai.jpg" }
+];
 
-  /************ Datos base ************/
-  const originalData = [
-    { name: "Disney Tokyo", img: "img/disney.jpg" },
-    { name: "Gotokuji", img: "img/gotokuji.jpg" },
-    { name: "Pokemon Cafe", img: "img/pokemon.jpg" },
-    { name: "Shikisai no oka", img: "img/shikisai.jpg" },
-    { name: "Shinkansen Hello Kitty", img: "img/hello-kitty.jpg" },
-    { name: "Maid cafe", img: "img/maid.jpg" },
-    { name: "Nabana no sato", img: "img/nabana.jpg" },
-    { name: "Otaru", img: "img/otaru.jpg" },
-    { name: "Nagano y monos de nieve", img: "img/nagano.jpg" },
-    { name: "RJ Cafe Osaka", img: "img/rj-cafe.jpg" },
-    { name: "Kumachan Onsen Tokyo", img: "img/kumachan.jpg" },
-    { name: "Enoshima", img: "img/enoshima.jpg" },
-    { name: "Ginzan Onsen", img: "img/ginzan.jpg" },
-    { name: "Tarde de recreativas", img: "img/arcade.jpg" },
-    { name: "Shibazakura park Hokkaido", img: "img/shibazakura.jpg" },
-    { name: "Musical Tokyo Revengers", img: "img/tokyo-revengers.jpg" },
-    { name: "Eventos Kisekoi/Sailor Moon", img: "img/kisekoi.jpg" },
-    { name: "Museo/cafe de los yokai", img: "img/yokai.jpg" },
-    { name: "Kumamoto", img: "img/kumamoto.jpg" },
-    { name: "Beppu", img: "img/beppu.jpg" },
-    { name: "Bandai Museum", img: "img/bandai.jpg" }
-  ];
+let playerName = "";
+let gameMode = "";
+let currentCards = [];
+let currentIndex = 0;
+let meCounter = 0;
+const playerColors = {};
+const specialColors = {Sara:'#ffc0cb',Alba:'#87cefa',Alicia:'#D68AD3',Vaini:'#a08ad6'};
 
-  /************ Estado ************/
-  let playerName = "";
-  let mode = "short"; // "short" | "full"
-  let data = [];
-  let accepted = [];
-  let rejected = [];
-  let meh = [];
-  let index = 0;
-  let mehLimit = 5;
-  let statsChartInstance = null;
+// Funciones
+function showScreen(id){
+  document.querySelectorAll('body > div').forEach(d=>d.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+}
 
-  const container = document.getElementById('card-container');
+// Inicio
+document.getElementById('start-btn').addEventListener('click',()=>{
+  const input=document.getElementById('player-name').value.trim();
+  if(!input){alert('Introduce tu nombre');return;}
+  playerName=input;
+  showScreen('mode-screen');
+});
 
-  /************ Utilidades ************/
-  const shuffleArray = (array) => array.slice().sort(() => Math.random() - 0.5);
+document.querySelectorAll('.mode-half').forEach(div=>{
+  div.addEventListener('click',()=>{
+    gameMode=div.dataset.mode;
+    startGame();
+  });
+});
 
-  // Colores fijos para nombres: Alba=azul, Alicia/Vaini=morados, Sara=rosa, otros: amarillo pastel o verde menta pero fijo por hash
-  function getNameColor(name){
-    const n = (name || "").trim().toLowerCase();
-    if(n === "alba")   return "#2f7bdc";          // azul
-    if(n === "alicia" || n === "vaini") return "#8a5adf"; // morado
-    if(n === "sara")   return "#ff6fa1";          // rosa
-    // Otros: asignación determinista entre amarillo pastel legible y verde menta
-    const options = ["#ffd666", "#56e0b5"]; // sun pastel (legible), mint
-    let hash = 0; for(let i=0;i<n.length;i++){ hash = (hash*31 + n.charCodeAt(i))|0; }
-    return options[Math.abs(hash)%options.length];
+function startGame(){
+  showScreen('game-screen');
+  currentCards = [...BASE_CARDS];
+  if(gameMode==='short') currentCards = currentCards.slice(0,20);
+  currentIndex=0;
+  meCounter=0;
+  shuffle(currentCards);
+  showCard();
+}
+
+function shuffle(array){for(let i=array.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[array[i],array[j]]=[array[j],array[i]];}}
+
+function showCard(){
+  if(currentIndex>=currentCards.length){showResults();return;}
+  const card=currentCards[currentIndex];
+  document.getElementById('card-img').src=card.img;
+  document.getElementById('card-name').textContent=card.name;
+  card.choice='';
+}
+
+function choose(choice){
+  if(choice==='me'){
+    const limit = gameMode==='short'?5:10;
+    if(meCounter>=limit){alert('"Me da igual" agotado');return;}
+    meCounter++;
   }
+  currentCards[currentIndex].choice=choice;
+  currentIndex++;
+  showCard();
+}
 
-  // Tema aleatorio (afecta fondos, bordes, acentos; NO los botones ni colores de series)
-  function applyRandomTheme(){
-    const themes = [
-      { name:"sakura", light:"#fff7fb", mid:"#ffe3ef", dark:"#d38cb1", accent1:"#d7a6f1", accent2:"#b48ad6", petal:[220,120,160] },
-      { name:"sky",    light:"#f2f9ff", mid:"#e0f1ff", dark:"#8dbfe6", accent1:"#a3c9ff", accent2:"#7fb2f0", petal:[120,160,220] },
-      { name:"lav",    light:"#faf5ff", mid:"#efe3ff", dark:"#b48ad6", accent1:"#d7a6f1", accent2:"#b48ad6", petal:[150,110,200] },
-      { name:"sun",    light:"#fff9e0", mid:"#ffefb0", dark:"#e0c050", accent1:"#f0d46a", accent2:"#e1b84f", petal:[220,190,80] },
-      { name:"mint",   light:"#edfff7", mid:"#d8ffee", dark:"#68cba7", accent1:"#9fe6cc", accent2:"#68cba7", petal:[90,170,140] }
-    ];
-    const pick = themes[Math.floor(Math.random()*themes.length)];
-    const root = document.documentElement.style;
-    root.setProperty('--bg-light', pick.light);
-    root.setProperty('--bg-mid', pick.mid);
-    root.setProperty('--bg-dark', pick.dark);
-    root.setProperty('--accent-1', pick.accent1);
-    root.setProperty('--accent-2', pick.accent2);
-    root.setProperty('--petal-rgba', `${pick.petal[0]},${pick.petal[1]},${pick.petal[2]}`);
-  }
+// Botones
+document.getElementById('accept-btn').addEventListener('click',()=>choose('yes'));
+document.getElementById('reject-btn').addEventListener('click',()=>choose('no'));
+document.getElementById('me-btn').addEventListener('click',()=>choose('me'));
 
-  function setPlayerInfo(dateTime){
-    const spanColor = getNameColor(playerName);
-    const html = `Jugador: <span style="font-weight:700; color:${spanColor}">${playerName}</span> | ${dateTime} | Modo: ${mode === 'short' ? 'Corto' : 'Completo'}`;
-    document.getElementById('player-info').innerHTML = html;
-  }
+// Swipe
+let startX, startY;
+const cardContainer=document.getElementById('card-container');
+cardContainer.addEventListener('touchstart',e=>{startX=e.touches[0].clientX; startY=e.touches[0].clientY;});
+cardContainer.addEventListener('touchend',e=>{
+  const dx=e.changedTouches[0].clientX-startX;
+  const dy=e.changedTouches[0].clientY-startY;
+  if(Math.abs(dx)>50){choose(dx>0?'yes':'no');}
+  else if(dy<-50){choose('me');}
+});
 
-  // Lectura robusta de data.json
-  function ensureArray(maybeArray) {
-    if (Array.isArray(maybeArray)) return maybeArray;
-    if (maybeArray && Array.isArray(maybeArray.games)) return maybeArray.games;
-    return [];
-  }
+// Resultados
+function showResults(){
+  showScreen('result-screen');
+}
 
-  /************ Flujo UI ************/
-  document.getElementById("btnNameNext").addEventListener("click", () => {
-    const nameInput = document.getElementById("username").value.trim();
-    if (!nameInput) { alert("Que me digas quién eres o no jugamos ù3ú"); return; }
-    playerName = nameInput;
-    document.getElementById("start-screen").style.display = "none";
-    document.getElementById("mode-screen").style.display = "flex";
+// Estadísticas
+async function showStats(){
+  showScreen('stats-screen');
+  const res=await fetch('results/data.json');
+  const data=await res.json();
+  const tbody=document.querySelector('#stats-table tbody');
+  tbody.innerHTML='';
+  data.forEach(entry=>{
+    if(!playerColors[entry.player]){
+      playerColors[entry.player]=specialColors[entry.player]||randomColor();
+    }
+    const tr=document.createElement('tr');
+    const tdName=document.createElement('td'); tdName.textContent=entry.player; tdName.style.color=playerColors[entry.player];
+    const tdCard=document.createElement('td'); tdCard.textContent=entry.card; tdCard.className='card-name';
+    const tdChoice=document.createElement('td'); tdChoice.textContent=entry.choice;
+    const tdDate=document.createElement('td'); tdDate.textContent=entry.date;
+    tr.append(tdName,tdCard,tdChoice,tdDate);
+    tbody.appendChild(tr);
   });
 
-  document.getElementById("btnShort").addEventListener("click", () => {
-    mode = "short";
-    mehLimit = 5;
-    startGameWithMode();
-  });
-  document.getElementById("btnFull").addEventListener("click", () => {
-    mode = "full";
-    mehLimit = 10;
-    startGameWithMode();
-  });
-
-  function startGameWithMode(){
-    data = shuffleArray(originalData);
-    if (mode === "short") data = data.slice(0, 20);
-    index = 0; accepted = []; rejected = []; meh = [];
-    container.innerHTML = "";
-    document.getElementById("mode-screen").style.display = "none";
-    document.getElementById("game-screen").style.display = "flex";
-    showNextCard(true);
-  }
-
-  function restartGame() {
-    document.getElementById("results").style.display = "none";
-    document.getElementById("start-screen").style.display = "flex";
-  }
-  function goToStart() {
-    document.getElementById("stats-screen").style.display = "none";
-    document.getElementById("start-screen").style.display = "flex";
-  }
-
-  /************ Tarjetas + Swipe ************/
-  function createCard(item) {
-    const card = document.createElement('div'); card.className = 'card';
-    const img = document.createElement('img'); img.src = item.img; img.alt = item.name;
-    const name = document.createElement('div'); name.textContent = item.name;
-    card.appendChild(img); card.appendChild(name);
-    attachSwipe(card);
-    return card;
-  }
-
-  function showNextCard(initial=false) {
-    if (!initial) {
-      // limpiar cualquier resto
-      container.innerHTML = "";
-    }
-    if (index < data.length) {
-      const card = createCard(data[index]);
-      container.appendChild(card);
-    } else {
-      showResults();
+  // Comparativa
+  const affinityTbody=document.querySelector('#affinity-table tbody');
+  affinityTbody.innerHTML='';
+  const players=[...new Set(data.map(d=>d.player))];
+  for(let i=0;i<players.length;i++){
+    for(let j=i+1;j<players.length;j++){
+      const p1=players[i]; const p2=players[j];
+      const cards1=data.filter(d=>d.player===p1&&d.choice==='yes').map(d=>d.card);
+      const cards2=data.filter(d=>d.player===p2&&d.choice==='yes').map(d=>d.card);
+      const matches=cards1.filter(c=>cards2.includes(c)).length;
+      const tr=document.createElement('tr');
+      const td1=document.createElement('td'); td1.textContent=p1; td1.style.color=playerColors[p1];
+      const td2=document.createElement('td'); td2.textContent=p2; td2.style.color=playerColors[p2];
+      const tdM=document.createElement('td'); tdM.textContent=matches;
+      tr.append(td1,td2,tdM);
+      affinityTbody.appendChild(tr);
     }
   }
+}
 
-  // Swipe (izquierda=-1, derecha=1, arriba=0)
-  function attachSwipe(el){
-    let startX=0, startY=0, dx=0, dy=0, active=false;
+document.getElementById('view-stats-btn').addEventListener('click',showStats);
+document.getElementById('stats-btn-result').addEventListener('click',showStats);
+document.getElementById('back-from-stats').addEventListener('click',()=>showScreen('start-screen'));
 
-    const onStart = (x,y) => { active=true; startX=x; startY=y; dx=0; dy=0; el.style.transition=""; };
-    const onMove = (x,y) => {
-      if(!active) return;
-      dx = x - startX; dy = y - startY;
-      const rot = dx * 0.05;
-      el.style.transform = `translate(${dx}px, ${dy}px) rotate(${rot}deg)`;
-      el.style.opacity = String(1 - Math.min(0.6, Math.abs(dx)/300 + Math.max(0, -dy)/300));
-    };
-    const onEnd = () => {
-      if(!active) return;
-      active=false;
-      const THX = 80, THY = -80; // arriba es negativo
-      if (dx <= -THX) { commitDecision(-1, el); return; }   // izquierda -> no
-      if (dx >=  THX) { commitDecision( 1, el); return; }   // derecha  -> sí
-      if (dy <=  THY) { commitDecision( 0, el); return; }   // arriba   -> meh
-      // volver al centro
-      el.style.transition="transform .2s ease, opacity .2s ease";
-      el.style.transform="translate(0,0) rotate(0)";
-      el.style.opacity="1";
-    };
-
-    // Touch
-    el.addEventListener("touchstart", (e)=>onStart(e.touches[0].clientX, e.touches[0].clientY), {passive:true});
-    el.addEventListener("touchmove",  (e)=>onMove(e.touches[0].clientX, e.touches[0].clientY), {passive:true});
-    el.addEventListener("touchend",   onEnd);
-
-    // Mouse (desktop)
-    el.addEventListener("mousedown", (e)=>onStart(e.clientX, e.clientY));
-    window.addEventListener("mousemove", (e)=>onMove(e.clientX, e.clientY));
-    window.addEventListener("mouseup", onEnd);
-  }
-
-  function commitDecision(direction, el){
-    const name = el.querySelector('div').textContent;
-    if (direction === 1) accepted.push(name);
-    else if (direction === -1) rejected.push(name);
-    else {
-      if (meh.length >= mehLimit) {
-        alert("Por favor, mójate un poco más…");
-        // vuelve al centro
-        el.style.transition="transform .2s ease, opacity .2s ease";
-        el.style.transform="translate(0,0) rotate(0)";
-        el.style.opacity="1";
-        return;
-      }
-      meh.push(name);
-    }
-    index++;
-    container.innerHTML = "";
-    showNextCard();
-  }
-
-  function handleDecision(direction){ // -1 no | 0 meh | 1 sí
-    const el = container.querySelector('.card');
-    if (!el) return;
-    commitDecision(direction, el);
-  }
-
-  /************ Resultados + Guardado ************/
-  async function showResults() {
-    document.getElementById('game-screen').style.display = 'none';
-    document.getElementById('results').style.display = 'flex';
-    const now = new Date(); const dateTime = now.toLocaleString();
-    setPlayerInfo(dateTime);
-
-    const fillList = (id, arr) => {
-      const ul = document.getElementById(id); ul.innerHTML="";
-      arr.forEach(n => { const li = document.createElement('li'); li.textContent = n; ul.appendChild(li); });
-    };
-    fillList('accepted-list', accepted);
-    fillList('meh-list', meh);
-    fillList('rejected-list', rejected);
-
-    try {
-      await fetch(saveEndpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ player: playerName, date: dateTime, mode, accepted, meh, rejected })
-      });
-    } catch (e) {
-      console.warn("No se pudo guardar en la API:", e);
-    }
-  }
-
-  /************ Estadísticas ************/
-  async function showStats() {
-    document.getElementById('start-screen').style.display = 'none';
-    document.getElementById('mode-screen').style.display = 'none';
-    document.getElementById('results').style.display = 'none';
-    document.getElementById('stats-screen').style.display = 'flex';
-
-    const extraStats = document.getElementById('extraStats');
-    document.getElementById('affinityGrids').style.display = "none";
-    extraStats.innerHTML = `<p class="muted">Cargando datos...</p>`;
-
-    let games = [];
-    try {
-      const res = await fetch(`${dataUrl}?t=${Date.now()}`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const json = await res.json();
-      games = ensureArray(json);
-    } catch (err) {
-      extraStats.innerHTML = `<p class="error">No se pudo cargar <code>results/data.json</code>. Detalle: ${err.message}</p>`;
-      destroyChart();
-      return;
-    }
-
-    if (!games.length) {
-      extraStats.innerHTML = `<p class="notice">No hay partidas guardadas aún.</p>`;
-      destroyChart();
-      return;
-    }
-
-    // Normalizar
-    const safeGames = games
-      .filter(g => g && Array.isArray(g.accepted) && Array.isArray(g.rejected))
-      .map(g => ({
-        player: g.player || "¿anon?",
-        mode: g.mode || "unknown",
-        accepted: Array.isArray(g.accepted) ? g.accepted : [],
-        meh: Array.isArray(g.meh) ? g.meh : [],
-        rejected: Array.isArray(g.rejected) ? g.rejected : []
-      }));
-
-    // Conteos por tarjeta
-    const stats = {};
-    const upsert = (name, key) => {
-      stats[name] = stats[name] || { yes:0, meh:0, no:0 };
-      stats[name][key] += 1;
-    };
-    safeGames.forEach(g => {
-      g.accepted.forEach(a => upsert(a, 'yes'));
-      g.meh.forEach(m => upsert(m, 'meh'));
-      g.rejected.forEach(r => upsert(r, 'no'));
-    });
-
-    const labels = Object.keys(stats).sort((a,b)=>a.localeCompare(b));
-    const yesData = labels.map(l => stats[l].yes);
-    const mehData = labels.map(l => stats[l].meh);
-    const noData  = labels.map(l => stats[l].no);
-
-    // Canvas ancho (máx 1/3 visual con scroll)
-    const canvas = document.getElementById('statsChart');
-    const desiredWidth = Math.max(labels.length * 42, 420);
-    canvas.width = desiredWidth; canvas.height = 360;
-    const ctx = canvas.getContext('2d');
-
-    // Gradientes que igualan los botones
-    const grad = (hex) => {
-      const g = ctx.createLinearGradient(0, 0, 0, canvas.height);
-      // degradado simple del color hacia un tono algo más oscuro
-      g.addColorStop(0, hex);
-      g.addColorStop(1, hex);
-      return g;
-    };
-
-    destroyChart();
-    statsChartInstance = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [
-          { label: 'Aquí sí',   data: yesData, backgroundColor: grad(getComputedStyle(document.documentElement).getPropertyValue('--yes').trim()), borderRadius: 8, stack: 'stack' },
-          { label: 'Me da igual', data: mehData, backgroundColor: grad(getComputedStyle(document.documentElement).getPropertyValue('--meh').trim()), borderRadius: 8, stack: 'stack' },
-          { label: 'Pasando',  data: noData,  backgroundColor: grad(getComputedStyle(document.documentElement).getPropertyValue('--no').trim()),  borderRadius: 8, stack: 'stack' }
-        ]
-      },
-      options: {
-        responsive: false, maintainAspectRatio: false,
-        scales: {
-          x: { stacked: true, ticks: { maxRotation: 60, minRotation: 0 } },
-          y: { stacked: true, beginAtZero: true }
-        },
-        plugins: {
-          legend: {
-            labels: { color: '#333', boxWidth: 18, usePointStyle: true, pointStyle: 'rectRounded' }
-          },
-          tooltip: {
-            backgroundColor: 'rgba(255,255,255,.95)',
-            titleColor: '#333', bodyColor: '#333',
-            borderColor: '#ddd', borderWidth: 1
-          }
-        },
-        animation: { duration: 250 }
-      }
-    });
-
-    // TOP 5 tarjetas por "sí"
-    const topCards = Object.entries(stats)
-      .sort((a, b) => b[1].yes - a[1].yes || a[0].localeCompare(b[0]))
-      .slice(0, 5);
-
-    // Afinidad por intersección de SÍ (no cuenta cantidades totales, solo coincidencias)
-    // Global: ranking de pares (A,B) con lista de coincidencias
-    const byPlayer = {};
-    safeGames.forEach(g => {
-      byPlayer[g.player] = byPlayer[g.player] || [];
-      byPlayer[g.player].push(new Set(g.accepted));
-    });
-    // Reducir por jugador a conjunto unión de sus "sí" (para no romper por sesiones)
-    Object.keys(byPlayer).forEach(p => {
-      const union = new Set();
-      byPlayer[p].forEach(s => s.forEach(x => union.add(x)));
-      byPlayer[p] = union;
-    });
-
-    // Construir ranking global
-    const players = Object.keys(byPlayer).sort((a,b)=>a.localeCompare(b));
-    const pairs = [];
-    for(let i=0;i<players.length;i++){
-      for(let j=i+1;j<players.length;j++){
-        const p1 = players[i], p2 = players[j];
-        const s1 = byPlayer[p1], s2 = byPlayer[p2];
-        const inter = [];
-        s1.forEach(x => { if (s2.has(x)) inter.push(x); });
-        if (inter.length>0) pairs.push({ a:p1, b:p2, common:inter, count:inter.length });
-      }
-    }
-    pairs.sort((x,y)=> y.count - x.count || (x.a+x.b).localeCompare(y.a+y.b));
-
-    // Afinidad del jugador actual (si hay)
-    let personalRows = [];
-    if (playerName && byPlayer[playerName]) {
-      const mine = byPlayer[playerName];
-      players.filter(p=>p!==playerName).forEach(p => {
-        const inter = [];
-        byPlayer[p].forEach(x => { if (mine.has(x)) inter.push(x); });
-        if (inter.length>0) personalRows.push({ player:p, count:inter.length, list:inter.sort() });
-      });
-      personalRows.sort((x,y)=> y.count - x.count || x.player.localeCompare(y.player));
-    }
-
-    // Render tablas
-    let html = "";
-    html += "<h3>TOP 5 tarjetas con más 'sí'</h3>";
-    html += "<table><tr><th>Tarjeta</th><th>Sí</th><th>Meh</th><th>No</th></tr>";
-    topCards.forEach(([name, v]) => {
-      html += `<tr><td>${name}</td><td>${v.yes}</td><td>${v.meh}</td><td>${v.no}</td></tr>`;
-    });
-    html += "</table>";
-    extraStats.innerHTML = html;
-
-    // Afinidades
-    const affinityGlobal = document.getElementById("affinityGlobal");
-    const affinityPersonal = document.getElementById("affinityPersonal");
-
-    let ghtml = "<table><tr><th>Par</th><th># Coincidencias SÍ</th><th>Tarjetas en común (SÍ)</th></tr>";
-    (pairs.slice(0,20)).forEach(row=>{
-      ghtml += `<tr><td>${row.a} &amp; ${row.b}</td><td>${row.count}</td><td>${row.common.sort().join(", ")}</td></tr>`;
-    });
-    ghtml += "</table>";
-    affinityGlobal.innerHTML = ghtml;
-
-    if (personalRows.length){
-      let phtml = "<table><tr><th>Jugador</th><th># Coincidencias SÍ</th><th>Tarjetas en común (SÍ)</th></tr>";
-      personalRows.slice(0,20).forEach(r=>{
-        const c = getNameColor(r.player);
-        phtml += `<tr><td style="font-weight:600; color:${c}">${r.player}</td><td>${r.count}</td><td>${r.list.join(", ")}</td></tr>`;
-      });
-      phtml += "</table>";
-      affinityPersonal.innerHTML = phtml;
-    } else {
-      affinityPersonal.innerHTML = `<p class="notice">Juega una partida para ver tu afinidad personal.</p>`;
-    }
-
-    document.getElementById('affinityGrids').style.display = "grid";
-  }
-
-  function destroyChart() {
-    if (statsChartInstance) { statsChartInstance.destroy(); statsChartInstance = null; }
-  }
-
-  /************ Init ************/
-  applyRandomTheme();
-  document.getElementById("start-screen").style.display = "flex";
+function randomColor(){
+  return '#' + Math.floor(Math.random()*16777215).toString(16);
+}
 </script>
+
 </body>
 </html>
