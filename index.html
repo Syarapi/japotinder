@@ -7,39 +7,84 @@
 <link href="https://fonts.googleapis.com/css2?family=Yuji+Syuku&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
+  :root{
+    --sakura-pink:#ffc0cb;
+    --sakura-pink-2:#f8a7b6;
+    --sakura-pink-3:#fdd7e0;
+    --sky:#87cefa;
+    --sky-2:#6fbde8;
+    --lav:#b48ad6;
+    --lav-2:#9f74c2;
+    --shadow: 0 10px 25px rgba(0,0,0,0.15);
+    --card-bg:#ffffffee;
+    --ink:#333;
+  }
+
+  /* ===== Fondo temático sakura ===== */
   body {
     margin: 0;
     font-family: 'Segoe UI', sans-serif;
-    background: #f0f0f0;
+    color: var(--ink);
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-height: 100vh;
+    /* Degradado cielo a rosa */
+    background: linear-gradient(180deg, #f7fbff 0%, #fff5f8 40%, #ffeaf0 100%);
+    position: relative;
+    overflow-x: hidden;
   }
+  /* Pétalos decorativos con blur sutil */
+  body::before, body::after{
+    content:"";
+    position: fixed;
+    inset: 0;
+    pointer-events:none;
+    background-image:
+      radial-gradient(14px 9px at 10px 10px, rgba(255,182,193,0.25) 40%, transparent 41%),
+      radial-gradient(12px 8px at 40% 30%, rgba(255,182,193,0.18) 40%, transparent 41%),
+      radial-gradient(10px 7px at 70% 60%, rgba(255,182,193,0.15) 40%, transparent 41%),
+      radial-gradient(12px 8px at 85% 20%, rgba(255,182,193,0.18) 40%, transparent 41%);
+    animation: petals 24s linear infinite;
+    filter: blur(0.2px);
+  }
+  body::after{
+    animation-duration: 32s;
+    opacity: .6;
+  }
+  @keyframes petals {
+    0% { background-position: 0 -10vh, 20vw -20vh, 60vw -15vh, 85vw -25vh; }
+    100% { background-position: 0 120vh, 20vw 130vh, 60vw 125vh, 85vw 135vh; }
+  }
+
   h1, h2, h3 {
     font-family: 'Yuji Syuku', serif;
     text-align: center;
   }
-  h1 { color: #dda0dd; }
-  h2 { color: #87cefa; }
-  h3 { color: #ffc0cb; }
+  h1 { color: #d78ccf; text-shadow: 0 2px 0 #fff; }
+  h2 { color: var(--sky-2); }
+  h3 { color: var(--sakura-pink-2); }
 
+  /* Contenedores principales */
   #start-screen, #results, #stats-screen {
     display: none;
     flex-direction: column;
     align-items: center;
     padding: 20px;
+    width: 100%;
   }
   #start-screen {
     display: flex;
     justify-content: center;
     gap: 15px;
-    height: 100vh;
+    min-height: 100vh;
   }
+
+  /* Tarjetas */
   #card-container {
     position: relative;
     width: 90%;
-    max-width: 500px;
+    max-width: 520px;
     height: 66vh;
     display: flex;
     justify-content: center;
@@ -48,22 +93,31 @@
   .card {
     width: 100%;
     height: 100%;
-    background: white;
-    border-radius: 15px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    background: var(--card-bg);
+    backdrop-filter: blur(3px);
+    border-radius: 20px;
+    box-shadow: var(--shadow);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
-    padding: 20px;
+    padding: 18px;
     box-sizing: border-box;
+    border: 2px solid #ffe4ec;
   }
   .card img {
     max-height: 85%;
     max-width: 100%;
     object-fit: cover;
-    border-radius: 10px;
+    border-radius: 14px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.12);
   }
+  .card div {
+    font-weight: 600;
+    color: #8c4a78;
+    padding-top: 6px;
+  }
+
   #buttons {
     margin-top: 20px;
     display: flex;
@@ -71,19 +125,19 @@
     z-index: 10;
   }
   .btn {
-    padding: 15px 25px;
-    font-size: 18px;
+    padding: 14px 22px;
+    font-size: 17px;
     border: none;
-    border-radius: 8px;
+    border-radius: 12px;
     cursor: pointer;
-    transition: background 0.3s ease, transform 0.2s ease;
+    transition: transform .15s ease, box-shadow .15s ease, opacity .2s ease;
+    box-shadow: 0 8px 18px rgba(0,0,0,.12);
   }
-  .accept { background-color: #87cefa; color: white; }
-  .reject { background-color: #ffc0cb; color: black; }
-  .stats-btn { background-color: #dda0dd; color: white; }
-  .accept:hover { background-color: #6fbde8; transform: scale(1.05); }
-  .reject:hover { background-color: #ff9eb3; transform: scale(1.05); }
-  .stats-btn:hover { background-color: #c58cc5; transform: scale(1.05); }
+  .accept { background: linear-gradient(180deg, var(--sky) 0%, var(--sky-2) 100%); color: white; }
+  .reject { background: linear-gradient(180deg, #ffafc1 0%, var(--sakura-pink-2) 100%); color: white; }
+  .stats-btn { background: linear-gradient(180deg, #d7a6f1 0%, var(--lav-2) 100%); color: white; }
+  .btn:hover { transform: translateY(-1px); box-shadow: 0 10px 20px rgba(0,0,0,.16); }
+  .btn:active { transform: translateY(0); opacity:.95; }
 
   .results-container {
     display: flex;
@@ -94,82 +148,98 @@
   .list { margin: 10px 0; }
   ul { list-style: none; padding: 0; font-size: 18px; }
   input {
-    padding: 10px;
+    padding: 12px 14px;
     font-size: 16px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    width: 200px;
+    border-radius: 10px;
+    border: 2px solid #ffd2de;
+    width: 220px;
     text-align: center;
+    background: #fff;
+    box-shadow: 0 6px 16px rgba(255,182,193,.18);
   }
+
+  /* Tablas */
   table {
     border-collapse: collapse;
     margin-top: 15px;
     width: 90%;
-    max-width: 600px;
-    background: white;
-    border-radius: 8px;
+    max-width: 680px;
+    background: #fff;
+    border-radius: 14px;
     overflow: hidden;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    border: 2px solid #ffe1ea;
   }
   table th, table td {
-    padding: 8px 12px;
-    border-bottom: 1px solid #eee;
+    padding: 10px 14px;
+    border-bottom: 1px solid #f7edf1;
     text-align: left;
   }
-  table th { background: #dda0dd; color: white; }
-  table tr:nth-child(even) { background-color: #f8f4fb; }
+  table th {
+    background: linear-gradient(180deg, #e7b7f6 0%, #d7a6f1 100%);
+    color: white;
+    letter-spacing:.3px;
+  }
+  table tr:nth-child(even) { background-color: #fff7fa; }
+  table tr:hover { background-color: #fff0f6; transition: background .2s ease; }
 
-  .notice { color: #dda0dd; margin-top: 10px; }
-  .error { color: #ff4d6d; margin-top: 10px; }
+  .notice { color: #b4689d; margin-top: 10px; }
+  .error { color: #d6456a; margin-top: 10px; }
   .muted { color: #777; }
 
-  /* Layout de estadísticas */
+  /* ===== Layout de estadísticas ===== */
   .stats-layout {
     display: flex;
     gap: 24px;
     align-items: flex-start;
     justify-content: center;
     width: 100%;
-    max-width: 1100px;
+    max-width: 1200px;
     margin: 0 auto;
+    padding-inline: 10px;
   }
   /* Columna del gráfico: máx. 1/3 y scroll horizontal interno */
   .chart-container {
     flex: 0 0 33%;
-    max-width: 400px;
+    max-width: 420px;
     width: 100%;
+  }
+  .chart-card{
+    background: var(--card-bg);
+    border: 2px solid #ffe4ec;
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    padding: 10px 10px 6px;
   }
   .chart-scroll {
     width: 100%;
-    overflow-x: auto;  /* permite scroll horizontal si el canvas es ancho */
+    overflow-x: auto;
     overflow-y: hidden;
   }
-  .chart-scroll canvas {
-    display: block;
-  }
-  /* El canvas se adaptará en altura; el ancho lo fijamos por JS según nº de barras */
-  .chart-container canvas {
-    height: 360px !important; /* altura cómoda y fija dentro de la columna */
-  }
+  .chart-scroll canvas { display: block; }
+  .chart-container canvas { height: 360px !important; }
 
   /* Zona de tablas/extra stats ocupa el resto */
   #extraStats {
     flex: 1 1 auto;
-    min-width: 280px;
+    min-width: 300px;
   }
 
-  /* Responsive: apilar en pantallas pequeñas */
+  /* Tabla afinidad centrada y separada */
+  .affinity-wrap{
+    text-align: center;
+    margin-top: 28px; /* extra espacio */
+  }
+  .affinity-wrap table{
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 520px;
+  }
+
+  /* Responsive */
   @media (max-width: 900px) {
-    .stats-layout {
-      flex-direction: column;
-      align-items: stretch;
-    }
-    .chart-container {
-      flex: none;
-      width: 100%;
-      max-width: 600px;
-      margin: 0 auto;
-    }
+    .stats-layout { flex-direction: column; align-items: stretch; }
+    .chart-container { flex: none; width: 100%; max-width: 640px; margin: 0 auto; }
   }
 </style>
 </head>
@@ -177,11 +247,15 @@
 
 <!-- Pantalla de inicio -->
 <div id="start-screen">
-  <h1>Japontinder</h1>
-  <p>¿Quién eres? O no empezamos ò_ó</p>
-  <input type="text" id="username" placeholder="Tu nombre" />
-  <button class="btn accept" onclick="startGame()">Empezar</button>
-  <button class="btn stats-btn" onclick="showStats()">Ver estadísticas</button>
+  <div style="text-align:center">
+    <h1>Japontinder</h1>
+    <p>¿Quién eres? O no empezamos ò_ó</p>
+    <input type="text" id="username" placeholder="Tu nombre" />
+    <div style="margin-top:12px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+      <button class="btn accept" onclick="startGame()">Empezar</button>
+      <button class="btn stats-btn" onclick="showStats()">Ver estadísticas</button>
+    </div>
+  </div>
 </div>
 
 <!-- Juego -->
@@ -207,8 +281,10 @@
       <ul id="rejected-list"></ul>
     </div>
   </div>
-  <button class="btn stats-btn" onclick="showStats()">Ver estadísticas</button>
-  <button class="btn reject" onclick="restartGame()">Volver al inicio</button>
+  <div style="margin-top:14px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+    <button class="btn stats-btn" onclick="showStats()">Ver estadísticas</button>
+    <button class="btn reject" onclick="restartGame()">Volver al inicio</button>
+  </div>
 </div>
 
 <!-- Pantalla de estadísticas -->
@@ -216,13 +292,17 @@
   <h2>Estadísticas globales</h2>
   <div class="stats-layout">
     <div class="chart-container">
-      <div class="chart-scroll">
-        <canvas id="statsChart"></canvas>
+      <div class="chart-card">
+        <div class="chart-scroll">
+          <canvas id="statsChart"></canvas>
+        </div>
       </div>
     </div>
     <div id="extraStats"></div>
   </div>
-  <button class="btn reject" onclick="goToStart()">Volver</button>
+  <div style="margin-top:14px;">
+    <button class="btn reject" onclick="goToStart()">Volver</button>
+  </div>
 </div>
 
 <script>
@@ -261,6 +341,17 @@
 
   function shuffleArray(array) { return array.sort(() => Math.random() - 0.5); }
 
+  function getNameColor(name){
+    const n = (name || "").trim().toLowerCase();
+    if(n === "alba")   return "#2f7bdc";          // azul
+    if(n === "alicia" || n === "vaini") return "#8a5adf"; // morado
+    if(n === "sara")   return "#ff6fa1";          // rosa
+    // Colores pastel combinables por defecto
+    const palette = ["#5aa6ff","#a874e3","#ff83b4","#6cd2ff","#f6a1ff"];
+    let hash = 0; for(let i=0;i<n.length;i++){ hash = (hash*31 + n.charCodeAt(i))|0; }
+    return palette[Math.abs(hash)%palette.length];
+  }
+
   function startGame() {
     const nameInput = document.getElementById("username").value.trim();
     if (!nameInput) { alert("Que me digas quién eres o no jugamos ù3ú"); return; }
@@ -294,11 +385,18 @@
     else { showResults(); }
   }
 
+  function setPlayerInfo(dateTime){
+    const spanColor = getNameColor(playerName);
+    const html = `Jugador: <span style="font-weight:700; color:${spanColor}">${playerName}</span> | ${dateTime}`;
+    document.getElementById('player-info').innerHTML = html;
+  }
+
   async function showResults() {
     document.getElementById('game-screen').style.display = 'none';
     document.getElementById('results').style.display = 'flex';
     const now = new Date(); const dateTime = now.toLocaleString();
-    document.getElementById('player-info').textContent = `Jugador: ${playerName} | ${dateTime}`;
+    setPlayerInfo(dateTime);
+
     const acceptedList = document.getElementById('accepted-list'); const rejectedList = document.getElementById('rejected-list');
     acceptedList.innerHTML = ""; rejectedList.innerHTML = "";
     accepted.forEach(n => { const li = document.createElement('li'); li.textContent = n; acceptedList.appendChild(li); });
@@ -367,36 +465,60 @@
     const yesData = labels.map(l => stats[l].yes);
     const noData  = labels.map(l => stats[l].no);
 
-    // === Ajuste de ancho del canvas para permitir scroll horizontal ===
+    // === Canvas ancho para scroll horizontal (máx. 1/3 Layout) ===
     const canvas = document.getElementById('statsChart');
-    // 40px por etiqueta aprox., mínimo 400px
     const desiredWidth = Math.max(labels.length * 40, 400);
-    canvas.width = desiredWidth;       // hace el canvas "más ancho" que su contenedor
-    canvas.height = 360;               // altura fija para una columna compacta
+    canvas.width = desiredWidth;
+    canvas.height = 360;
+
+    // Crear gradientes sakura
+    const ctx = canvas.getContext('2d');
+    const gradYes = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    gradYes.addColorStop(0, "#ffb3c7");  // rosa claro
+    gradYes.addColorStop(1, "#ff7aa3");  // rosa sakura intenso
+    const gradNo = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    gradNo.addColorStop(0, "#bfa1ff");   // lila claro
+    gradNo.addColorStop(1, "#8e67e6");   // lila intenso
 
     destroyChart();
-    statsChartInstance = new Chart(canvas.getContext('2d'), {
+    statsChartInstance = new Chart(ctx, {
       type: 'bar',
       data: {
         labels,
         datasets: [
-          { label: 'Aquí sí', data: yesData, backgroundColor: '#87cefa' },
-          { label: 'Pasando', data: noData,  backgroundColor: '#ffc0cb' }
+          { label: 'Aquí sí', data: yesData, backgroundColor: gradYes, borderRadius: 8 },
+          { label: 'Pasando', data: noData,  backgroundColor: gradNo,  borderRadius: 8 }
         ]
       },
       options: {
-        responsive: false,             // usamos tamaños del canvas fijados arriba
+        responsive: false,
         maintainAspectRatio: false,
-        scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } },
-        plugins: { legend: { labels: { color: '#333' } } },
-        animation: false
+        scales: {
+          x: { stacked: true, ticks: { maxRotation: 60, minRotation: 0 } },
+          y: { stacked: true, beginAtZero: true }
+        },
+        plugins: {
+          legend: {
+            labels: { color: '#53345f', boxWidth: 18, usePointStyle: true, pointStyle: 'rectRounded' }
+          },
+          tooltip: {
+            backgroundColor: 'rgba(255,255,255,.95)',
+            titleColor: '#5c2a4a',
+            bodyColor: '#5c2a4a',
+            borderColor: '#ffd2e1',
+            borderWidth: 1
+          }
+        },
+        animation: { duration: 300 }
       }
     });
 
+    // ======= Render SOLO NOMBRES (sin imágenes) =======
     const topCards = Object.entries(stats)
       .sort((a, b) => b[1].yes - a[1].yes || a[0].localeCompare(b[0]))
       .slice(0, 5);
 
+    // Afinidad con el jugador actual
     const myGame = safeGames.find(g => g.player === playerName);
     let affinity = [];
     if (myGame) {
@@ -413,6 +535,7 @@
         .slice(0, 5);
     }
 
+    // Construcción de tablas bonitas
     let html = "";
     html += "<h3>TOP 5 tarjetas con más 'sí'</h3>";
     html += "<table><tr><th>Tarjeta</th><th>Sí</th><th>No</th></tr>";
@@ -421,11 +544,19 @@
     });
     html += "</table>";
 
+    // Dos saltos de línea de separación
+    html += "<br><br>";
+
     if (myGame && affinity.length) {
+      html += `<div class="affinity-wrap">`;
       html += "<h3>TOP 5 jugadores más afines contigo</h3>";
       html += "<table><tr><th>Jugador</th><th>Coincidencias de 'sí'</th></tr>";
-      affinity.forEach(([p, s]) => { html += `<tr><td>${p}</td><td>${s}</td></tr>`; });
+      affinity.forEach(([p, s]) => {
+        const c = getNameColor(p);
+        html += `<tr><td style="font-weight:600; color:${c}">${p}</td><td>${s}</td></tr>`;
+      });
       html += "</table>";
+      html += `</div>`;
     } else {
       html += `<p class="notice">No hay datos de afinidad todavía. Juega una partida para calcular tu afinidad.</p>`;
     }
