@@ -8,31 +8,23 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
   :root{
-    /* Colores fijos para botones y series */
-    --pink: #FFB7C5;     /* Pasando */
-    --purple: #B19CD9;   /* Me da igual */
-    --blue: #89CFF0;     /* Aquí sí */
+    /* Paleta fija para botones/series (NO aleatoria) */
+    --yes:#87cefa;          /* azul – Aquí sí */
+    --meh:#8a5adf;          /* morado – Me da igual */
+    --no:#ff7aa3;           /* rosa – Pasando */
 
-    /* Paleta base para fondos/aleatorios */
-    --sun: #FFE480;      /* Amarillo pastel legible */
-    --mint: #A8E6CF;     /* Verde menta */
-    --sakura: #FFD6E2;   /* Rosa sakura suave */
-    --lav: #D7C8FF;      /* Lavanda claro */
-    --sky: #D2EDFF;      /* Azul muy claro */
-
+    /* Variables de tema aleatorio (sí cambian) */
     --ink:#333;
-    --shadow: 0 10px 25px rgba(0,0,0,0.15);
-
-    /* Calculados por JS (aleatorios) */
-    --bg-solid: #FFD6E2;
-    --card-border: #FFD6E2;
-    --card-bg: #ffffffee;
-    --table-head-from: #EDE6FF;
-    --table-head-to:   #DCD0FF;
-    --accent-text: #5c2a4a;
+    --bg-light:#fff7fb;
+    --bg-mid:#ffe3ef;
+    --bg-dark:#d38cb1;
+    --card-bg:#ffffffee;
+    --accent-1:#d7a6f1;     /* títulos/contornos */
+    --accent-2:#b48ad6;
+    --petal-rgba: 255,182,193; /* se sobreescribe desde JS */
   }
 
-  /* ===== Fondo sakura dinámico (sólido + pétalos animados) ===== */
+  /* ===== Fondo temático con pétalos (sin degradado) ===== */
   body {
     margin: 0;
     font-family: 'Segoe UI', sans-serif;
@@ -41,53 +33,38 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    background: var(--bg-solid); /* Color sólido (no degradado) */
+    background: var(--bg-light);
     position: relative;
     overflow-x: hidden;
   }
-  /* Capa de pétalos que caen con animación */
-  .sakura-layer, .sakura-layer2{
+  /* Capa de pétalos 1 */
+  body::before, body::after{
+    content:"";
     position: fixed;
     inset: 0;
-    pointer-events: none;
-    z-index: -1;
-    background-repeat: repeat;
-    animation: petalsFall 22s linear infinite;
-    opacity: .9;
+    pointer-events:none;
+    background-image:
+      radial-gradient(14px 9px at 10px 10px, rgba(var(--petal-rgba),0.25) 40%, transparent 41%),
+      radial-gradient(12px 8px at 40% 30%, rgba(var(--petal-rgba),0.18) 40%, transparent 41%),
+      radial-gradient(10px 7px at 70% 60%, rgba(var(--petal-rgba),0.15) 40%, transparent 41%),
+      radial-gradient(12px 8px at 85% 20%, rgba(var(--petal-rgba),0.18) 40%, transparent 41%);
+    animation: petals 24s linear infinite;
+    filter: blur(0.2px);
   }
-  .sakura-layer2{
-    animation-duration: 30s;
+  /* Capa de pétalos 2 (más lenta) */
+  body::after{
+    animation-duration: 32s;
     opacity: .6;
-    filter: blur(.4px);
   }
-  /* Textura de pétalos dibujada con gradientes radiales */
-  .sakura-layer{
-    background-image:
-      radial-gradient(14px 9px at 10px 10px, rgba(255,182,193,0.35) 40%, transparent 41%),
-      radial-gradient(12px 8px at 40% 30%, rgba(255,182,193,0.26) 40%, transparent 41%),
-      radial-gradient(10px 7px at 70% 60%, rgba(255,182,193,0.22) 40%, transparent 41%),
-      radial-gradient(12px 8px at 85% 20%, rgba(255,182,193,0.28) 40%, transparent 41%);
-    background-size: 220px 220px, 260px 260px, 240px 240px, 280px 280px;
-    background-position: 0 -10vh, 20vw -20vh, 60vw -15vh, 85vw -25vh;
-  }
-  .sakura-layer2{
-    background-image:
-      radial-gradient(14px 9px at 15px 12px, rgba(255,182,193,0.25) 40%, transparent 41%),
-      radial-gradient(12px 8px at 45% 35%, rgba(255,182,193,0.20) 40%, transparent 41%),
-      radial-gradient(10px 7px at 65% 55%, rgba(255,182,193,0.18) 40%, transparent 41%);
-    background-size: 260px 260px, 300px 300px, 280px 280px;
-    background-position: 10vw -18vh, 35vw -22vh, 70vw -12vh;
-  }
-  @keyframes petalsFall {
-    0%   { background-position: 0 -10vh, 20vw -20vh, 60vw -15vh, 85vw -25vh; }
+  @keyframes petals {
+    0% { background-position: 0 -10vh, 20vw -20vh, 60vw -15vh, 85vw -25vh; }
     100% { background-position: 0 120vh, 20vw 130vh, 60vw 125vh, 85vw 135vh; }
   }
 
-  h1, h2, h3 {
-    font-family: 'Yuji Syuku', serif;
-    text-align: center;
-    text-shadow: 0 2px 0 #fff;
-  }
+  h1, h2, h3 { font-family: 'Yuji Syuku', serif; text-align: center; }
+  h1 { color: var(--accent-1); text-shadow: 0 2px 0 #fff; }
+  h2 { color: var(--accent-2); }
+  h3 { color: var(--accent-1); }
 
   /* Contenedores principales */
   #start-screen, #mode-screen, #results, #stats-screen {
@@ -97,7 +74,7 @@
     padding: 20px;
     width: 100%;
   }
-  #start-screen, #mode-screen { min-height: 100vh; justify-content: center; gap: 16px; }
+  #start-screen { display: flex; justify-content: center; gap: 15px; min-height: 100vh; }
 
   /* Tarjetas */
   #card-container {
@@ -115,14 +92,15 @@
     background: var(--card-bg);
     backdrop-filter: blur(3px);
     border-radius: 20px;
-    box-shadow: var(--shadow);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
     padding: 18px;
     box-sizing: border-box;
-    border: 2px solid var(--card-border);
+    border: 2px solid var(--accent-1);
+    will-change: transform;
   }
   .card img {
     max-height: 85%;
@@ -130,15 +108,18 @@
     object-fit: cover;
     border-radius: 14px;
     box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+    user-select: none;
+    -webkit-user-drag: none;
   }
-  .card div {
-    font-weight: 600;
-    color: #8c4a78;
-    padding-top: 6px;
-  }
+  .card div { font-weight: 600; color: var(--ink); padding-top: 6px; }
 
-  /* Botones */
-  #buttons { margin-top: 20px; display: flex; gap: 16px; z-index: 10; }
+  /* Botonera */
+  #buttons {
+    margin-top: 20px;
+    display: flex;
+    gap: 16px;
+    z-index: 10;
+  }
   .btn {
     padding: 14px 22px;
     font-size: 17px;
@@ -147,121 +128,86 @@
     cursor: pointer;
     transition: transform .15s ease, box-shadow .15s ease, opacity .2s ease;
     box-shadow: 0 8px 18px rgba(0,0,0,.12);
-    color: #fff;
+    color: white;
   }
+  .accept { background: linear-gradient(180deg, var(--yes) 0%, #5fb5ef 100%); }
+  .meh    { background: linear-gradient(180deg, var(--meh) 0%, #7343d8 100%); }
+  .reject { background: linear-gradient(180deg, var(--no) 0%, #ff5f93 100%); }
+  .stats-btn { background: linear-gradient(180deg, var(--accent-1) 0%, var(--accent-2) 100%); color: #fff; }
   .btn:hover { transform: translateY(-1px); box-shadow: 0 10px 20px rgba(0,0,0,.16); }
   .btn:active { transform: translateY(0); opacity:.95; }
-  .btn-yes  { background: linear-gradient(180deg, var(--blue) 0%, #5bb4e9 100%); }
-  .btn-meh  { background: linear-gradient(180deg, var(--purple) 0%, #9f89d0 100%); }
-  .btn-no   { background: linear-gradient(180deg, var(--pink) 0%, #ff91aa 100%); }
-  .btn-stats{ background: linear-gradient(180deg, #d7a6f1 0%, #b28ae3 100%); }
-  .btn-ghost{ background: #ffffffde; color:#444; border:1px solid #eee; }
 
   .results-container { display: flex; gap: 50px; justify-content: center; flex-wrap: wrap; }
   .list { margin: 10px 0; }
   ul { list-style: none; padding: 0; font-size: 18px; }
   input {
-    padding: 12px 14px;
-    font-size: 16px;
-    border-radius: 10px;
-    border: 2px solid var(--card-border);
-    width: 220px;
-    text-align: center;
-    background: #fff;
+    padding: 12px 14px; font-size: 16px; border-radius: 10px;
+    border: 2px solid var(--accent-1); width: 220px; text-align: center; background: #fff;
     box-shadow: 0 6px 16px rgba(0,0,0,.08);
   }
 
-  /* Tarjetas de modo */
-  .mode-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); gap:16px; width: min(920px,92vw); }
-  .mode-card {
-    background: var(--card-bg);
-    border: 2px solid var(--card-border);
-    border-radius: 16px;
-    padding: 16px;
-    box-shadow: var(--shadow);
-    text-align: center;
+  /* Modo elección */
+  .mode-grid{
+    display:grid; grid-template-columns: 1fr; gap:16px; max-width:720px; width:100%;
   }
-  .mode-card p { margin: 6px 0 14px; }
+  .mode-card{
+    background: var(--card-bg); border:2px solid var(--accent-1); border-radius:16px;
+    padding:16px; box-shadow: 0 8px 24px rgba(0,0,0,.12);
+  }
+  .mode-card p{ margin:8px 0 0 0; color:#555; }
+  @media (min-width:760px){ .mode-grid{ grid-template-columns: 1fr 1fr; } }
 
   /* Tablas */
   table {
     border-collapse: collapse;
     margin-top: 15px;
     width: 90%;
-    max-width: 720px;
+    max-width: 680px;
     background: #fff;
     border-radius: 14px;
     overflow: hidden;
     box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-    border: 2px solid var(--card-border);
+    border: 2px solid var(--accent-1);
   }
-  table th, table td {
-    padding: 10px 14px;
-    border-bottom: 1px solid #f1ebf6;
-    text-align: left;
-    vertical-align: top;
-  }
+  table th, table td { padding: 10px 14px; border-bottom: 1px solid #f0e7f8; text-align: left; }
   table th {
-    background: linear-gradient(180deg, var(--table-head-from) 0%, var(--table-head-to) 100%);
-    color: #3d2a68;
-    letter-spacing:.3px;
+    background: linear-gradient(180deg, var(--accent-2) 0%, var(--accent-1) 100%);
+    color: white; letter-spacing:.3px;
   }
-  table tr:nth-child(even) { background-color: #fbf7ff; }
-  table tr:hover { background-color: #f6f0ff; transition: background .2s ease; }
+  table tr:nth-child(even) { background-color: #faf7ff; }
+  table tr:hover { background-color: #f4ecff; transition: background .2s ease; }
 
-  .notice { color: #6a4b7e; margin-top: 10px; }
+  .notice { color: var(--accent-2); margin-top: 10px; }
   .error { color: #d6456a; margin-top: 10px; }
-  .muted { color: #666; }
+  .muted { color: #777; }
 
   /* ===== Layout de estadísticas ===== */
   .stats-layout {
-    display: flex;
-    gap: 24px;
-    align-items: flex-start;
-    justify-content: center;
-    width: 100%;
-    max-width: 1300px;
-    margin: 0 auto;
-    padding-inline: 10px;
+    display: flex; flex-direction: column; gap: 24px; align-items: stretch;
+    width: 100%; max-width: 1200px; margin: 0 auto; padding-inline: 10px;
   }
-  .chart-container { flex: 0 0 33%; max-width: 420px; width: 100%; }
+  .chart-container {
+    width: 100%;
+  }
   .chart-card{
-    background: var(--card-bg);
-    border: 2px solid var(--card-border);
-    border-radius: 16px;
-    box-shadow: var(--shadow);
+    background: var(--card-bg); border: 2px solid var(--accent-1);
+    border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.15);
     padding: 10px 10px 6px;
   }
   .chart-scroll { width: 100%; overflow-x: auto; overflow-y: hidden; }
   .chart-scroll canvas { display: block; }
   .chart-container canvas { height: 360px !important; }
 
-  /* Zona de tablas/extra stats ocupa el resto */
-  #extraStats { flex: 1 1 auto; min-width: 300px; }
-
-  /* Grid de afinidades (dos columnas) */
+  /* Doble columna para afinidades */
   .affinity-grid{
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 18px;
-    margin-top: 18px;
+    display:grid; grid-template-columns: 1fr; gap:20px; align-items:start; width:100%;
   }
-  .affinity-wrap{ text-align: center; }
-  .affinity-wrap table{ margin-left: auto; margin-right: auto; max-width: 720px; }
-
-  /* Responsive */
-  @media (max-width: 900px) {
-    .stats-layout { flex-direction: column; align-items: stretch; }
-    .chart-container { flex: none; width: 100%; max-width: 640px; margin: 0 auto; }
-    .affinity-grid{ grid-template-columns: 1fr; }
+  @media (min-width:980px){
+    .affinity-grid{ grid-template-columns: 1fr 1fr; }
   }
 </style>
 </head>
 <body>
-
-<!-- Capas de pétalos -->
-<div class="sakura-layer"></div>
-<div class="sakura-layer2"></div>
 
 <!-- Pantalla de inicio -->
 <div id="start-screen">
@@ -270,32 +216,27 @@
     <p>¿Quién eres? O no empezamos ò_ó</p>
     <input type="text" id="username" placeholder="Tu nombre" />
     <div style="margin-top:12px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
-      <button class="btn btn-yes" onclick="goToMode()">Continuar</button>
-      <button class="btn btn-stats" onclick="showStats()">Ver estadísticas</button>
+      <button class="btn accept" id="btnNameNext">Siguiente</button>
+      <button class="btn stats-btn" onclick="showStats()">Ver estadísticas</button>
     </div>
   </div>
 </div>
 
-<!-- Selección de modo -->
+<!-- Elección de modo -->
 <div id="mode-screen">
-  <div style="text-align:center; margin-bottom:8px;">
-    <h2>Elige modo de juego</h2>
-    <p class="muted">Puedes cambiar cuando quieras volviendo al inicio.</p>
-  </div>
+  <h2>Elige cómo jugar</h2>
   <div class="mode-grid">
     <div class="mode-card">
-      <h3>Versión Corta</h3>
-      <p>20 tarjetas al azar. Máx. <b>5</b> “Me da igual”.</p>
-      <button class="btn btn-meh" onclick="startGame('short')">Jugar versión corta</button>
+      <button class="btn stats-btn" id="btnShort">Versión corta</button>
+      <p>20 tarjetas al azar. Puedes usar “Me da igual” <strong>5 veces</strong>.</p>
     </div>
     <div class="mode-card">
-      <h3>Completo</h3>
-      <p>Todas las tarjetas, orden aleatorio. Máx. <b>10</b> “Me da igual”.</p>
-      <button class="btn btn-yes" onclick="startGame('full')">Jugar versión completa</button>
+      <button class="btn stats-btn" id="btnFull">Completo</button>
+      <p>Todas las tarjetas en orden aleatorio. “Me da igual” disponible <strong>10 veces</strong>.</p>
     </div>
   </div>
-  <div style="margin-top:14px; text-align:center;">
-    <button class="btn btn-ghost" onclick="goToStart()">Volver</button>
+  <div style="margin-top:14px">
+    <button class="btn reject" onclick="goToStart()">Volver</button>
   </div>
 </div>
 
@@ -303,9 +244,9 @@
 <div id="game-screen" style="display:none; flex-direction: column; align-items: center;">
   <div id="card-container"></div>
   <div id="buttons">
-    <button class="btn btn-no"  onclick="handleDecision(-1)">Pasando</button>
-    <button class="btn btn-meh" onclick="handleDecision(0)">Me da igual</button>
-    <button class="btn btn-yes" onclick="handleDecision(1)">Aquí sí</button>
+    <button class="btn reject" onclick="handleDecision(-1)">Pasando</button>
+    <button class="btn meh" onclick="handleDecision(0)">Me da igual</button>
+    <button class="btn accept" onclick="handleDecision(1)">Aquí sí</button>
   </div>
 </div>
 
@@ -328,8 +269,8 @@
     </div>
   </div>
   <div style="margin-top:14px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
-    <button class="btn btn-stats" onclick="showStats()">Ver estadísticas</button>
-    <button class="btn btn-no" onclick="restartGame()">Volver al inicio</button>
+    <button class="btn stats-btn" onclick="showStats()">Ver estadísticas</button>
+    <button class="btn reject" onclick="restartGame()">Volver al inicio</button>
   </div>
 </div>
 
@@ -344,34 +285,32 @@
         </div>
       </div>
     </div>
+
     <div id="extraStats"></div>
+
+    <!-- Afinidades: izquierda global, derecha jugador actual -->
+    <div class="affinity-grid" id="affinityGrids" style="display:none;">
+      <div>
+        <h3>Ranking de afinidad (todos los jugadores)</h3>
+        <div id="affinityGlobal"></div>
+      </div>
+      <div>
+        <h3>Jugadores más afines contigo</h3>
+        <div id="affinityPersonal"></div>
+      </div>
+    </div>
   </div>
   <div style="margin-top:14px;">
-    <button class="btn btn-no" onclick="goToStart()">Volver</button>
+    <button class="btn reject" onclick="goToStart()">Volver</button>
   </div>
 </div>
 
 <script>
-  /* ===== Config remota ===== */
-  const saveEndpoint = "https://japotinder.vercel.app/api/save";
+  /************ Config ************/
+  const saveEndpoint = "/api/save"; // deja tu ruta del backend
   const dataUrl = "https://raw.githubusercontent.com/Syarapi/japotinder/main/results/data.json";
 
-  /* ===== Paleta aleatoria para fondos/elementos (no afecta a botones/series) ===== */
-  const PALETTE = ["var(--sakura)", "var(--lav)", "var(--sky)", "var(--sun)", "var(--mint)"];
-  function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
-  function val(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim() || v; }
-  function randomizeTheme() {
-    const solid = val(pick(PALETTE));
-    document.documentElement.style.setProperty('--bg-solid', solid);
-    document.documentElement.style.setProperty('--card-border', val(pick(PALETTE)));
-    document.documentElement.style.setProperty('--table-head-from', val(pick(PALETTE)));
-    document.documentElement.style.setProperty('--table-head-to',   val(pick(PALETTE)));
-  }
-  randomizeTheme();
-
-  /* ===== Datos ===== */
-  let playerName = "";
-  let gameMode = "full";  // 'short' | 'full'
+  /************ Datos base ************/
   const originalData = [
     { name: "Disney Tokyo", img: "img/disney.jpg" },
     { name: "Gotokuji", img: "img/gotokuji.jpg" },
@@ -395,162 +334,228 @@
     { name: "Beppu", img: "img/beppu.jpg" },
     { name: "Bandai Museum", img: "img/bandai.jpg" }
   ];
+
+  /************ Estado ************/
+  let playerName = "";
+  let mode = "short"; // "short" | "full"
   let data = [];
   let accepted = [];
-  let meh = [];
   let rejected = [];
+  let meh = [];
   let index = 0;
-  let mehLimit = 10; // default full
+  let mehLimit = 5;
+  let statsChartInstance = null;
+
   const container = document.getElementById('card-container');
 
-  function shuffleArray(array) { return array.map(v=>[Math.random(),v]).sort((a,b)=>a[0]-b[0]).map(x=>x[1]); }
+  /************ Utilidades ************/
+  const shuffleArray = (array) => array.slice().sort(() => Math.random() - 0.5);
 
-  /* ===== Colores por jugador (fijos) ===== */
-  const playerFixedColors = {}; // nombre -> color
+  // Colores fijos para nombres: Alba=azul, Alicia/Vaini=morados, Sara=rosa, otros: amarillo pastel o verde menta pero fijo por hash
   function getNameColor(name){
     const n = (name || "").trim().toLowerCase();
-    if(n === "alba")   return "#2f7bdc";        // azul
+    if(n === "alba")   return "#2f7bdc";          // azul
     if(n === "alicia" || n === "vaini") return "#8a5adf"; // morado
-    if(n === "sara")   return "#ff6fa1";        // rosa
-    if(playerFixedColors[n]) return playerFixedColors[n];
-    const candidates = ["#FFE480", "#A8E6CF"]; // sun legible o mint
+    if(n === "sara")   return "#ff6fa1";          // rosa
+    // Otros: asignación determinista entre amarillo pastel legible y verde menta
+    const options = ["#ffd666", "#56e0b5"]; // sun pastel (legible), mint
     let hash = 0; for(let i=0;i<n.length;i++){ hash = (hash*31 + n.charCodeAt(i))|0; }
-    const chosen = candidates[Math.abs(hash)%candidates.length];
-    playerFixedColors[n] = chosen;
-    return chosen;
+    return options[Math.abs(hash)%options.length];
   }
 
-  /* ===== Flujo de pantallas ===== */
-  document.getElementById("start-screen").style.display = "flex";
-
-  function goToMode(){
-    const nameInput = document.getElementById("username").value.trim();
-    if (!nameInput) { alert("Que me digas quién eres o no jugamos ù3ú"); return; }
-    playerName = nameInput;
-    document.getElementById("start-screen").style.display = "none";
-    document.getElementById("mode-screen").style.display = "flex";
-  }
-  function goToStart() {
-    document.getElementById("stats-screen").style.display = "none";
-    document.getElementById("mode-screen").style.display = "none";
-    document.getElementById("results").style.display = "none";
-    document.getElementById("start-screen").style.display = "flex";
-    randomizeTheme(); // refresca colores al volver
-  }
-  function restartGame() {
-    document.getElementById("results").style.display = "none";
-    document.getElementById("start-screen").style.display = "flex";
-    randomizeTheme();
-  }
-
-  function startGame(mode='full') {
-    gameMode = mode;
-    data = shuffleArray([...originalData]);
-    if(mode === 'short') data = data.slice(0, 20);
-    mehLimit = (mode === 'short') ? 5 : 10;
-
-    index = 0; accepted = []; meh = []; rejected = [];
-    container.innerHTML = "";
-
-    document.getElementById("mode-screen").style.display = "none";
-    document.getElementById("game-screen").style.display = "flex";
-    showNextCard();
-  }
-
-  /* ===== Lógica de tarjetas ===== */
-  function createCard(person) {
-    container.innerHTML = ""; // asegura solo 1 tarjeta visible
-    const card = document.createElement('div'); card.className = 'card';
-    const img = document.createElement('img'); img.src = person.img; img.alt = person.name;
-    const name = document.createElement('div'); name.textContent = person.name;
-    card.appendChild(img); card.appendChild(name); container.appendChild(card);
-  }
-
-  function swipeCard(direction) {
-    const currentCard = container.querySelector('.card:last-child');
-    if (!currentCard) return;
-    const name = currentCard.querySelector('div').textContent;
-
-    if (direction === 1) { accepted.push(name); }
-    else if (direction === 0) {
-      if (meh.length >= mehLimit) { alert("Por favor, mójate un poco más..."); return; }
-      meh.push(name);
-    }
-    else { rejected.push(name); }
-
-    showNextCard();
-  }
-
-  function handleDecision(direction) { swipeCard(direction); }
-
-  function showNextCard() {
-    if (index < data.length) { createCard(data[index]); index++; }
-    else { showResults(); }
+  // Tema aleatorio (afecta fondos, bordes, acentos; NO los botones ni colores de series)
+  function applyRandomTheme(){
+    const themes = [
+      { name:"sakura", light:"#fff7fb", mid:"#ffe3ef", dark:"#d38cb1", accent1:"#d7a6f1", accent2:"#b48ad6", petal:[220,120,160] },
+      { name:"sky",    light:"#f2f9ff", mid:"#e0f1ff", dark:"#8dbfe6", accent1:"#a3c9ff", accent2:"#7fb2f0", petal:[120,160,220] },
+      { name:"lav",    light:"#faf5ff", mid:"#efe3ff", dark:"#b48ad6", accent1:"#d7a6f1", accent2:"#b48ad6", petal:[150,110,200] },
+      { name:"sun",    light:"#fff9e0", mid:"#ffefb0", dark:"#e0c050", accent1:"#f0d46a", accent2:"#e1b84f", petal:[220,190,80] },
+      { name:"mint",   light:"#edfff7", mid:"#d8ffee", dark:"#68cba7", accent1:"#9fe6cc", accent2:"#68cba7", petal:[90,170,140] }
+    ];
+    const pick = themes[Math.floor(Math.random()*themes.length)];
+    const root = document.documentElement.style;
+    root.setProperty('--bg-light', pick.light);
+    root.setProperty('--bg-mid', pick.mid);
+    root.setProperty('--bg-dark', pick.dark);
+    root.setProperty('--accent-1', pick.accent1);
+    root.setProperty('--accent-2', pick.accent2);
+    root.setProperty('--petal-rgba', `${pick.petal[0]},${pick.petal[1]},${pick.petal[2]}`);
   }
 
   function setPlayerInfo(dateTime){
     const spanColor = getNameColor(playerName);
-    const html = `Jugador: <span style="font-weight:700; color:${spanColor}">${playerName}</span> | ${dateTime} | Modo: ${gameMode === 'short' ? 'Corto' : 'Completo'}`;
+    const html = `Jugador: <span style="font-weight:700; color:${spanColor}">${playerName}</span> | ${dateTime} | Modo: ${mode === 'short' ? 'Corto' : 'Completo'}`;
     document.getElementById('player-info').innerHTML = html;
   }
 
-  async function showResults() {
-    document.getElementById('game-screen').style.display = 'none';
-    document.getElementById('results').style.display = 'flex';
-    const now = new Date(); const dateTime = now.toLocaleString();
-    setPlayerInfo(dateTime);
-
-    const acceptedList = document.getElementById('accepted-list');
-    const mehList = document.getElementById('meh-list');
-    const rejectedList = document.getElementById('rejected-list');
-    acceptedList.innerHTML = ""; mehList.innerHTML = ""; rejectedList.innerHTML = "";
-
-    accepted.forEach(n => { const li = document.createElement('li'); li.textContent = n; acceptedList.appendChild(li); });
-    meh.forEach(n => { const li = document.createElement('li'); li.textContent = n; mehList.appendChild(li); });
-    rejected.forEach(n => { const li = document.createElement('li'); li.textContent = n; rejectedList.appendChild(li); });
-
-    try {
-      await fetch(saveEndpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ player: playerName, mode: gameMode, date: dateTime, accepted, meh, rejected })
-      });
-    } catch (e) {
-      console.warn("No se pudo guardar en la API:", e);
-    }
-  }
-
-  /* ===== Estadísticas ===== */
-  let statsChartInstance = null;
-
+  // Lectura robusta de data.json
   function ensureArray(maybeArray) {
     if (Array.isArray(maybeArray)) return maybeArray;
     if (maybeArray && Array.isArray(maybeArray.games)) return maybeArray.games;
     return [];
   }
 
-  function destroyChart() {
-    if (statsChartInstance) { statsChartInstance.destroy(); statsChartInstance = null; }
+  /************ Flujo UI ************/
+  document.getElementById("btnNameNext").addEventListener("click", () => {
+    const nameInput = document.getElementById("username").value.trim();
+    if (!nameInput) { alert("Que me digas quién eres o no jugamos ù3ú"); return; }
+    playerName = nameInput;
+    document.getElementById("start-screen").style.display = "none";
+    document.getElementById("mode-screen").style.display = "flex";
+  });
+
+  document.getElementById("btnShort").addEventListener("click", () => {
+    mode = "short";
+    mehLimit = 5;
+    startGameWithMode();
+  });
+  document.getElementById("btnFull").addEventListener("click", () => {
+    mode = "full";
+    mehLimit = 10;
+    startGameWithMode();
+  });
+
+  function startGameWithMode(){
+    data = shuffleArray(originalData);
+    if (mode === "short") data = data.slice(0, 20);
+    index = 0; accepted = []; rejected = []; meh = [];
+    container.innerHTML = "";
+    document.getElementById("mode-screen").style.display = "none";
+    document.getElementById("game-screen").style.display = "flex";
+    showNextCard(true);
   }
 
-  function gradient(ctx, colorTop, colorBot, h){
-    const g = ctx.createLinearGradient(0, 0, 0, h);
-    g.addColorStop(0, colorTop);
-    g.addColorStop(1, colorBot);
-    return g;
+  function restartGame() {
+    document.getElementById("results").style.display = "none";
+    document.getElementById("start-screen").style.display = "flex";
+  }
+  function goToStart() {
+    document.getElementById("stats-screen").style.display = "none";
+    document.getElementById("start-screen").style.display = "flex";
   }
 
+  /************ Tarjetas + Swipe ************/
+  function createCard(item) {
+    const card = document.createElement('div'); card.className = 'card';
+    const img = document.createElement('img'); img.src = item.img; img.alt = item.name;
+    const name = document.createElement('div'); name.textContent = item.name;
+    card.appendChild(img); card.appendChild(name);
+    attachSwipe(card);
+    return card;
+  }
+
+  function showNextCard(initial=false) {
+    if (!initial) {
+      // limpiar cualquier resto
+      container.innerHTML = "";
+    }
+    if (index < data.length) {
+      const card = createCard(data[index]);
+      container.appendChild(card);
+    } else {
+      showResults();
+    }
+  }
+
+  // Swipe (izquierda=-1, derecha=1, arriba=0)
+  function attachSwipe(el){
+    let startX=0, startY=0, dx=0, dy=0, active=false;
+
+    const onStart = (x,y) => { active=true; startX=x; startY=y; dx=0; dy=0; el.style.transition=""; };
+    const onMove = (x,y) => {
+      if(!active) return;
+      dx = x - startX; dy = y - startY;
+      const rot = dx * 0.05;
+      el.style.transform = `translate(${dx}px, ${dy}px) rotate(${rot}deg)`;
+      el.style.opacity = String(1 - Math.min(0.6, Math.abs(dx)/300 + Math.max(0, -dy)/300));
+    };
+    const onEnd = () => {
+      if(!active) return;
+      active=false;
+      const THX = 80, THY = -80; // arriba es negativo
+      if (dx <= -THX) { commitDecision(-1, el); return; }   // izquierda -> no
+      if (dx >=  THX) { commitDecision( 1, el); return; }   // derecha  -> sí
+      if (dy <=  THY) { commitDecision( 0, el); return; }   // arriba   -> meh
+      // volver al centro
+      el.style.transition="transform .2s ease, opacity .2s ease";
+      el.style.transform="translate(0,0) rotate(0)";
+      el.style.opacity="1";
+    };
+
+    // Touch
+    el.addEventListener("touchstart", (e)=>onStart(e.touches[0].clientX, e.touches[0].clientY), {passive:true});
+    el.addEventListener("touchmove",  (e)=>onMove(e.touches[0].clientX, e.touches[0].clientY), {passive:true});
+    el.addEventListener("touchend",   onEnd);
+
+    // Mouse (desktop)
+    el.addEventListener("mousedown", (e)=>onStart(e.clientX, e.clientY));
+    window.addEventListener("mousemove", (e)=>onMove(e.clientX, e.clientY));
+    window.addEventListener("mouseup", onEnd);
+  }
+
+  function commitDecision(direction, el){
+    const name = el.querySelector('div').textContent;
+    if (direction === 1) accepted.push(name);
+    else if (direction === -1) rejected.push(name);
+    else {
+      if (meh.length >= mehLimit) {
+        alert("Por favor, mójate un poco más…");
+        // vuelve al centro
+        el.style.transition="transform .2s ease, opacity .2s ease";
+        el.style.transform="translate(0,0) rotate(0)";
+        el.style.opacity="1";
+        return;
+      }
+      meh.push(name);
+    }
+    index++;
+    container.innerHTML = "";
+    showNextCard();
+  }
+
+  function handleDecision(direction){ // -1 no | 0 meh | 1 sí
+    const el = container.querySelector('.card');
+    if (!el) return;
+    commitDecision(direction, el);
+  }
+
+  /************ Resultados + Guardado ************/
+  async function showResults() {
+    document.getElementById('game-screen').style.display = 'none';
+    document.getElementById('results').style.display = 'flex';
+    const now = new Date(); const dateTime = now.toLocaleString();
+    setPlayerInfo(dateTime);
+
+    const fillList = (id, arr) => {
+      const ul = document.getElementById(id); ul.innerHTML="";
+      arr.forEach(n => { const li = document.createElement('li'); li.textContent = n; ul.appendChild(li); });
+    };
+    fillList('accepted-list', accepted);
+    fillList('meh-list', meh);
+    fillList('rejected-list', rejected);
+
+    try {
+      await fetch(saveEndpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ player: playerName, date: dateTime, mode, accepted, meh, rejected })
+      });
+    } catch (e) {
+      console.warn("No se pudo guardar en la API:", e);
+    }
+  }
+
+  /************ Estadísticas ************/
   async function showStats() {
-    // Pantallas
     document.getElementById('start-screen').style.display = 'none';
     document.getElementById('mode-screen').style.display = 'none';
     document.getElementById('results').style.display = 'none';
     document.getElementById('stats-screen').style.display = 'flex';
 
     const extraStats = document.getElementById('extraStats');
+    document.getElementById('affinityGrids').style.display = "none";
     extraStats.innerHTML = `<p class="muted">Cargando datos...</p>`;
 
-    // Carga datos
     let games = [];
     try {
       const res = await fetch(`${dataUrl}?t=${Date.now()}`);
@@ -562,44 +567,55 @@
       destroyChart();
       return;
     }
+
     if (!games.length) {
       extraStats.innerHTML = `<p class="notice">No hay partidas guardadas aún.</p>`;
       destroyChart();
       return;
     }
 
-    // Normaliza (algunos registros antiguos pueden no tener "meh")
+    // Normalizar
     const safeGames = games
       .filter(g => g && Array.isArray(g.accepted) && Array.isArray(g.rejected))
       .map(g => ({
         player: g.player || "¿anon?",
-        accepted: g.accepted || [],
+        mode: g.mode || "unknown",
+        accepted: Array.isArray(g.accepted) ? g.accepted : [],
         meh: Array.isArray(g.meh) ? g.meh : [],
-        rejected: g.rejected || []
+        rejected: Array.isArray(g.rejected) ? g.rejected : []
       }));
 
-    // Conteo por tarjeta (sí/meh/no)
+    // Conteos por tarjeta
     const stats = {};
+    const upsert = (name, key) => {
+      stats[name] = stats[name] || { yes:0, meh:0, no:0 };
+      stats[name][key] += 1;
+    };
     safeGames.forEach(g => {
-      g.accepted.forEach(a => { stats[a] = stats[a] || { yes:0, meh:0, no:0 }; stats[a].yes++; });
-      g.meh.forEach(m => { stats[m] = stats[m] || { yes:0, meh:0, no:0 }; stats[m].meh++; });
-      g.rejected.forEach(r => { stats[r] = stats[r] || { yes:0, meh:0, no:0 }; stats[r].no++; });
+      g.accepted.forEach(a => upsert(a, 'yes'));
+      g.meh.forEach(m => upsert(m, 'meh'));
+      g.rejected.forEach(r => upsert(r, 'no'));
     });
-    const labels = Object.keys(stats).sort();
+
+    const labels = Object.keys(stats).sort((a,b)=>a.localeCompare(b));
     const yesData = labels.map(l => stats[l].yes);
     const mehData = labels.map(l => stats[l].meh);
     const noData  = labels.map(l => stats[l].no);
 
-    // Canvas ancho (scroll horizontal)
+    // Canvas ancho (máx 1/3 visual con scroll)
     const canvas = document.getElementById('statsChart');
-    const desiredWidth = Math.max(labels.length * 50, 500);
-    canvas.width = desiredWidth;
-    canvas.height = 360;
-
+    const desiredWidth = Math.max(labels.length * 42, 420);
+    canvas.width = desiredWidth; canvas.height = 360;
     const ctx = canvas.getContext('2d');
-    const gradYes = gradient(ctx, "#9ad6f7", "#5bb4e9", canvas.height); // azul
-    const gradMeh = gradient(ctx, "#c8b8f2", "#9f89d0", canvas.height); // morado
-    const gradNo  = gradient(ctx, "#ffc0cf", "#ff91aa", canvas.height); // rosa
+
+    // Gradientes que igualan los botones
+    const grad = (hex) => {
+      const g = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      // degradado simple del color hacia un tono algo más oscuro
+      g.addColorStop(0, hex);
+      g.addColorStop(1, hex);
+      return g;
+    };
 
     destroyChart();
     statsChartInstance = new Chart(ctx, {
@@ -607,31 +623,28 @@
       data: {
         labels,
         datasets: [
-          { label: 'Aquí sí', data: yesData, backgroundColor: gradYes, borderRadius: 8 },
-          { label: 'Me da igual', data: mehData, backgroundColor: gradMeh, borderRadius: 8 },
-          { label: 'Pasando', data: noData,  backgroundColor: gradNo,  borderRadius: 8 }
+          { label: 'Aquí sí',   data: yesData, backgroundColor: grad(getComputedStyle(document.documentElement).getPropertyValue('--yes').trim()), borderRadius: 8, stack: 'stack' },
+          { label: 'Me da igual', data: mehData, backgroundColor: grad(getComputedStyle(document.documentElement).getPropertyValue('--meh').trim()), borderRadius: 8, stack: 'stack' },
+          { label: 'Pasando',  data: noData,  backgroundColor: grad(getComputedStyle(document.documentElement).getPropertyValue('--no').trim()),  borderRadius: 8, stack: 'stack' }
         ]
       },
       options: {
-        responsive: false,
-        maintainAspectRatio: false,
+        responsive: false, maintainAspectRatio: false,
         scales: {
           x: { stacked: true, ticks: { maxRotation: 60, minRotation: 0 } },
           y: { stacked: true, beginAtZero: true }
         },
         plugins: {
           legend: {
-            labels: { color: '#3d2a68', boxWidth: 18, usePointStyle: true, pointStyle: 'rectRounded' }
+            labels: { color: '#333', boxWidth: 18, usePointStyle: true, pointStyle: 'rectRounded' }
           },
           tooltip: {
             backgroundColor: 'rgba(255,255,255,.95)',
-            titleColor: '#5c2a4a',
-            bodyColor: '#5c2a4a',
-            borderColor: '#e8daf6',
-            borderWidth: 1
+            titleColor: '#333', bodyColor: '#333',
+            borderColor: '#ddd', borderWidth: 1
           }
         },
-        animation: { duration: 300 }
+        animation: { duration: 250 }
       }
     });
 
@@ -640,92 +653,89 @@
       .sort((a, b) => b[1].yes - a[1].yes || a[0].localeCompare(b[0]))
       .slice(0, 5);
 
-    // ===== Afinidad por coincidencia de tarjetas en "sí" =====
-    // Mapa player -> Set(yes)
-    const yesByPlayer = {};
-    safeGames.forEach(g => { yesByPlayer[g.player] = new Set(g.accepted); });
+    // Afinidad por intersección de SÍ (no cuenta cantidades totales, solo coincidencias)
+    // Global: ranking de pares (A,B) con lista de coincidencias
+    const byPlayer = {};
+    safeGames.forEach(g => {
+      byPlayer[g.player] = byPlayer[g.player] || [];
+      byPlayer[g.player].push(new Set(g.accepted));
+    });
+    // Reducir por jugador a conjunto unión de sus "sí" (para no romper por sesiones)
+    Object.keys(byPlayer).forEach(p => {
+      const union = new Set();
+      byPlayer[p].forEach(s => s.forEach(x => union.add(x)));
+      byPlayer[p] = union;
+    });
 
-    // Afinidad personal (coincidencias con el jugador actual por tarjetas)
-    const myGame = safeGames.find(g => g.player === playerName);
-    let affinityPersonal = [];
-    if (myGame) {
-      const myYes = new Set(myGame.accepted);
-      const list = [];
-      safeGames.forEach(g => {
-        if (g.player !== playerName) {
-          const commons = g.accepted.filter(x => myYes.has(x)); // tarjetas coincidentes
-          list.push([g.player, commons.length, commons]);
-        }
-      });
-      affinityPersonal = list
-        .sort((a,b)=> b[1]-a[1] || String(a[0]).localeCompare(String(b[0])))
-        .slice(0, 5);
-    }
-
-    // Afinidad general: parejas con más tarjetas coincidentes en “sí”
-    const players = Object.keys(yesByPlayer);
+    // Construir ranking global
+    const players = Object.keys(byPlayer).sort((a,b)=>a.localeCompare(b));
     const pairs = [];
     for(let i=0;i<players.length;i++){
       for(let j=i+1;j<players.length;j++){
         const p1 = players[i], p2 = players[j];
-        const set1 = yesByPlayer[p1], set2 = yesByPlayer[p2];
-        const commons = [...set1].filter(x => set2.has(x)); // tarjetas coincidentes
-        if(commons.length>0){
-          pairs.push([p1, p2, commons.length, commons]);
-        }
+        const s1 = byPlayer[p1], s2 = byPlayer[p2];
+        const inter = [];
+        s1.forEach(x => { if (s2.has(x)) inter.push(x); });
+        if (inter.length>0) pairs.push({ a:p1, b:p2, common:inter, count:inter.length });
       }
     }
-    const affinityGeneral = pairs
-      .sort((a,b)=> b[2]-a[2] || (a[0]+a[1]).localeCompare(b[0]+b[1]))
-      .slice(0, 5);
+    pairs.sort((x,y)=> y.count - x.count || (x.a+x.b).localeCompare(y.a+y.b));
 
-    // Render (solo nombres)
+    // Afinidad del jugador actual (si hay)
+    let personalRows = [];
+    if (playerName && byPlayer[playerName]) {
+      const mine = byPlayer[playerName];
+      players.filter(p=>p!==playerName).forEach(p => {
+        const inter = [];
+        byPlayer[p].forEach(x => { if (mine.has(x)) inter.push(x); });
+        if (inter.length>0) personalRows.push({ player:p, count:inter.length, list:inter.sort() });
+      });
+      personalRows.sort((x,y)=> y.count - x.count || x.player.localeCompare(y.player));
+    }
+
+    // Render tablas
     let html = "";
     html += "<h3>TOP 5 tarjetas con más 'sí'</h3>";
-    html += "<table><tr><th>Tarjeta</th><th>Aquí sí</th><th>Meh</th><th>Pasando</th></tr>";
+    html += "<table><tr><th>Tarjeta</th><th>Sí</th><th>Meh</th><th>No</th></tr>";
     topCards.forEach(([name, v]) => {
       html += `<tr><td>${name}</td><td>${v.yes}</td><td>${v.meh}</td><td>${v.no}</td></tr>`;
     });
     html += "</table>";
-
-    // Grid doble de afinidades
-    html += `<div class="affinity-grid">`;
-
-    // Afinidad general (izquierda)
-    html += `<div class="affinity-wrap">`;
-    html += "<h3>TOP 5 afinidades generales (tarjetas coincidentes en 'sí')</h3>";
-    html += "<table><tr><th>Jugadores</th><th>Coincidencias</th><th>Tarjetas coincidentes</th></tr>";
-    if(affinityGeneral.length){
-      affinityGeneral.forEach(([p1,p2,count, commons])=>{
-        const c1 = getNameColor(p1), c2 = getNameColor(p2);
-        const names = commons.join(", ");
-        html += `<tr><td><span style="font-weight:600;color:${c1}">${p1}</span> &amp; <span style="font-weight:600;color:${c2}">${p2}</span></td><td>${count}</td><td>${names}</td></tr>`;
-      });
-    } else {
-      html += `<tr><td colspan="3" class="muted">Aún no hay suficientes datos.</td></tr>`;
-    }
-    html += "</table>";
-    html += `</div>`;
-
-    // Afinidad personal (derecha)
-    html += `<div class="affinity-wrap">`;
-    html += `<h3>TOP 5 jugadores más afines contigo (tarjetas coincidentes en 'sí')</h3>`;
-    html += "<table><tr><th>Jugador</th><th>Coincidencias</th><th>Tarjetas coincidentes</th></tr>";
-    if (affinityPersonal.length){
-      affinityPersonal.forEach(([p, s, commons]) => {
-        const c = getNameColor(p);
-        html += `<tr><td style="font-weight:600; color:${c}">${p}</td><td>${s}</td><td>${commons.join(", ")}</td></tr>`;
-      });
-    } else {
-      html += `<tr><td colspan="3" class="muted">No hay datos de afinidad contigo todavía. Juega una partida para calcularla.</td></tr>`;
-    }
-    html += "</table>";
-    html += `</div>`;
-
-    html += `</div>`; // end affinity-grid
-
     extraStats.innerHTML = html;
+
+    // Afinidades
+    const affinityGlobal = document.getElementById("affinityGlobal");
+    const affinityPersonal = document.getElementById("affinityPersonal");
+
+    let ghtml = "<table><tr><th>Par</th><th># Coincidencias SÍ</th><th>Tarjetas en común (SÍ)</th></tr>";
+    (pairs.slice(0,20)).forEach(row=>{
+      ghtml += `<tr><td>${row.a} &amp; ${row.b}</td><td>${row.count}</td><td>${row.common.sort().join(", ")}</td></tr>`;
+    });
+    ghtml += "</table>";
+    affinityGlobal.innerHTML = ghtml;
+
+    if (personalRows.length){
+      let phtml = "<table><tr><th>Jugador</th><th># Coincidencias SÍ</th><th>Tarjetas en común (SÍ)</th></tr>";
+      personalRows.slice(0,20).forEach(r=>{
+        const c = getNameColor(r.player);
+        phtml += `<tr><td style="font-weight:600; color:${c}">${r.player}</td><td>${r.count}</td><td>${r.list.join(", ")}</td></tr>`;
+      });
+      phtml += "</table>";
+      affinityPersonal.innerHTML = phtml;
+    } else {
+      affinityPersonal.innerHTML = `<p class="notice">Juega una partida para ver tu afinidad personal.</p>`;
+    }
+
+    document.getElementById('affinityGrids').style.display = "grid";
   }
+
+  function destroyChart() {
+    if (statsChartInstance) { statsChartInstance.destroy(); statsChartInstance = null; }
+  }
+
+  /************ Init ************/
+  applyRandomTheme();
+  document.getElementById("start-screen").style.display = "flex";
 </script>
 </body>
 </html>
