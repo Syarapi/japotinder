@@ -177,5 +177,37 @@
     "rejected": [
       "Musical Tokyo Revengers"
     ]
+  },
+  {
+    "player": "mario",
+    "date": "14/8/2025, 11:23:32 a.m.",
+    "mode": "full",
+    "accepted": [
+      "Museo/cafe de los yokai",
+      "Enoshima",
+      "Otaru",
+      "Gotokuji",
+      "Tarde de recreativas"
+    ],
+    "meh": [
+      "Kumamoto",
+      "Pokemon Cafe",
+      "Ginzan Onsen",
+      "Nagano y monos de nieve"
+    ],
+    "rejected": [
+      "Disney Tokyo",
+      "Shinkansen Hello Kitty",
+      "RJ Cafe Osaka",
+      "Shibazakura park Hokkaido",
+      "Shikisai no oka",
+      "Musical Tokyo Revengers",
+      "Beppu",
+      "Pokemon Cafe",
+      "Kumachan Onsen Tokyo",
+      "Nabana no sato",
+      "Eventos Kisekoi/Sailor Moon",
+      "Bandai Museum"
+    ]
   }
 ]
