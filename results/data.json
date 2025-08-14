@@ -553,5 +553,36 @@
       "Museo/cafe de los yokai",
       "Kumachan Onsen Tokyo"
     ]
+  },
+  {
+    "player": "plplpl",
+    "date": "14/8/2025, 2:24:12 p.m.",
+    "mode": "long",
+    "accepted": [
+      "Kumamoto",
+      "Pokemon Cafe",
+      "Shikisai no oka",
+      "Eventos Kisekoi/Sailor Moon",
+      "Shinkansen Hello Kitty",
+      "Nabana no sato",
+      "Kumachan Onsen Tokyo",
+      "Maid cafe",
+      "Bandai Museum",
+      "Museo/cafe de los yokai",
+      "Ginzan Onsen"
+    ],
+    "meh": [
+      "Enoshima",
+      "Disney Tokyo",
+      "Nagano y monos de nieve",
+      "Shibazakura park Hokkaido",
+      "Tarde de recreativas",
+      "Beppu",
+      "RJ Cafe Osaka",
+      "Musical Tokyo Revengers",
+      "Gotokuji",
+      "Otaru"
+    ],
+    "rejected": []
   }
 ]
