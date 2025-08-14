@@ -304,5 +304,36 @@
       "Bandai Museum",
       "Museo/cafe de los yokai"
     ]
+  },
+  {
+    "player": "oscar",
+    "date": "14/8/2025, 11:38:05 a.m.",
+    "mode": "short",
+    "accepted": [
+      "Bandai Museum",
+      "Eventos Kisekoi/Sailor Moon",
+      "Otaru",
+      "Shinkansen Hello Kitty",
+      "RJ Cafe Osaka",
+      "Pokemon Cafe",
+      "Maid cafe",
+      "Ginzan Onsen",
+      "Museo/cafe de los yokai",
+      "Beppu",
+      "Kumamoto",
+      "Nabana no sato",
+      "Kumachan Onsen Tokyo"
+    ],
+    "meh": [
+      "Gotokuji",
+      "Shibazakura park Hokkaido",
+      "Tarde de recreativas",
+      "Nagano y monos de nieve",
+      "Shikisai no oka"
+    ],
+    "rejected": [
+      "Enoshima",
+      "Musical Tokyo Revengers"
+    ]
   }
 ]
