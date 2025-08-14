@@ -122,6 +122,42 @@
   .notice { color: #dda0dd; margin-top: 10px; }
   .error { color: #ff4d6d; margin-top: 10px; }
   .muted { color: #777; }
+
+  /* Layout de estadísticas */
+  .stats-layout {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+    justify-content: center;
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .chart-container {
+    flex: 0 0 33%;
+    max-width: 400px;
+    width: 100%;
+  }
+  .chart-container canvas {
+    width: 100% !important;
+    height: auto !important;
+  }
+  #extraStats {
+    flex: 1 1 auto;
+    min-width: 280px;
+  }
+  @media (max-width: 900px) {
+    .stats-layout {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .chart-container {
+      flex: none;
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+  }
 </style>
 </head>
 <body>
@@ -165,8 +201,12 @@
 <!-- Pantalla de estadísticas -->
 <div id="stats-screen">
   <h2>Estadísticas globales</h2>
-  <canvas id="statsChart" width="400" height="400"></canvas>
-  <div id="extraStats"></div>
+  <div class="stats-layout">
+    <div class="chart-container">
+      <canvas id="statsChart"></canvas>
+    </div>
+    <div id="extraStats"></div>
+  </div>
   <button class="btn reject" onclick="goToStart()">Volver</button>
 </div>
 
@@ -264,7 +304,6 @@
   let statsChartInstance = null;
 
   function ensureArray(maybeArray) {
-    // Permite que data.json sea un array o un objeto con campo games
     if (Array.isArray(maybeArray)) return maybeArray;
     if (maybeArray && Array.isArray(maybeArray.games)) return maybeArray.games;
     return [];
@@ -278,7 +317,6 @@
     const extraStats = document.getElementById('extraStats');
     extraStats.innerHTML = `<p class="muted">Cargando datos...</p>`;
 
-    // Cargar JSON con cache-busting
     let games = [];
     try {
       const res = await fetch(`${dataUrl}?t=${Date.now()}`);
@@ -286,18 +324,17 @@
       const json = await res.json();
       games = ensureArray(json);
     } catch (err) {
-      extraStats.innerHTML = `<p class="error">No se pudo cargar <code>results/data.json</code>. Revisa la URL o permisos (CORS). Detalle: ${err.message}</p>`;
+      extraStats.innerHTML = `<p class="error">No se pudo cargar <code>results/data.json</code>. Detalle: ${err.message}</p>`;
       destroyChart();
       return;
     }
 
     if (!games.length) {
-      extraStats.innerHTML = `<p class="notice">No hay partidas guardadas aún en <code>results/data.json</code>.</p>`;
+      extraStats.innerHTML = `<p class="notice">No hay partidas guardadas aún.</p>`;
       destroyChart();
       return;
     }
 
-    // Agregar un id a cada juego por si hay duplicados y normalizar campos
     const safeGames = games
       .filter(g => g && Array.isArray(g.accepted) && Array.isArray(g.rejected))
       .map(g => ({
@@ -306,7 +343,6 @@
         rejected: g.rejected
       }));
 
-    // 1) Conteo global sí/no por tarjeta
     const stats = {};
     safeGames.forEach(g => {
       g.accepted.forEach(a => { stats[a] = stats[a] || { yes: 0, no: 0 }; stats[a].yes++; });
@@ -316,7 +352,6 @@
     const yesData = labels.map(l => stats[l].yes);
     const noData  = labels.map(l => stats[l].no);
 
-    // 2) Gráfico (destruir si ya existe)
     destroyChart();
     statsChartInstance = new Chart(document.getElementById('statsChart'), {
       type: 'bar',
@@ -335,12 +370,10 @@
       }
     });
 
-    // 3) Ranking TOP 5 tarjetas por "sí"
     const topCards = Object.entries(stats)
       .sort((a, b) => b[1].yes - a[1].yes || a[0].localeCompare(b[0]))
       .slice(0, 5);
 
-    // 4) Afinidad TOP 5 (jugadores con más coincidencias de "sí" CONTIGO)
     const myGame = safeGames.find(g => g.player === playerName);
     let affinity = [];
     if (myGame) {
@@ -357,9 +390,7 @@
         .slice(0, 5);
     }
 
-    // 5) Render de tablas
     let html = "";
-
     html += "<h3>TOP 5 tarjetas con más 'sí'</h3>";
     html += "<table><tr><th>Tarjeta</th><th>Sí</th><th>No</th></tr>";
     topCards.forEach(([name, v]) => {
@@ -395,7 +426,6 @@
     document.getElementById("start-screen").style.display = "flex";
   }
 
-  // Al cargar la página, muestra la pantalla de inicio
   document.getElementById("start-screen").style.display = "flex";
 </script>
 </body>
