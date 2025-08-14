@@ -521,5 +521,37 @@
       "Ginzan Onsen",
       "Kumachan Onsen Tokyo"
     ]
+  },
+  {
+    "player": "popopo",
+    "date": "14/8/2025, 2:04:54 p.m.",
+    "mode": "long",
+    "accepted": [
+      "Musical Tokyo Revengers",
+      "Otaru",
+      "Nabana no sato",
+      "Nagano y monos de nieve",
+      "Beppu",
+      "Shinkansen Hello Kitty",
+      "Shibazakura park Hokkaido",
+      "Tarde de recreativas"
+    ],
+    "meh": [
+      "RJ Cafe Osaka",
+      "Bandai Museum"
+    ],
+    "rejected": [
+      "Maid cafe",
+      "Eventos Kisekoi/Sailor Moon",
+      "Enoshima",
+      "Pokemon Cafe",
+      "Ginzan Onsen",
+      "Gotokuji",
+      "Kumamoto",
+      "Disney Tokyo",
+      "Shikisai no oka",
+      "Museo/cafe de los yokai",
+      "Kumachan Onsen Tokyo"
+    ]
   }
 ]
