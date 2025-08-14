@@ -1,245 +1,693 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Japontinder</title>
+<link href="https://fonts.googleapis.com/css2?family=Yuji+Syuku&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-  /* Paleta de colores */
-  :root {
-    --sakura-light:#fff7fb; --sakura-mid:#ffe3ef; --sakura-dark:#d38cb1; --sakura-a1:#d7a6f1; --sakura-a2:#b48ad6;
-    --sky-light:#f2f9ff; --sky-mid:#e0f1ff; --sky-dark:#8dbfe6; --sky-a1:#a3c9ff; --sky-a2:#7fb2f0;
-    --lav-light:#faf5ff; --lav-mid:#efe3ff; --lav-dark:#b48ad6; --lav-a1:#d7a6f1; --lav-a2:#b48ad6;
-    --sun-light:#fff9e0; --sun-mid:#ffefb0; --sun-dark:#e0c050; --sun-a1:#f0d46a; --sun-a2:#e1b84f;
-    --mint-light:#edfff7; --mint-mid:#d8ffee; --mint-dark:#68cba7; --mint-a1:#9fe6cc; --mint-a2:#68cba7;
+  :root{
+    /* Paleta base (claros = fondos, oscuros = pétalos) */
+    --pink-light:#FFD6E0;   --pink-base:#FFB7C5;   --pink-dark:#E69CA8;
+    --purple-light:#D6C9F2; --purple-base:#B19CD9; --purple-dark:#8A73B3;
+    --blue-light:#BFE4F9;   --blue-base:#89CFF0;   --blue-dark:#5BA4D6;
+    --mint-light:#D0F5E3;   --mint-base:#A8E6CF;   --mint-dark:#7FCCAA;
+    --yellow-light:#FFFBE8; --yellow-base:#FFF6CC; --yellow-dark:#E6DCA8;
 
-    --btn-accept:#87cefa; --btn-reject:#ffc0cb; --btn-me:#dda0dd; --btn-stats:#dda0dd;
+    /* Colores de botones fijos */
+    --yes:#89CFF0;     /* Aquí sí (azul) */
+    --meh:#B19CD9;     /* Me da igual (morado) */
+    --no:#FFB7C5;      /* Pasando (rosa) */
+
+    /* Variables que se asignan dinámicamente según el fondo elegido */
+    --bg: var(--pink-light);
+    --petal: var(--pink-dark);
+
+    --ink:#333;
+    --card-bg:#ffffffee;
+    --shadow:0 10px 25px rgba(0,0,0,.15);
+    --border-soft: #ffe1ea;
   }
 
-  body{margin:0;font-family:'Yuji Syuku', serif;background:var(--sakura-light);display:flex;flex-direction:column;align-items:center;justify-content:center;}
-  .hidden{display:none;}
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body {
+    margin:0;
+    font-family:'Segoe UI',sans-serif;
+    color:var(--ink);
+    background:var(--bg);
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    overflow-x:hidden;
+  }
 
-  /* Pantalla de inicio */
-  #start-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;gap:20px;padding:20px;}
-  #start-screen input{padding:10px;font-size:1rem;border-radius:8px;border:1px solid #ccc;}
-  #start-screen button{padding:10px 20px;font-size:1rem;border:none;border-radius:8px;cursor:pointer;background:var(--btn-accept);color:#fff;}
+  /* Canvas de pétalos */
+  #petals {
+    position:fixed;
+    inset:0;
+    width:100%;
+    height:100%;
+    pointer-events:none;
+    z-index:-1;
+  }
 
-  /* Pantalla de selección de modo */
-  .mode-split{position:relative;width:100vw;height:100vh;display:grid;grid-template-columns:1fr 1fr;}
-  .mode-half{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;cursor:pointer;padding:20px;transition:transform .15s ease;}
-  .mode-half:hover{transform:scale(1.015);}
-  .mode-title{font-size:clamp(26px,4vw,40px);font-weight:800;text-align:center;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.2);}
-  .mode-desc{font-size:clamp(14px,2vw,18px);opacity:.95;text-align:center;max-width:580px;color:#fff;}
-  .mode-half.short{background:var(--sun-mid);}
-  .mode-half.full{background:var(--sky-mid);}
+  h1,h2,h3{font-family:'Yuji Syuku',serif;text-align:center;margin:0.4rem 0}
+  h1{color:#7c3a66}
+  h2{color:#3a5a7c}
+  h3{color:#7c3a66}
 
-  /* Pantalla de juego */
-  #game-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;width:100vw;position:relative;}
-  #card-container{display:flex;flex-direction:column;align-items:center;justify-content:center;width:90%;height:70%;background:#fff;border-radius:16px;box-shadow:0 4px 12px rgba(0,0,0,.2);}
-  #card-container img{max-width:100%;max-height:100%;border-radius:12px;}
-  #card-container h2{margin:10px 0;}
-  .btn-row{display:flex;gap:12px;margin-top:20px;}
-  .btn{padding:10px 16px;border:none;border-radius:12px;font-weight:700;cursor:pointer;}
-  #accept-btn{background:var(--btn-accept);}
-  #reject-btn{background:var(--btn-reject);}
-  #me-btn{background:var(--btn-me);}
+  /* Pantallas */
+  .screen{display:none; flex-direction:column; align-items:center; padding:20px; width:100%;}
+  #start-screen{display:flex; justify-content:center; min-height:100vh; gap:14px}
+  #mode-screen{min-height:100vh; justify-content:center}
+  #game-screen{flex-direction:column; align-items:center}
+  #results{ }
+  #stats-screen{ }
+
+  /* Inputs y botones */
+  input{
+    padding:12px 14px;
+    font-size:16px;
+    border-radius:10px;
+    border:2px solid var(--border-soft);
+    width:240px;
+    text-align:center;
+    background:#fff;
+    box-shadow:0 6px 16px rgba(0,0,0,.08);
+  }
+  .row{display:flex; gap:10px; flex-wrap:wrap; justify-content:center}
+  .btn{
+    padding:14px 22px;
+    font-size:17px;
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+    transition:transform .15s ease, box-shadow .15s ease, opacity .2s ease;
+    box-shadow:0 8px 18px rgba(0,0,0,.12);
+    color:#fff;
+  }
+  .btn:hover{transform:translateY(-1px); box-shadow:0 10px 20px rgba(0,0,0,.16)}
+  .btn:active{transform:translateY(0); opacity:.95}
+
+  /* Botones fijos de juego */
+  .btn-yes{background:linear-gradient(180deg,var(--yes),#5BA4D6)}
+  .btn-meh{background:linear-gradient(180deg,var(--meh),#8A73B3)}
+  .btn-no{background:linear-gradient(180deg,var(--no),#E69CA8)}
+
+  /* Botones secundarios (color aleatorio suave sobre fondo) */
+  .btn-secondary{
+    background:#ffffffcc; color:#333;
+    border:2px solid #ffffff99;
+  }
+
+  /* Modo select cards */
+  .mode-card{
+    width:min(620px,92vw);
+    background:var(--card-bg);
+    border:2px solid var(--border-soft);
+    border-radius:16px;
+    box-shadow:var(--shadow);
+    padding:18px;
+    margin:8px;
+  }
+  .mode-title{font-size:22px; margin-bottom:6px}
+  .mode-desc{color:#555; margin:0 0 8px 0}
+
+  /* Tarjetas de juego */
+  #card-container{
+    position:relative;
+    width:min(520px,92vw);
+    height:66vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+  }
+  .card{
+    position:absolute;
+    inset:0;
+    background:var(--card-bg);
+    border:2px solid var(--border-soft);
+    border-radius:20px;
+    box-shadow:var(--shadow);
+    display:flex; flex-direction:column; align-items:center; justify-content:space-between;
+    padding:16px;
+  }
+  .card img{
+    max-height:85%; max-width:100%;
+    object-fit:cover; border-radius:14px;
+    box-shadow:0 6px 16px rgba(0,0,0,.12);
+  }
+  .card-name{font-weight:700; color:#7c3a66; padding-top:6px}
+
+  #buttons{margin-top:14px; display:flex; gap:12px; z-index:10}
 
   /* Resultados */
-  #result-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;width:100vw;gap:16px;padding:20px;}
-  #result-screen h2{margin:0;}
-  #result-screen button{padding:10px 20px;border:none;border-radius:8px;background:var(--btn-stats);color:#fff;font-weight:700;cursor:pointer;}
+  .results-container{display:flex; gap:40px; justify-content:center; flex-wrap:wrap}
+  .list{margin:10px 0}
+  ul{list-style:none; padding:0; font-size:18px}
 
-  /* Estadísticas */
-  #stats-screen{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;height:100vh;width:100vw;overflow-y:auto;padding:20px;}
-  #stats-screen table{border-collapse:collapse;width:90%;max-width:800px;}
-  #stats-screen th, #stats-screen td{border:1px solid #ccc;padding:8px;text-align:center;}
-  #stats-screen th{background:#eee;font-weight:700;}
+  /* Tablas */
+  table{
+    border-collapse:collapse; margin-top:12px;
+    width:90%; max-width:740px;
+    background:#fff; border-radius:14px; overflow:hidden;
+    box-shadow:0 8px 24px rgba(0,0,0,.12);
+    border:2px solid var(--border-soft);
+  }
+  th,td{padding:10px 12px; border-bottom:1px solid #f1e6ea; text-align:left}
+  th{background:#f3e6f9; color:#4a3b57; letter-spacing:.3px}
+  tr:nth-child(even){background:#fff7fa}
+  tr:hover{background:#fff0f6; transition:background .2s ease}
+
+  .notice{color:#7c3a66; margin-top:10px}
+  .error{color:#d6456a; margin-top:10px}
+  .muted{color:#777}
+
+  /* Estadísticas layout */
+  .stats-layout{
+    display:flex; gap:20px; align-items:flex-start; justify-content:center;
+    width:100%; max-width:1250px; margin:0 auto; padding-inline:10px;
+  }
+  .chart-col{flex:0 0 33%; max-width:420px; width:100%}
+  .chart-card{background:var(--card-bg); border:2px solid var(--border-soft); border-radius:16px; box-shadow:var(--shadow); padding:10px}
+  .chart-scroll{width:100%; overflow-x:auto; overflow-y:hidden}
+  .chart-scroll canvas{display:block}
+  .chart-col canvas{height:360px!important}
+
+  .tables-col{flex:1 1 auto; min-width:320px}
+  .affinity-grid{
+    display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:12px;
+  }
+  .affinity-wrap h3{margin-top:6px}
+
+  @media (max-width:1000px){
+    .stats-layout{flex-direction:column; align-items:stretch}
+    .chart-col{flex:none; width:100%; max-width:640px; margin:0 auto}
+    .affinity-grid{grid-template-columns:1fr}
+  }
 </style>
 </head>
 <body>
 
+<canvas id="petals"></canvas>
+
 <!-- Pantalla de inicio -->
-<div id="start-screen">
-  <h1>Bienvenido a Japontinder</h1>
-  <p>Introduce tu nombre:</p>
-  <input type="text" id="player-name" placeholder="Nombre">
-  <button id="start-btn">Empezar</button>
-  <p>Tutorial: Puedes seleccionar tarjetas con los botones o haciendo swipe. Swipe a la derecha: aceptar, izquierda: rechazar, arriba: "Me da igual".</p>
-  <button id="view-stats-btn">Ver estadísticas</button>
-</div>
-
-<!-- Selección de modo -->
-<div id="mode-screen" class="hidden">
-  <div class="mode-split">
-    <div class="mode-half short" data-mode="short">
-      <h2 class="mode-title">Modo Corto</h2>
-      <p class="mode-desc">20 tarjetas, solo 5 "Me da igual".</p>
-    </div>
-    <div class="mode-half full" data-mode="full">
-      <h2 class="mode-title">Modo Completo</h2>
-      <p class="mode-desc">Todas las tarjetas, solo 10 "Me da igual".</p>
+<div id="start-screen" class="screen">
+  <div style="text-align:center">
+    <h1>Japontinder</h1>
+    <p>¿Quién eres? O no empezamos ò_ó</p>
+    <input type="text" id="username" placeholder="Tu nombre" />
+    <div class="row" style="margin-top:12px">
+      <button class="btn btn-secondary" onclick="goToMode()">Elegir versión</button>
+      <button class="btn btn-secondary" onclick="showStats()">Ver estadísticas</button>
     </div>
   </div>
 </div>
 
-<!-- Pantalla de juego -->
-<div id="game-screen" class="hidden">
-  <div id="card-container">
-    <img id="card-img" src="" alt="">
-    <h2 id="card-name"></h2>
+<!-- Pantalla de elección de modo -->
+<div id="mode-screen" class="screen">
+  <h2>Elige cómo quieres jugar</h2>
+  <div class="mode-card">
+    <div class="mode-title">Versión corta</div>
+    <p class="mode-desc">20 tarjetas al azar. Puedes usar “Me da igual” <strong>hasta 5 veces</strong>. Fondo azul.</p>
+    <button class="btn btn-secondary" onclick="startGame('short')">Empezar versión corta</button>
   </div>
-  <div class="btn-row">
-    <button id="accept-btn" class="btn">Sí</button>
-    <button id="me-btn" class="btn">Me da igual</button>
-    <button id="reject-btn" class="btn">No</button>
+  <div class="mode-card">
+    <div class="mode-title">Versión completa</div>
+    <p class="mode-desc">Todas las tarjetas, orden aleatorio. “Me da igual” <strong>hasta 10 veces</strong>. Fondo rosa.</p>
+    <button class="btn btn-secondary" onclick="startGame('long')">Empezar versión completa</button>
+  </div>
+  <div class="row" style="margin-top:8px">
+    <button class="btn btn-secondary" onclick="goToStart()">Volver</button>
   </div>
 </div>
 
-<!-- Pantalla de resultados -->
-<div id="result-screen" class="hidden">
+<!-- Juego -->
+<div id="game-screen" class="screen">
+  <div id="card-container"></div>
+  <div id="buttons">
+    <button class="btn btn-no" onclick="handleDecision(-1)">Pasando</button>
+    <button class="btn btn-meh" onclick="handleMeh()">Me da igual</button>
+    <button class="btn btn-yes" onclick="handleDecision(1)">Aquí sí</button>
+  </div>
+</div>
+
+<!-- Resultados -->
+<div id="results" class="screen">
   <h2>Resultados</h2>
-  <button id="stats-btn-result">Ver estadísticas</button>
+  <p id="player-info"></p>
+  <div class="results-container">
+    <div class="list">
+      <h3>Aquí sí</h3>
+      <ul id="accepted-list"></ul>
+    </div>
+    <div class="list">
+      <h3>Me da igual</h3>
+      <ul id="meh-list"></ul>
+    </div>
+    <div class="list">
+      <h3>Pasando</h3>
+      <ul id="rejected-list"></ul>
+    </div>
+  </div>
+  <div class="row" style="margin-top:14px">
+    <button class="btn btn-secondary" onclick="showStats()">Ver estadísticas</button>
+    <button class="btn btn-no" onclick="restartGame()">Volver al inicio</button>
+  </div>
 </div>
 
 <!-- Pantalla de estadísticas -->
-<div id="stats-screen" class="hidden">
-  <h2>Estadísticas Globales</h2>
-  <table id="stats-table">
-    <thead>
-      <tr>
-        <th>Jugador</th>
-        <th>Tarjeta</th>
-        <th>Elección</th>
-        <th>Fecha</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-  <button id="back-from-stats">Volver</button>
+<div id="stats-screen" class="screen">
+  <h2>Estadísticas globales</h2>
+  <div class="stats-layout">
+    <div class="chart-col">
+      <div class="chart-card">
+        <div class="chart-scroll"><canvas id="statsChart"></canvas></div>
+      </div>
+    </div>
+    <div class="tables-col">
+      <div id="extraStats"></div>
+      <div class="affinity-grid">
+        <div class="affinity-wrap">
+          <h3>Ranking afinidad global (por coincidencias de “sí”)</h3>
+          <div id="affinity-global"></div>
+        </div>
+        <div class="affinity-wrap">
+          <h3>Afinidad contigo</h3>
+          <div id="affinity-my"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row" style="margin-top:14px">
+    <button class="btn btn-no" onclick="goToStart()">Volver</button>
+  </div>
 </div>
 
 <script>
-const BASE_CARDS = [
-  { name: "Disney Tokyo", img: "img/disney.jpg" },
-  { name: "Gotokuji", img: "img/gotokuji.jpg" },
-  { name: "Pokemon Cafe", img: "img/pokemon.jpg" },
-  { name: "Shikisai no oka", img: "img/shikisai.jpg" },
-  { name: "Shinkansen Hello Kitty", img: "img/hello-kitty.jpg" },
-  { name: "Maid cafe", img: "img/maid.jpg" },
-  { name: "Nabana no sato", img: "img/nabana.jpg" },
-  { name: "Otaru", img: "img/otaru.jpg" },
-  { name: "Nagano y monos de nieve", img: "img/nagano.jpg" },
-  { name: "RJ Cafe Osaka", img: "img/rj-cafe.jpg" },
-  { name: "Kumachan Onsen Tokyo", img: "img/kumachan.jpg" },
-  { name: "Enoshima", img: "img/enoshima.jpg" },
-  { name: "Ginzan Onsen", img: "img/ginzan.jpg" },
-  { name: "Tarde de recreativas", img: "img/arcade.jpg" },
-  { name: "Shibazakura park Hokkaido", img: "img/shibazakura.jpg" },
-  { name: "Musical Tokyo Revengers", img: "img/tokyo-revengers.jpg" },
-  { name: "Eventos Kisekoi/Sailor Moon", img: "img/kisekoi.jpg" },
-  { name: "Museo/cafe de los yokai", img: "img/yokai.jpg" },
-  { name: "Kumamoto", img: "img/kumamoto.jpg" },
-  { name: "Beppu", img: "img/beppu.jpg" },
-  { name: "Bandai Museum", img: "img/bandai.jpg" }
-];
+  /* ===== Config ===== */
+  const saveEndpoint = "https://japotinder.vercel.app/api/save"; // ajusta si es necesario
+  const dataUrl = "https://raw.githubusercontent.com/Syarapi/japotinder/main/results/data.json";
 
-const PLAYER_COLORS = {
-  "Vaini": "#b48ad6",
-  "Alicia": "#d68ad3",
-  "Sara": "#ffc0cb",
-  "Alba": "#87cefa"
-};
+  /* ===== Datos ===== */
+  const originalData = [
+    { name: "Disney Tokyo", img: "img/disney.jpg" },
+    { name: "Gotokuji", img: "img/gotokuji.jpg" },
+    { name: "Pokemon Cafe", img: "img/pokemon.jpg" },
+    { name: "Shikisai no oka", img: "img/shikisai.jpg" },
+    { name: "Shinkansen Hello Kitty", img: "img/hello-kitty.jpg" },
+    { name: "Maid cafe", img: "img/maid.jpg" },
+    { name: "Nabana no sato", img: "img/nabana.jpg" },
+    { name: "Otaru", img: "img/otaru.jpg" },
+    { name: "Nagano y monos de nieve", img: "img/nagano.jpg" },
+    { name: "RJ Cafe Osaka", img: "img/rj-cafe.jpg" },
+    { name: "Kumachan Onsen Tokyo", img: "img/kumachan.jpg" },
+    { name: "Enoshima", img: "img/enoshima.jpg" },
+    { name: "Ginzan Onsen", img: "img/ginzan.jpg" },
+    { name: "Tarde de recreativas", img: "img/arcade.jpg" },
+    { name: "Shibazakura park Hokkaido", img: "img/shibazakura.jpg" },
+    { name: "Musical Tokyo Revengers", img: "img/tokyo-revengers.jpg" },
+    { name: "Eventos Kisekoi/Sailor Moon", img: "img/kisekoi.jpg" },
+    { name: "Museo/cafe de los yokai", img: "img/yokai.jpg" },
+    { name: "Kumamoto", img: "img/kumamoto.jpg" },
+    { name: "Beppu", img: "img/beppu.jpg" },
+    { name: "Bandai Museum", img: "img/bandai.jpg" }
+  ];
 
-let playerName = '';
-let currentCards = [];
-let currentIndex = 0;
-let meCount = 0;
-let meLimit = 0;
+  /* ===== Estado ===== */
+  let playerName = "";
+  let mode = "long"; // 'short' | 'long'
+  let data = [];
+  let accepted = [];
+  let meh = [];
+  let rejected = [];
+  let index = 0;
+  let mehLimit = 10; // 5 en short, 10 en long
+  const container = document.getElementById('card-container');
+  const canvasPetals = document.getElementById('petals');
 
-const startScreen = document.getElementById('start-screen');
-const modeScreen = document.getElementById('mode-screen');
-const gameScreen = document.getElementById('game-screen');
-const resultScreen = document.getElementById('result-screen');
-const statsScreen = document.getElementById('stats-screen');
-const cardImg = document.getElementById('card-img');
-const cardName = document.getElementById('card-name');
+  /* ===== Helpers UI / Paleta aleatoria (fondos/acentos = aleatorios salvo botones de decisión) ===== */
+  const themeChoices = [
+    { bg:'--pink-light', petal:'--pink-dark' },
+    { bg:'--purple-light', petal:'--purple-dark' },
+    { bg:'--blue-light', petal:'--blue-dark' },
+    { bg:'--mint-light', petal:'--mint-dark' },
+    { bg:'--yellow-light', petal:'--yellow-dark' }
+  ];
+  function pickRandom(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
 
-document.getElementById('start-btn').addEventListener('click', ()=>{
-  const input = document.getElementById('player-name').value.trim();
-  if(!input) return alert("Introduce tu nombre");
-  playerName = input;
-  startScreen.classList.add('hidden');
-  modeScreen.classList.remove('hidden');
-});
-
-document.querySelectorAll('.mode-half').forEach(div=>{
-  div.addEventListener('click', ()=>{
-    startGame(div.dataset.mode);
-  });
-});
-
-document.getElementById('accept-btn').addEventListener('click', ()=>choose('Sí'));
-document.getElementById('reject-btn').addEventListener('click', ()=>choose('No'));
-document.getElementById('me-btn').addEventListener('click', ()=>choose('Me da igual'));
-
-document.getElementById('view-stats-btn').addEventListener('click', ()=>{startScreen.classList.add('hidden'); statsScreen.classList.remove('hidden'); loadStats();});
-document.getElementById('stats-btn-result').addEventListener('click', ()=>{resultScreen.classList.add('hidden'); statsScreen.classList.remove('hidden'); loadStats();});
-document.getElementById('back-from-stats').addEventListener('click', ()=>{statsScreen.classList.add('hidden'); startScreen.classList.remove('hidden');});
-
-function shuffle(array){return array.sort(()=>Math.random()-0.5);}
-
-function startGame(mode){
-  modeScreen.classList.add('hidden');
-  gameScreen.classList.remove('hidden');
-  currentIndex = 0;
-  meCount = 0;
-  meLimit = (mode==='short')?5:10;
-  currentCards = shuffle([...BASE_CARDS]);
-  if(mode==='short') currentCards = currentCards.slice(0,20);
-  document.getElementById('me-btn').style.background = PLAYER_COLORS[playerName] || 'var(--btn-me)';
-  showCard();
-}
-
-function showCard(){
-  if(currentIndex>=currentCards.length){
-    gameScreen.classList.add('hidden');
-    resultScreen.classList.remove('hidden');
-    saveResult();
-    return;
+  function setRandomTheme(preferred){ // preferred: 'blue' | 'pink' | undefined
+    let choice;
+    if(preferred==='blue'){ choice = {bg:'--blue-light', petal:'--blue-dark'}; }
+    else if(preferred==='pink'){ choice = {bg:'--pink-light', petal:'--pink-dark'}; }
+    else choice = pickRandom(themeChoices);
+    const rs = document.documentElement.style;
+    rs.setProperty('--bg', getComputedStyle(document.documentElement).getPropertyValue(choice.bg));
+    rs.setProperty('--petal', getComputedStyle(document.documentElement).getPropertyValue(choice.petal));
+    // recolor headings ligeramente aleatorio para variar
+    const accents = ['#7c3a66','#3a5a7c','#6b3f87','#375b6f','#725f2a'];
+    const h = pickRandom(accents);
+    document.querySelectorAll('h1,h2,h3').forEach(el=>{ el.style.color = h; });
+    // Re-dibujar pétalos con nuevo color
+    startPetals();
   }
-  const card = currentCards[currentIndex];
-  cardImg.src = card.img;
-  cardName.textContent = card.name;
-}
 
-function choose(choice){
-  if(choice==='Me da igual' && meCount>=meLimit) return alert(`Solo puedes usar "Me da igual" ${meLimit} veces`);
-  if(choice==='Me da igual') meCount++;
-  // Guardamos elección en data.json vía API o lógica backend (aquí simplificado)
-  // Aquí se puede llamar a save.js en Vercel
-  currentIndex++;
-  showCard();
-}
+  /* ===== Sakura petals (canvas) ===== */
+  let petalsArr = [];
+  let petalRAF = null;
+  function startPetals(){
+    const ctx = canvasPetals.getContext('2d');
+    const DPR = (window.devicePixelRatio||1);
+    const w = canvasPetals.width = Math.floor(window.innerWidth*DPR);
+    const h = canvasPetals.height = Math.floor(window.innerHeight*DPR);
+    const color = getComputedStyle(document.documentElement).getPropertyValue('--petal').trim() || '#E69CA8';
 
-async function loadStats(){
-  const tbody = document.querySelector('#stats-table tbody');
-  tbody.innerHTML='';
-  try{
-    const res = await fetch('results/data.json');
-    const data = await res.json();
-    data.forEach(entry=>{
-      const tr = document.createElement('tr');
-      tr.style.backgroundColor = PLAYER_COLORS[entry.player] || 'inherit';
-      tr.innerHTML = `<td>${entry.player}</td><td>${entry.card}</td><td>${entry.choice}</td><td>${entry.date}</td>`;
-      tbody.appendChild(tr);
+    // Crear pétalos
+    const count = Math.floor((window.innerWidth*window.innerHeight)/16000); // densidad adaptativa
+    petalsArr = Array.from({length: count}, ()=>({
+      x: Math.random()*w,
+      y: Math.random()*-h,
+      r: 6 + Math.random()*10,
+      s: 0.3 + Math.random()*0.8,
+      a: Math.random()*Math.PI*2,
+      va: (Math.random()*0.02)+0.005
+    }));
+
+    cancelAnimationFrame(petalRAF);
+    (function loop(){
+      ctx.clearRect(0,0,w,h);
+      ctx.fillStyle = color;
+      petalsArr.forEach(p=>{
+        p.y += p.s*DPR*1.2;
+        p.x += Math.sin(p.a)*0.6*DPR;
+        p.a += p.va;
+        if(p.y > h+20) { p.y = -20; p.x = Math.random()*w; }
+        // pétalo ovalado
+        ctx.beginPath();
+        ctx.ellipse(p.x, p.y, p.r, p.r*0.6, p.a, 0, Math.PI*2);
+        ctx.fill();
+      });
+      petalRAF = requestAnimationFrame(loop);
+    })();
+  }
+  window.addEventListener('resize', startPetals);
+
+  /* ===== Nombre -> color fijo en estadísticas ===== */
+  function colorForNameStable(name){
+    const n = (name||"").trim().toLowerCase();
+    if(n==="alba") return "#2f7bdc";
+    if(n==="alicia"||n==="vaini") return "#8a5adf";
+    if(n==="sara") return "#ff6fa1";
+    // Otros: amarillo pastel o menta, estable por hash (para nombres en estadísticas)
+    const candidates = ["#FFF6CC","#A8E6CF"]; // amarillo pastel legible y verde menta
+    let h=0; for(let i=0;i<n.length;i++) h=(h*31 + n.charCodeAt(i))|0;
+    return candidates[Math.abs(h)%candidates.length];
+  }
+
+  /* ===== Navegación de pantallas ===== */
+  function hideAll(){
+    document.querySelectorAll('.screen').forEach(s=>s.style.display='none');
+  }
+  function goToStart(){
+    hideAll(); document.getElementById('start-screen').style.display='flex';
+    setRandomTheme(); // fondo aleatorio al volver
+  }
+  function goToMode(){
+    const nameInput = document.getElementById("username").value.trim();
+    if (!nameInput){ alert("Que me digas quién eres o no jugamos ù3ú"); return; }
+    playerName = nameInput;
+    hideAll(); document.getElementById('mode-screen').style.display='flex';
+    setRandomTheme(); // aleatorio en pantalla de modo
+  }
+
+  /* ===== Juego ===== */
+  function shuffleArray(array){ return array.map(v=>[Math.random(),v]).sort((a,b)=>a[0]-b[0]).map(x=>x[1]); }
+
+  function startGame(selectedMode){
+    mode = selectedMode || 'long';
+    mehLimit = (mode==='short') ? 5 : 10;
+
+    // Fondo específico por modo
+    if(mode==='short') setRandomTheme('blue');  // versión corta → azul
+    else setRandomTheme('pink');                // versión larga → rosa
+
+    data = shuffleArray([...originalData]);
+    if(mode==='short') data = data.slice(0,20);
+
+    index = 0; accepted = []; meh = []; rejected = [];
+    container.innerHTML = "";
+    hideAll(); document.getElementById('game-screen').style.display='flex';
+    showNextCard();
+  }
+
+  function createCard(person){
+    // Siempre 1 tarjeta visible: borra la anterior si existe
+    const existing = container.querySelector('.card');
+    if(existing) existing.remove();
+
+    const card = document.createElement('div'); card.className='card';
+    const img = document.createElement('img'); img.src = person.img; img.alt = person.name;
+    const name = document.createElement('div'); name.className='card-name'; name.textContent = person.name;
+    card.appendChild(img); card.appendChild(name); container.appendChild(card);
+  }
+
+  function showNextCard(){
+    if(index < data.length){ createCard(data[index]); index++; }
+    else { showResults(); }
+  }
+
+  function handleDecision(direction){
+    const currentCard = container.querySelector('.card');
+    if(!currentCard) return;
+    const name = currentCard.querySelector('.card-name').textContent;
+    if(direction===1) accepted.push(name); else rejected.push(name);
+    showNextCard();
+  }
+
+  function handleMeh(){
+    if(meh.length >= mehLimit){
+      alert("Por favor, mójate un poco más...");
+      return;
+    }
+    const currentCard = container.querySelector('.card');
+    if(!currentCard) return;
+    const name = currentCard.querySelector('.card-name').textContent;
+    meh.push(name);
+    showNextCard();
+  }
+
+  function setPlayerInfo(dateTime){
+    const color = colorForNameStable(playerName);
+    document.getElementById('player-info').innerHTML =
+      `Jugador: <span style="font-weight:700; color:${color}">${playerName}</span> | ${dateTime}`;
+  }
+
+  async function showResults(){
+    hideAll(); document.getElementById('results').style.display='flex';
+    const dateTime = new Date().toLocaleString();
+    setPlayerInfo(dateTime);
+
+    const aL = document.getElementById('accepted-list');
+    const mL = document.getElementById('meh-list');
+    const rL = document.getElementById('rejected-list');
+    aL.innerHTML=""; mL.innerHTML=""; rL.innerHTML="";
+    accepted.forEach(n=>{ const li=document.createElement('li'); li.textContent=n; aL.appendChild(li); });
+    meh.forEach(n=>{ const li=document.createElement('li'); li.textContent=n; mL.appendChild(li); });
+    rejected.forEach(n=>{ const li=document.createElement('li'); li.textContent=n; rL.appendChild(li); });
+
+    try{
+      await fetch(saveEndpoint,{
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body:JSON.stringify({ player: playerName, date: dateTime, accepted, meh, rejected })
+      });
+    }catch(e){ console.warn("No se pudo guardar en la API:", e); }
+  }
+
+  /* ===== Estadísticas ===== */
+  let statsChartInstance = null;
+  function destroyChart(){ if(statsChartInstance){ statsChartInstance.destroy(); statsChartInstance=null; } }
+
+  function ensureArray(maybe){
+    if(Array.isArray(maybe)) return maybe;
+    if(maybe && Array.isArray(maybe.games)) return maybe.games;
+    return [];
+  }
+
+  function intersect(aSet, arr){ let c=[]; arr.forEach(x=>{ if(aSet.has(x)) c.push(x); }); return c; }
+
+  async function showStats(){
+    hideAll(); document.getElementById('stats-screen').style.display='flex';
+    setRandomTheme(); // paleta aleatoria también en estadísticas (pétalos coherentes)
+    const extraStats = document.getElementById('extraStats');
+    const globalBox = document.getElementById('affinity-global');
+    const myBox = document.getElementById('affinity-my');
+    extraStats.innerHTML = `<p class="muted">Cargando datos...</p>`;
+    globalBox.innerHTML = ""; myBox.innerHTML = "";
+
+    let games=[];
+    try{
+      const res = await fetch(`${dataUrl}?t=${Date.now()}`);
+      if(!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json();
+      games = ensureArray(json);
+    }catch(err){
+      extraStats.innerHTML = `<p class="error">No se pudo cargar <code>results/data.json</code>. Detalle: ${err.message}</p>`;
+      destroyChart(); return;
+    }
+    if(!games.length){
+      extraStats.innerHTML = `<p class="notice">No hay partidas guardadas aún.</p>`;
+      destroyChart(); return;
+    }
+
+    // Normalizar
+    const safeGames = games
+      .filter(g => g && Array.isArray(g.accepted) && Array.isArray(g.rejected))
+      .map(g => ({
+        player: g.player || "¿anon?",
+        accepted: Array.isArray(g.accepted) ? g.accepted : [],
+        meh: Array.isArray(g.meh) ? g.meh : [],
+        rejected: Array.isArray(g.rejected) ? g.rejected : []
+      }));
+
+    // Conteo por tarjeta: sí / meh / no
+    const stats = {};
+    safeGames.forEach(g=>{
+      g.accepted.forEach(a=>{ stats[a] = stats[a] || {yes:0, meh:0, no:0}; stats[a].yes++; });
+      g.meh.forEach(m=>{ stats[m] = stats[m] || {yes:0, meh:0, no:0}; stats[m].meh++; });
+      g.rejected.forEach(r=>{ stats[r] = stats[r] || {yes:0, meh:0, no:0}; stats[r].no++; });
     });
-  }catch(e){console.error(e);}
-}
+    const labels = Object.keys(stats);
+    const yesData = labels.map(l=>stats[l].yes);
+    const mehData = labels.map(l=>stats[l].meh);
+    const noData  = labels.map(l=>stats[l].no);
 
-function saveResult(){
-  // Aquí se llama a Vercel API para guardar partida actual
-  // Ejemplo: fetch('/api/save', {method:'POST', body: JSON.stringify({player:playerName, results:currentCards})})
-}
+    // Canvas ancho para scroll horizontal
+    const canvas = document.getElementById('statsChart');
+    const desiredWidth = Math.max(labels.length * 42, 420);
+    canvas.width = desiredWidth; canvas.height = 360;
+    const ctx = canvas.getContext('2d');
+
+    // Colores de barras = botones
+    const colYes = getComputedStyle(document.documentElement).getPropertyValue('--yes').trim() || '#89CFF0';
+    const colMeh = getComputedStyle(document.documentElement).getPropertyValue('--meh').trim() || '#B19CD9';
+    const colNo  = getComputedStyle(document.documentElement).getPropertyValue('--no').trim()  || '#FFB7C5';
+
+    destroyChart();
+    statsChartInstance = new Chart(ctx,{
+      type:'bar',
+      data:{
+        labels,
+        datasets:[
+          { label:'Aquí sí',    data: yesData, backgroundColor: colYes, borderRadius:8, stack:'stack1' },
+          { label:'Me da igual',data: mehData, backgroundColor: colMeh, borderRadius:8, stack:'stack1' },
+          { label:'Pasando',    data: noData,  backgroundColor: colNo,  borderRadius:8, stack:'stack1' }
+        ]
+      },
+      options:{
+        responsive:false, maintainAspectRatio:false,
+        scales:{
+          x:{ stacked:true, ticks:{ maxRotation:60, minRotation:0 }},
+          y:{ stacked:true, beginAtZero:true }
+        },
+        plugins:{
+          legend:{ labels:{ color:'#4a3b57', boxWidth:18, usePointStyle:true, pointStyle:'rectRounded' } },
+          tooltip:{
+            backgroundColor:'rgba(255,255,255,.95)',
+            titleColor:'#5c2a4a', bodyColor:'#5c2a4a',
+            borderColor:'#e8d7ef', borderWidth:1
+          }
+        },
+        animation:{ duration:300 }
+      }
+    });
+
+    // Top 5 tarjetas por “sí”
+    const topCards = Object.entries(stats)
+      .sort((a,b)=> b[1].yes - a[1].yes || a[0].localeCompare(b[0]))
+      .slice(0,5);
+
+    // Tabla de "TOP tarjetas sí"
+    let html = "";
+    html += "<h3>TOP 5 tarjetas con más 'sí'</h3>";
+    html += "<table><tr><th>Tarjeta</th><th>Aquí sí</th><th>Me da igual</th><th>Pasando</th></tr>";
+    topCards.forEach(([name, v])=>{
+      html += `<tr><td>${name}</td><td>${v.yes}</td><td>${v.meh}</td><td>${v.no}</td></tr>`;
+    });
+    html += "</table>";
+    extraStats.innerHTML = html;
+
+    // ===== Afinidad por coincidencia de tarjetas “sí” (intersección) =====
+    // Global: pares (A,B) con lista de coincidencias y conteo
+    const byPlayer = {};
+    safeGames.forEach(g=>{ byPlayer[g.player] = new Set(g.accepted); });
+    const players = Object.keys(byPlayer);
+
+    const pairs = [];
+    for(let i=0;i<players.length;i++){
+      for(let j=i+1;j<players.length;j++){
+        const p1 = players[i], p2 = players[j];
+        const common = intersect(byPlayer[p1], Array.from(byPlayer[p2]));
+        if(common.length>0){
+          pairs.push({ a:p1, b:p2, matches: common, count: common.length });
+        }
+      }
+    }
+    pairs.sort((x,y)=> y.count - x.count || (x.a+x.b).localeCompare(y.a+y.b));
+    const topGlobal = pairs.slice(0,5);
+
+    // Afinidad contigo
+    const my = safeGames.find(g=>g.player===playerName);
+    let myRows = [];
+    if(my){
+      const mySet = new Set(my.accepted);
+      const map = [];
+      players.forEach(p=>{
+        if(p===playerName) return;
+        const common = intersect(mySet, Array.from(byPlayer[p]));
+        if(common.length>0) map.push({ player:p, matches:common, count:common.length });
+      });
+      map.sort((a,b)=> b.count - a.count || a.player.localeCompare(b.player));
+      myRows = map.slice(0,5);
+    }
+
+    // Render tablas de afinidad
+    function renderAffinityTable(rows, headers){
+      if(!rows.length) return `<p class="notice">Sin datos suficientes.</p>`;
+      let t = `<table><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr>`;
+      rows.forEach(r=>{
+        if(r.a){ // global
+          const cA = colorForNameStable(r.a), cB = colorForNameStable(r.b);
+          t += `<tr>
+                  <td><span style="font-weight:700;color:${cA}">${r.a}</span> &amp; <span style="font-weight:700;color:${cB}">${r.b}</span></td>
+                  <td>${r.count}</td>
+                  <td>${r.matches.join(', ')}</td>
+                </tr>`;
+        }else{   // my
+          const c = colorForNameStable(r.player);
+          t += `<tr>
+                  <td style="font-weight:700;color:${c}">${r.player}</td>
+                  <td>${r.count}</td>
+                  <td>${r.matches.join(', ')}</td>
+                </tr>`;
+        }
+      });
+      t += `</table>`;
+      return t;
+    }
+
+    globalBox.innerHTML = renderAffinityTable(topGlobal, ["Pareja", "Coincidencias", "Tarjetas"]);
+    myBox.innerHTML = my ? renderAffinityTable(myRows, ["Jugador", "Coincidencias", "Tarjetas"])
+                         : `<p class="notice">Juega una partida para calcular tu afinidad.</p>`;
+  }
+
+  /* ===== Init ===== */
+  document.getElementById('start-screen').style.display='flex';
+  setRandomTheme(); // paleta al entrar
+  startPetals();    // pétalos iniciales
 </script>
 </body>
 </html>
