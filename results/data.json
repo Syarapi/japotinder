@@ -85,5 +85,34 @@
       "Shibazakura park Hokkaido",
       "Beppu"
     ]
+  },
+  {
+    "player": "Prueba 1",
+    "date": "14/8/2025, 10:04:26 a.m.",
+    "accepted": [
+      "Museo/cafe de los yokai",
+      "Beppu",
+      "Kumamoto",
+      "Otaru",
+      "Shikisai no oka",
+      "Kumachan Onsen Tokyo"
+    ],
+    "rejected": [
+      "Eventos Kisekoi/Sailor Moon",
+      "Nabana no sato",
+      "Pokemon Cafe",
+      "Shibazakura park Hokkaido",
+      "Nagano y monos de nieve",
+      "Bandai Museum",
+      "Ginzan Onsen",
+      "RJ Cafe Osaka",
+      "Musical Tokyo Revengers",
+      "Gotokuji",
+      "Disney Tokyo",
+      "Shinkansen Hello Kitty",
+      "Enoshima",
+      "Tarde de recreativas",
+      "Maid cafe"
+    ]
   }
 ]
