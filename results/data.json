@@ -490,5 +490,36 @@
       "Eventos Kisekoi/Sailor Moon",
       "Kumamoto"
     ]
+  },
+  {
+    "player": "Prueba111111",
+    "date": "14/8/2025, 1:48:14 p.m.",
+    "mode": "short",
+    "accepted": [
+      "Bandai Museum",
+      "Disney Tokyo",
+      "Kumamoto",
+      "Shikisai no oka",
+      "Musical Tokyo Revengers",
+      "Shibazakura park Hokkaido"
+    ],
+    "meh": [
+      "RJ Cafe Osaka",
+      "Shinkansen Hello Kitty",
+      "Tarde de recreativas",
+      "Beppu"
+    ],
+    "rejected": [
+      "Museo/cafe de los yokai",
+      "Otaru",
+      "Gotokuji",
+      "Nagano y monos de nieve",
+      "Pokemon Cafe",
+      "Nabana no sato",
+      "Maid cafe",
+      "Eventos Kisekoi/Sailor Moon",
+      "Ginzan Onsen",
+      "Kumachan Onsen Tokyo"
+    ]
   }
 ]
