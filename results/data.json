@@ -272,5 +272,37 @@
       "Museo/cafe de los yokai",
       "Nagano y monos de nieve"
     ]
+  },
+  {
+    "player": "Sara",
+    "date": "14/8/2025, 11:36:54 a.m.",
+    "mode": "full",
+    "accepted": [
+      "Kumachan Onsen Tokyo",
+      "Tarde de recreativas",
+      "Disney Tokyo",
+      "Beppu",
+      "Ginzan Onsen",
+      "Enoshima"
+    ],
+    "meh": [
+      "Eventos Kisekoi/Sailor Moon",
+      "Shibazakura park Hokkaido",
+      "Kumamoto",
+      "Otaru",
+      "Nabana no sato",
+      "Shikisai no oka"
+    ],
+    "rejected": [
+      "Shinkansen Hello Kitty",
+      "Maid cafe",
+      "Musical Tokyo Revengers",
+      "Pokemon Cafe",
+      "RJ Cafe Osaka",
+      "Nagano y monos de nieve",
+      "Gotokuji",
+      "Bandai Museum",
+      "Museo/cafe de los yokai"
+    ]
   }
 ]
