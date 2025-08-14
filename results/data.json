@@ -678,5 +678,36 @@
       "Bandai Museum",
       "Beppu"
     ]
+  },
+  {
+    "player": "Lorelei",
+    "date": "14/8/2025, 4:31:33 p.m.",
+    "mode": "short",
+    "accepted": [
+      "Nagano y monos de nieve",
+      "Pokemon Cafe",
+      "Nabana no sato",
+      "Kumamoto",
+      "Shinkansen Hello Kitty",
+      "RJ Cafe Osaka",
+      "Enoshima",
+      "Ginzan Onsen",
+      "Gotokuji",
+      "Otaru",
+      "Maid cafe",
+      "Eventos Kisekoi/Sailor Moon",
+      "Bandai Museum"
+    ],
+    "meh": [
+      "Museo/cafe de los yokai",
+      "Beppu",
+      "Shibazakura park Hokkaido"
+    ],
+    "rejected": [
+      "Shikisai no oka",
+      "Musical Tokyo Revengers",
+      "Disney Tokyo",
+      "Kumachan Onsen Tokyo"
+    ]
   }
 ]
