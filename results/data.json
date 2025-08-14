@@ -584,5 +584,37 @@
       "Otaru"
     ],
     "rejected": []
+  },
+  {
+    "player": "Sara",
+    "date": "14/8/2025, 3:04:08 p.m.",
+    "mode": "unknown",
+    "accepted": [
+      "Shinkansen Hello Kitty",
+      "Museo/cafe de los yokai",
+      "Otaru",
+      "Kumamoto",
+      "Shibazakura park Hokkaido",
+      "Eventos Kisekoi/Sailor Moon",
+      "Ginzan Onsen",
+      "Gotokuji"
+    ],
+    "meh": [
+      "Maid cafe"
+    ],
+    "rejected": [
+      "Disney Tokyo",
+      "Enoshima",
+      "Tarde de recreativas",
+      "RJ Cafe Osaka",
+      "Shikisai no oka",
+      "Pokemon Cafe",
+      "Bandai Museum",
+      "Musical Tokyo Revengers",
+      "Nabana no sato",
+      "Kumachan Onsen Tokyo",
+      "Nagano y monos de nieve",
+      "Beppu"
+    ]
   }
 ]
