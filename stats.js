@@ -2,8 +2,8 @@ document.addEventListener("DOMContentLoaded", () => {
   fetch("results/data.json")
     .then(r => r.json())
     .then(data => {
-      // Ignorar modos
       renderStats(data);
+      renderRecent(data);
     });
 });
 
@@ -22,4 +22,19 @@ function renderStats(data) {
     Object.entries(total).map(([name, scores]) => 
       `<tr><td>${name}</td><td>${scores.yes}</td><td>${scores.meh}</td><td>${scores.no}</td></tr>`
     ).join("");
+}
+
+function renderRecent(data) {
+  const recent = [...data].slice(-10).reverse(); // 10 últimos
+  const tbl = document.getElementById("recent-table");
+  tbl.innerHTML = `<tr><th>Jugador</th><th>Fecha</th><th>Sí</th><th>Meh</th><th>No</th></tr>` +
+    recent.map(entry => `
+      <tr>
+        <td>${entry.player}</td>
+        <td>${new Date(entry.date).toLocaleString()}</td>
+        <td>${entry.accepted.length}</td>
+        <td>${entry.meh.length}</td>
+        <td>${entry.rejected.length}</td>
+      </tr>
+    `).join("");
 }
