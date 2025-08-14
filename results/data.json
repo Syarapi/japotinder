@@ -145,5 +145,37 @@
       "RJ Cafe Osaka",
       "Museo/cafe de los yokai"
     ]
+  },
+  {
+    "player": "Sara",
+    "date": "14/8/2025, 11:08:25 a.m.",
+    "mode": "full",
+    "accepted": [
+      "Disney Tokyo",
+      "Ginzan Onsen",
+      "Kumamoto",
+      "Enoshima",
+      "Museo/cafe de los yokai",
+      "Shibazakura park Hokkaido",
+      "Beppu",
+      "Shikisai no oka",
+      "Otaru",
+      "Eventos Kisekoi/Sailor Moon"
+    ],
+    "meh": [
+      "Pokemon Cafe",
+      "Gotokuji",
+      "Bandai Museum",
+      "Kumachan Onsen Tokyo",
+      "Kumachan Onsen Tokyo",
+      "Nagano y monos de nieve",
+      "RJ Cafe Osaka",
+      "RJ Cafe Osaka",
+      "RJ Cafe Osaka",
+      "Maid cafe"
+    ],
+    "rejected": [
+      "Musical Tokyo Revengers"
+    ]
   }
 ]
