@@ -24,7 +24,7 @@
     --petal-rgba: 255,182,193; /* se sobreescribe desde JS */
   }
 
-  /* ===== Fondo con pétalos (sin degradado) ===== */
+  /* ===== Fondo temático con pétalos (sin degradado) ===== */
   body {
     margin: 0;
     font-family: 'Segoe UI', sans-serif;
@@ -35,8 +35,9 @@
     align-items: center;
     background: var(--bg-light);
     position: relative;
-    overflow: hidden; /* sin scroll de página */
+    overflow: hidden; /* sin scroll vertical; usamos scroll interno en paneles */
   }
+  /* Capas de pétalos */
   body::before, body::after{
     content:"";
     position: fixed;
@@ -49,6 +50,7 @@
       radial-gradient(12px 8px at 85% 20%, rgba(var(--petal-rgba),0.18) 40%, transparent 41%);
     animation: petals 24s linear infinite;
     filter: blur(0.2px);
+    z-index: -1;
   }
   body::after{
     animation-duration: 32s;
@@ -59,29 +61,28 @@
     100% { background-position: 0 120vh, 20vw 130vh, 60vw 125vh, 85vw 135vh; }
   }
 
-  h1, h2, h3 { font-family: 'Yuji Syuku', serif; text-align: center; margin: 10px 0; }
-  h1 { color: var(--accent-1); text-shadow: 0 2px 0 #fff; }
-  h2 { color: var(--accent-2); }
-  h3 { color: var(--accent-1); }
+  h1, h2, h3 { font-family: 'Yuji Syuku', serif; text-align: center; }
+  h1 { color: var(--accent-1); text-shadow: 0 2px 0 #fff; margin: 10px 0 6px; }
+  h2 { color: var(--accent-2); margin: 6px 0 10px; }
+  h3 { color: var(--accent-1); margin: 10px 0; }
 
-  /* Contenedores principales */
+  /* Páginas */
   #start-screen, #mode-screen, #results, #stats-screen {
     display: none;
     flex-direction: column;
     align-items: center;
-    padding: 16px;
     width: 100%;
-    height: 100vh;         /* ocupar viewport */
-    box-sizing: border-box;
   }
-  #start-screen { display: flex; justify-content: center; gap: 15px; }
+  #start-screen {
+    display: flex; justify-content: center; gap: 15px; height: 100vh;
+  }
 
   /* Tarjetas */
   #card-container {
     position: relative;
-    width: 90%;
+    width: 92%;
     max-width: 520px;
-    height: 62vh;
+    height: 58vh;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -115,7 +116,7 @@
 
   /* Botonera */
   #buttons {
-    margin-top: 12px;
+    margin-top: 10px;
     display: flex;
     gap: 12px;
     z-index: 10;
@@ -137,9 +138,9 @@
   .btn:hover { transform: translateY(-1px); box-shadow: 0 10px 20px rgba(0,0,0,.16); }
   .btn:active { transform: translateY(0); opacity:.95; }
 
-  .results-container { display: flex; gap: 28px; justify-content: center; flex-wrap: wrap; }
+  .results-container { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
   .list { margin: 6px 0; }
-  ul { list-style: none; padding: 0; font-size: 16px; }
+  ul { list-style: none; padding: 0; font-size: 16px; margin:0; }
   input {
     padding: 10px 12px; font-size: 16px; border-radius: 10px;
     border: 2px solid var(--accent-1); width: 220px; text-align: center; background: #fff;
@@ -148,31 +149,32 @@
 
   /* Modo elección */
   .mode-grid{
-    display:grid; grid-template-columns: 1fr; gap:12px; max-width:720px; width:100%;
+    display:grid; grid-template-columns: 1fr; gap:12px; max-width:720px; width:100%; padding: 0 10px;
   }
   .mode-card{
     background: var(--card-bg); border:2px solid var(--accent-1); border-radius:16px;
     padding:12px; box-shadow: 0 8px 24px rgba(0,0,0,.12);
   }
-  .mode-card p{ margin:6px 0 0 0; color:#555; font-size: 14px; }
+  .mode-card p{ margin:6px 0 0 0; color:#555; font-size: 14px;}
   @media (min-width:760px){ .mode-grid{ grid-template-columns: 1fr 1fr; } }
 
   /* Tablas */
   table {
     border-collapse: collapse;
+    margin-top: 10px;
     width: 100%;
     background: #fff;
     border-radius: 14px;
     overflow: hidden;
     box-shadow: 0 8px 24px rgba(0,0,0,0.12);
     border: 2px solid var(--accent-1);
-    table-layout: fixed;
   }
-  table th, table td { padding: 8px 10px; border-bottom: 1px solid #f0e7f8; text-align: left; word-wrap: break-word; }
+  table th, table td { padding: 8px 10px; border-bottom: 1px solid #f0e7f8; text-align: left; }
   table th {
     background: linear-gradient(180deg, var(--accent-2) 0%, var(--accent-1) 100%);
-    color: white; letter-spacing:.3px; position: sticky; top: 0; z-index: 1;
+    color: white; letter-spacing:.3px; font-size: 14px;
   }
+  table td { font-size: 13.5px; }
   table tr:nth-child(even) { background-color: #faf7ff; }
   table tr:hover { background-color: #f4ecff; transition: background .2s ease; }
 
@@ -180,56 +182,83 @@
   .error { color: #d6456a; margin-top: 6px; }
   .muted { color: #777; }
 
-  /* ===== Pantalla de estadísticas sin scroll global ===== */
-  #stats-screen > h2 { margin: 6px 0 8px; }
-  .stats-layout {
-    display: grid;
-    grid-template-rows: auto 1fr;  /* fila superior fija, fila inferior ocupa resto */
-    gap: 10px;
-    width: 100%;
-    max-width: 1200px;
-    height: calc(100vh - 90px); /* dentro del viewport, sin scroll de página */
+  /* ===== Layout de estadísticas (pantalla completa sin scroll) ===== */
+  #stats-screen{
+    height: 100vh;
+    padding: 6px 10px 10px;
     box-sizing: border-box;
+    overflow: hidden;
+  }
+  .stats-title-wrap{ margin: 0 0 4px; }
+  .stats-grid{
+    display:grid;
+    grid-template-columns: minmax(340px, 1fr) minmax(420px, 1.2fr);
+    gap: 12px;
+    height: calc(100vh - 120px); /* deja sitio para título y botón volver */
+    align-items: stretch;
   }
 
-  /* Fila superior: gráfico (izq) + tabla top (dcha) mismas alturas */
-  .top-row {
-    display: grid;
-    grid-template-columns: 1.2fr 1fr;
-    gap: 10px;
-    min-height: 280px;
-    max-height: 360px;
-    height: 36vh; /* altura consistente */
+  /* Columna izquierda: gráfico con scroll horizontal */
+  .chart-card{
+    height: 100%;
+    background: var(--card-bg); border: 2px solid var(--accent-1);
+    border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    padding: 8px;
+    display:flex; flex-direction:column;
   }
-  .panel {
-    background: var(--card-bg);
-    border: 2px solid var(--accent-1);
-    border-radius: 16px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-    display: flex;
-    flex-direction: column;
-    min-height: 0; /* necesario para overflow en grid */
+  .chart-scroll {
+    flex:1 1 auto;
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    border-radius: 12px;
   }
-  .panel-header { padding: 8px 12px; font-weight: 700; color: var(--accent-2); }
-  .panel-body   { padding: 8px; overflow: auto; }
-
-  .chart-scroll { width: 100%; overflow-x: auto; overflow-y: hidden; }
   .chart-scroll canvas { display: block; }
-  .chart-container canvas { height: 260px !important; } /* se ajusta a la altura del panel */
+  .chart-container canvas { height: 320px !important; }
 
-  /* Fila inferior: dos columnas de afinidad, con scroll interno */
-  .affinity-row {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 10px; min-height: 0;
+  /* Columna derecha: TOP tarjetas (más ancha + tipografía más pequeña) */
+  .top-card{
+    height: 100%;
+    background: var(--card-bg); border: 2px solid var(--accent-1);
+    border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    padding: 8px;
+    display:flex; flex-direction:column;
   }
+  .top-scroll{
+    flex:1 1 auto;
+    overflow:auto;
+    border-radius: 12px;
+  }
+  .top-card table th{ font-size: 13.5px; }
+  .top-card table td{ font-size: 12.5px; }
 
-  /* Tablas de afinidad: tipografías más pequeñas para tarjetas */
-  .affinity-table td.card-list { font-size: 12px; line-height: 1.25; }
+  /* Fila inferior: afinidades en dos columnas, cada una con scroll propio */
+  .affinity-wrap{
+    margin-top: 8px;
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    height: calc(100vh - 120px);
+  }
+  .aff-card{
+    background: var(--card-bg); border: 2px solid var(--accent-1);
+    border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    padding: 8px;
+    display:flex; flex-direction:column; min-height: 0;
+  }
+  .aff-scroll{
+    flex:1 1 auto;
+    overflow:auto;
+    border-radius: 12px;
+  }
+  /* Nombres de tarjetas más pequeños dentro de afinidades */
+  .aff-card td.cards-small { font-size: 12px; line-height: 1.25; }
 
-  /* Responsive */
+  /* Responsive ajustado */
   @media (max-width: 980px){
-    .top-row { grid-template-columns: 1fr; height: 48vh; }
-    .affinity-row { grid-template-columns: 1fr; }
-    .chart-container canvas { height: 220px !important; }
+    body { overflow:auto; } /* permitido scroll si pantalla pequeña */
+    .stats-grid{ grid-template-columns: 1fr; height: auto; }
+    .affinity-wrap{ grid-template-columns: 1fr; height: auto; }
   }
 </style>
 </head>
@@ -241,7 +270,7 @@
     <h1>Japontinder</h1>
     <p>¿Quién eres? O no empezamos ò_ó</p>
     <input type="text" id="username" placeholder="Tu nombre" />
-    <div style="margin-top:12px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+    <div style="margin-top:10px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
       <button class="btn accept" id="btnNameNext">Siguiente</button>
       <button class="btn stats-btn" onclick="showStats()">Ver estadísticas</button>
     </div>
@@ -249,7 +278,7 @@
 </div>
 
 <!-- Elección de modo -->
-<div id="mode-screen">
+<div id="mode-screen" style="display:none; align-items:center; padding:12px 10px;">
   <h2>Elige cómo jugar</h2>
   <div class="mode-grid">
     <div class="mode-card">
@@ -277,7 +306,7 @@
 </div>
 
 <!-- Resultados -->
-<div id="results">
+<div id="results" style="display:none; align-items:center; padding:10px;">
   <h2>Resultados</h2>
   <p id="player-info"></p>
   <div class="results-container">
@@ -294,62 +323,67 @@
       <ul id="rejected-list"></ul>
     </div>
   </div>
-  <div style="margin-top:10px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+  <div style="margin-top:10px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
     <button class="btn stats-btn" onclick="showStats()">Ver estadísticas</button>
     <button class="btn reject" onclick="restartGame()">Volver al inicio</button>
   </div>
 </div>
 
 <!-- Pantalla de estadísticas -->
-<div id="stats-screen">
-  <h2>Estadísticas</h2>
+<div id="stats-screen" style="display:none;">
+  <div class="stats-title-wrap">
+    <h2>Estadísticas globales</h2>
+  </div>
 
-  <div class="stats-layout">
-    <!-- Fila superior: gráfico (izq) + top tabla (dcha) -->
-    <div class="top-row">
-      <div class="panel">
-        <div class="panel-header">Distribución de votos por tarjeta</div>
-        <div class="panel-body">
-          <div class="chart-scroll chart-container">
-            <canvas id="statsChart"></canvas>
-          </div>
-        </div>
-      </div>
-
-      <div class="panel">
-        <div class="panel-header">TOP tarjetas con más “sí”</div>
-        <div class="panel-body" id="topCardsWrap">
-          <!-- tabla inject -->
-        </div>
+  <!-- Parte superior: gráfico izquierda, top tarjetas derecha -->
+  <div class="stats-grid">
+    <div class="chart-card">
+      <div class="chart-scroll">
+        <canvas id="statsChart"></canvas>
       </div>
     </div>
 
-    <!-- Fila inferior: afinidades -->
-    <div class="affinity-row" id="affinityGrids" style="display:none;">
-      <div class="panel">
-        <div class="panel-header">Ranking de afinidad (todos los jugadores)</div>
-        <div class="panel-body" id="affinityGlobal">
-          <!-- tabla inject -->
-        </div>
-      </div>
-
-      <div class="panel">
-        <div class="panel-header">Jugadores más afines contigo</div>
-        <div class="panel-body" id="affinityPersonal">
-          <!-- tabla inject -->
-        </div>
+    <div class="top-card">
+      <h3 style="margin:4px 0 6px;">TOP tarjetas con más "sí"</h3>
+      <div class="top-scroll">
+        <table id="topCardsTable">
+          <thead><tr><th>Tarjeta</th><th>Sí</th><th>Meh</th><th>No</th></tr></thead>
+          <tbody></tbody>
+        </table>
       </div>
     </div>
   </div>
 
-  <div style="margin-top:8px;">
+  <!-- Parte inferior: afinidades -->
+  <div class="affinity-wrap" id="affinityArea" style="display:none;">
+    <div class="aff-card">
+      <h3 style="margin:4px 0 6px;">Ranking de afinidad (todos los jugadores)</h3>
+      <div class="aff-scroll">
+        <table id="affinityGlobal">
+          <thead><tr><th>Pareja</th><th># Coincidencias SÍ</th><th>Tarjetas en común (SÍ)</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="aff-card">
+      <h3 style="margin:4px 0 6px;">Jugadores más afines contigo</h3>
+      <div class="aff-scroll">
+        <table id="affinityPersonal">
+          <thead><tr><th>Jugador</th><th># Coincidencias SÍ</th><th>Tarjetas en común (SÍ)</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:8px; display:flex; justify-content:center;">
     <button class="btn reject" onclick="goToStart()">Volver</button>
   </div>
 </div>
 
 <script>
   /************ Config ************/
-  const saveEndpoint = "/api/save"; // tu ruta backend
+  const saveEndpoint = "/api/save"; // tu backend
   const dataUrl = "https://raw.githubusercontent.com/Syarapi/japotinder/main/results/data.json";
 
   /************ Datos base ************/
@@ -393,16 +427,77 @@
   /************ Utilidades ************/
   const shuffleArray = (array) => array.slice().sort(() => Math.random() - 0.5);
 
-  // Colores fijos para nombres: Alba=azul, Alicia/Vaini=morados, Sara=rosa, otros: sun pastel o mint fijo por hash
-  function getNameColor(name){
-    const n = (name || "").trim().toLowerCase();
-    if(n === "alba")   return "#2f7bdc";          // azul
-    if(n === "alicia" || n === "vaini") return "#8a5adf"; // morado
-    if(n === "sara")   return "#ff6fa1";          // rosa
-    // Otros: determinista entre amarillo pastel legible (sun) y verde menta
-    const options = ["#ffd666", "#56e0b5"];
-    let hash = 0; for(let i=0;i<n.length;i++){ hash = (hash*31 + n.charCodeAt(i))|0; }
-    return options[Math.abs(hash)%options.length];
+  // Persistencia de colores únicos por jugador
+  const LS_KEY = "japotinder_player_colors_v3";
+  function loadColorMap(){
+    try{ return JSON.parse(localStorage.getItem(LS_KEY)) || {}; }catch{ return {}; }
+  }
+  function saveColorMap(map){ try{ localStorage.setItem(LS_KEY, JSON.stringify(map)); }catch{} }
+
+  // Pool de colores legibles (combinan con la paleta)
+  const COLOR_POOL = [
+    "#2f7bdc", /* azul (reservado para Alba) */
+    "#5aa6ff",
+    "#8a5adf", /* morado 1 (reservado Alicia) */
+    "#6f49d4", /* morado 2 (reservado Vaini) */
+    "#b48ad6",
+    "#ff6fa1", /* rosa (reservado Sara) */
+    "#ff83b4",
+    "#ffd666", /* amarillo pastel legible */
+    "#56e0b5", /* verde menta */
+    "#68cba7",
+    "#a3c9ff",
+    "#f0a7d8"
+  ];
+
+  // Conjuntos reservados únicos
+  const RESERVED = {
+    "alba":   "#2f7bdc",
+    "sara":   "#ff6fa1",
+    "alicia": "#8a5adf",
+    "vaini":  "#6f49d4"
+  };
+
+  // Genera colores HSL legibles (fallback si se agota pool)
+  function hslColor(i){
+    const hue = (i * 47) % 360;
+    return `hsl(${hue} 70% 55%)`;
+    // rango medio para contraste suficiente
+  }
+
+  // Asigna color único por nombre (persistente, sin colisiones con reservados ni entre sí)
+  function getPlayerColorUnique(name){
+    const key = (name||"").trim().toLowerCase();
+    let map = loadColorMap();
+    // Si ya existe, devuélvelo
+    if (map[key]) return map[key];
+
+    // Reservados estrictos
+    if (RESERVED[key]) {
+      // Asegurar exclusividad: nadie más puede tenerlo
+      // (si ya está asignado a otro nombre por error, lo respetamos para el reservado)
+      // Buscar si alguien lo usó
+      const reservedColor = RESERVED[key];
+      for (const n in map) if (map[n] === reservedColor) delete map[n];
+      map[key] = reservedColor; saveColorMap(map); return reservedColor;
+    }
+
+    // Marcar usados (incluye reservados + los del mapa)
+    const used = new Set(Object.values(map));
+    Object.values(RESERVED).forEach(c=>used.add(c));
+
+    // Elegir desde la pool evitando usados
+    for (const c of COLOR_POOL) {
+      if (!used.has(c)) {
+        map[key] = c; saveColorMap(map); return c;
+      }
+    }
+    // Fallback: generar HSLs hasta dar con uno libre
+    let i = 0;
+    while(true){
+      const c = hslColor(i++);
+      if (!used.has(c)) { map[key] = c; saveColorMap(map); return c; }
+    }
   }
 
   // Tema aleatorio (afecta fondos, bordes, acentos; NO los botones ni colores de series)
@@ -411,8 +506,8 @@
       { name:"sakura", light:"#fff7fb", mid:"#ffe3ef", dark:"#d38cb1", accent1:"#d7a6f1", accent2:"#b48ad6", petal:[220,120,160] },
       { name:"sky",    light:"#f2f9ff", mid:"#e0f1ff", dark:"#8dbfe6", accent1:"#a3c9ff", accent2:"#7fb2f0", petal:[120,160,220] },
       { name:"lav",    light:"#faf5ff", mid:"#efe3ff", dark:"#b48ad6", accent1:"#d7a6f1", accent2:"#b48ad6", petal:[150,110,200] },
-      { name:"sun",    light:"#fff6cc", mid:"#ffe899", dark:"#d6b84d", accent1:"#f0d46a", accent2:"#e1b84f", petal:[220,190,80] },
-      { name:"mint",   light:"#edfff7", mid:"#d8ffee", dark:"#68cba7", accent1:"#9fe6cc", accent2:"#68cba7", petal:[90,170,140] }
+      { name:"sun",    light:"#fff7cc", mid:"#ffe89a", dark:"#e0c050", accent1:"#f0d46a", accent2:"#e1b84f", petal:[220,190,80] }, /* amarillo legible */
+      { name:"mint",   light:"#e9fff8", mid:"#d1fff0", dark:"#68cba7", accent1:"#9fe6cc", accent2:"#68cba7", petal:[90,170,140] }
     ];
     const pick = themes[Math.floor(Math.random()*themes.length)];
     const root = document.documentElement.style;
@@ -425,7 +520,7 @@
   }
 
   function setPlayerInfo(dateTime){
-    const spanColor = getNameColor(playerName);
+    const spanColor = getPlayerColorUnique(playerName);
     const html = `Jugador: <span style="font-weight:700; color:${spanColor}">${playerName}</span> | ${dateTime} | Modo: ${mode === 'short' ? 'Corto' : 'Completo'}`;
     document.getElementById('player-info').innerHTML = html;
   }
@@ -447,14 +542,10 @@
   });
 
   document.getElementById("btnShort").addEventListener("click", () => {
-    mode = "short";
-    mehLimit = 5;
-    startGameWithMode();
+    mode = "short"; mehLimit = 5; startGameWithMode();
   });
   document.getElementById("btnFull").addEventListener("click", () => {
-    mode = "full";
-    mehLimit = 10;
-    startGameWithMode();
+    mode = "full"; mehLimit = 10; startGameWithMode();
   });
 
   function startGameWithMode(){
@@ -587,18 +678,13 @@
     document.getElementById('start-screen').style.display = 'none';
     document.getElementById('mode-screen').style.display = 'none';
     document.getElementById('results').style.display = 'none';
-    document.getElementById('stats-screen').style.display = 'flex';
+    document.getElementById('stats-screen').style.display = 'block';
 
-    const topCardsWrap = document.getElementById('topCardsWrap');
-    const affinityWrap = document.getElementById('affinityGrids');
-    const affinityGlobal = document.getElementById('affinityGlobal');
-    const affinityPersonal = document.getElementById('affinityPersonal');
-
-    // Limpia
-    topCardsWrap.innerHTML = `<p class="muted">Cargando datos...</p>`;
-    affinityWrap.style.display = "none";
-    affinityGlobal.innerHTML = "";
-    affinityPersonal.innerHTML = "";
+    // limpiar tablas
+    document.querySelector('#topCardsTable tbody').innerHTML = "";
+    document.querySelector('#affinityGlobal tbody').innerHTML = "";
+    document.querySelector('#affinityPersonal tbody').innerHTML = "";
+    document.getElementById('affinityArea').style.display = "none";
 
     let games = [];
     try {
@@ -607,13 +693,12 @@
       const json = await res.json();
       games = ensureArray(json);
     } catch (err) {
-      topCardsWrap.innerHTML = `<p class="error">No se pudo cargar <code>results/data.json</code>. Detalle: ${err.message}</p>`;
+      alert("No se pudo cargar results/data.json: " + err.message);
       destroyChart();
       return;
     }
 
     if (!games.length) {
-      topCardsWrap.innerHTML = `<p class="notice">No hay partidas guardadas aún.</p>`;
       destroyChart();
       return;
     }
@@ -649,11 +734,15 @@
     // Canvas ancho (scroll horizontal)
     const canvas = document.getElementById('statsChart');
     const desiredWidth = Math.max(labels.length * 42, 420);
-    canvas.width = desiredWidth; canvas.height = 260;
+    canvas.width = desiredWidth; canvas.height = 320;
     const ctx = canvas.getContext('2d');
 
-    const getVar = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-    const grad = (hex) => { const g = ctx.createLinearGradient(0,0,0,canvas.height); g.addColorStop(0,hex); g.addColorStop(1,hex); return g; };
+    const css = getComputedStyle(document.documentElement);
+    const grad = (hex) => {
+      const g = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      g.addColorStop(0, hex); g.addColorStop(1, hex);
+      return g;
+    };
 
     destroyChart();
     statsChartInstance = new Chart(ctx, {
@@ -661,20 +750,20 @@
       data: {
         labels,
         datasets: [
-          { label: 'Aquí sí',   data: yesData, backgroundColor: grad(getVar('--yes')), borderRadius: 8, stack: 's' },
-          { label: 'Me da igual', data: mehData, backgroundColor: grad(getVar('--meh')), borderRadius: 8, stack: 's' },
-          { label: 'Pasando',  data: noData,  backgroundColor: grad(getVar('--no')),  borderRadius: 8, stack: 's' }
+          { label: 'Aquí sí',   data: yesData, backgroundColor: grad(css.getPropertyValue('--yes').trim()), borderRadius: 8, stack: 'stack' },
+          { label: 'Me da igual', data: mehData, backgroundColor: grad(css.getPropertyValue('--meh').trim()), borderRadius: 8, stack: 'stack' },
+          { label: 'Pasando',  data: noData,  backgroundColor: grad(css.getPropertyValue('--no').trim()),  borderRadius: 8, stack: 'stack' }
         ]
       },
       options: {
         responsive: false, maintainAspectRatio: false,
         scales: {
-          x: { stacked: true, ticks: { maxRotation: 60, minRotation: 0, autoSkip: false } },
+          x: { stacked: true, ticks: { maxRotation: 60, minRotation: 0 } },
           y: { stacked: true, beginAtZero: true }
         },
         plugins: {
           legend: {
-            labels: { color: '#333', boxWidth: 14, usePointStyle: true, pointStyle: 'rectRounded', font: { size: 12 } }
+            labels: { color: '#333', boxWidth: 18, usePointStyle: true, pointStyle: 'rectRounded' }
           },
           tooltip: {
             backgroundColor: 'rgba(255,255,255,.95)',
@@ -682,38 +771,35 @@
             borderColor: '#ddd', borderWidth: 1
           }
         },
-        animation: { duration: 200 }
+        animation: { duration: 220 }
       }
     });
 
-    // TOP tarjetas por "sí" (tabla derecha)
+    // TOP tarjetas
     const topCards = Object.entries(stats)
-      .sort((a, b) => b[1].yes - a[1].yes || a[0].localeCompare(b[0]))
-      .slice(0, 20);
+      .sort((a, b) => b[1].yes - a[1].yes || a[0].localeCompare(b[0]));
 
-    let topHtml = "<div style='height:100%; overflow:auto;'><table><thead><tr><th>Tarjeta</th><th>Sí</th><th>Meh</th><th>No</th></tr></thead><tbody>";
+    const topBody = document.querySelector('#topCardsTable tbody');
     topCards.forEach(([name, v]) => {
-      topHtml += `<tr><td>${name}</td><td>${v.yes}</td><td>${v.meh}</td><td>${v.no}</td></tr>`;
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${name}</td><td>${v.yes}</td><td>${v.meh}</td><td>${v.no}</td>`;
+      topBody.appendChild(tr);
     });
-    topHtml += "</tbody></table></div>";
-    topCardsWrap.innerHTML = topHtml;
 
-    // === Afinidades (intersección de SÍ) ===
+    // Afinidad por intersección de SÍ (unión por jugador para múltiples partidas)
     const byPlayer = {};
     safeGames.forEach(g => {
       byPlayer[g.player] = byPlayer[g.player] || [];
       byPlayer[g.player].push(new Set(g.accepted));
     });
-    // Reducir por jugador a unión de sus "sí"
     Object.keys(byPlayer).forEach(p => {
       const union = new Set();
       byPlayer[p].forEach(s => s.forEach(x => union.add(x)));
       byPlayer[p] = union;
     });
 
+    // Ranking global de parejas
     const players = Object.keys(byPlayer).sort((a,b)=>a.localeCompare(b));
-
-    // Ranking global de pares
     const pairs = [];
     for(let i=0;i<players.length;i++){
       for(let j=i+1;j<players.length;j++){
@@ -726,7 +812,7 @@
     }
     pairs.sort((x,y)=> y.count - x.count || (x.a+x.b).localeCompare(y.a+y.b));
 
-    // Afinidad del jugador actual
+    // Afinidad personal contra el jugador actual (si hay)
     let personalRows = [];
     if (playerName && byPlayer[playerName]) {
       const mine = byPlayer[playerName];
@@ -738,31 +824,36 @@
       personalRows.sort((x,y)=> y.count - x.count || x.player.localeCompare(y.player));
     }
 
-    // Tablas de afinidad (con colores de nombres y nombres de tarjetas pequeños)
-    const colorNameHTML = (n) => `<span style="font-weight:600; color:${getNameColor(n)}">${n}</span>`;
-
-    // Global
-    let ghtml = "<div style='max-height:100%; overflow:auto;'><table class='affinity-table'><thead><tr><th>Par</th><th># Coincidencias SÍ</th><th>Tarjetas en común (SÍ)</th></tr></thead><tbody>";
-    (pairs.slice(0,50)).forEach(row=>{
-      const parHtml = `${colorNameHTML(row.a)} &nbsp;&amp;&nbsp; ${colorNameHTML(row.b)}`;
-      ghtml += `<tr><td>${parHtml}</td><td>${row.count}</td><td class="card-list">${row.common.join(", ")}</td></tr>`;
+    // Render afinidad global (aplicando los mismos colores por jugador)
+    const gBody = document.querySelector('#affinityGlobal tbody');
+    pairs.slice(0, 200).forEach(row=>{
+      const cA = getPlayerColorUnique(row.a);
+      const cB = getPlayerColorUnique(row.b);
+      const tr = document.createElement('tr');
+      tr.innerHTML =
+        `<td><span style="font-weight:600;color:${cA}">${row.a}</span> &amp; ` +
+        `<span style="font-weight:600;color:${cB}">${row.b}</span></td>` +
+        `<td>${row.count}</td>` +
+        `<td class="cards-small">${row.common.join(", ")}</td>`;
+      gBody.appendChild(tr);
     });
-    ghtml += "</tbody></table></div>";
-    affinityGlobal.innerHTML = ghtml;
 
-    // Personal
+    // Render afinidad personal
+    const pBody = document.querySelector('#affinityPersonal tbody');
     if (personalRows.length){
-      let phtml = "<div style='max-height:100%; overflow:auto;'><table class='affinity-table'><thead><tr><th>Jugador</th><th># Coincidencias SÍ</th><th>Tarjetas en común (SÍ)</th></tr></thead><tbody>";
-      personalRows.slice(0,50).forEach(r=>{
-        phtml += `<tr><td>${colorNameHTML(r.player)}</td><td>${r.count}</td><td class="card-list">${r.list.join(", ")}</td></tr>`;
+      personalRows.slice(0, 200).forEach(r=>{
+        const c = getPlayerColorUnique(r.player);
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td style="font-weight:600; color:${c}">${r.player}</td><td>${r.count}</td><td class="cards-small">${r.list.join(", ")}</td>`;
+        pBody.appendChild(tr);
       });
-      phtml += "</tbody></table></div>";
-      affinityPersonal.innerHTML = phtml;
     } else {
-      affinityPersonal.innerHTML = `<p class="notice">Juega una partida para ver tu afinidad personal.</p>`;
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td colspan="3"><span class="notice">Juega una partida para ver tu afinidad personal.</span></td>`;
+      pBody.appendChild(tr);
     }
 
-    affinityWrap.style.display = "grid";
+    document.getElementById('affinityArea').style.display = "grid";
   }
 
   function destroyChart() {
