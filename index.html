@@ -1,55 +1,44 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Japotinder</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Japotinder</title>
+<link rel="stylesheet" href="style.css">
+<script defer src="main.js"></script>
 </head>
 <body>
-  <header>
-    <h1>Japotinder</h1>
-    <button id="btn-stats" class="accent">📊 Estadísticas</button>
-  </header>
 
-  <main id="screen-game" class="screen">
-    <section class="tutorial">
-      <h2>Cómo jugar</h2>
-      <p>Desliza o usa los botones:</p>
-      <ul>
-        <li>⬅️ Swipe izquierda: ❌ No</li>
-        <li>➡️ Swipe derecha: ✅ Sí</li>
-        <li>⬆️ Swipe arriba: 😐 Me da igual</li>
-      </ul>
-    </section>
+<div id="screen-start" class="screen">
+  <h1>Japotinder</h1>
+  <p>Elige un modo de juego:</p>
+  <div class="mode-buttons">
+    <div id="btn-mode-short" class="half-button left">Modo Corto</div>
+    <div id="btn-mode-full" class="half-button right">Modo Completo</div>
+  </div>
+  <div class="tutorial">
+    <h2>📖 Cómo jugar</h2>
+    <p>Desliza (swipe) o usa los botones:</p>
+    <ul>
+      <li>⬅ Swipe Izquierda → ❌ No</li>
+      <li>➡ Swipe Derecha → ✅ Sí</li>
+      <li>⬆ Swipe Arriba → 🤷 Me da igual</li>
+    </ul>
+  </div>
+  <button id="btn-stats">Ver estadísticas</button>
+</div>
 
-    <div id="card-container"></div>
+<div id="screen-game" class="screen hidden">
+  <div id="card-container"></div>
+  <div class="buttons">
+    <button id="btn-no" class="btn-red">No</button>
+    <button id="btn-meh" class="btn-yellow">Meh</button>
+    <button id="btn-yes" class="btn-green">Sí</button>
+  </div>
+</div>
 
-    <div class="controls">
-      <button id="btn-no" class="no">❌ No</button>
-      <button id="btn-meh" class="meh">😐 Meh</button>
-      <button id="btn-yes" class="yes">✅ Sí</button>
-    </div>
-  </main>
-
-  <main id="screen-results" class="screen hidden">
-    <h2>Resultados</h2>
-    <div id="results-table"></div>
-    <button id="btn-go-stats" class="accent">📊 Ir a estadísticas</button>
-    <button id="btn-back" class="secondary">🔄 Volver a jugar</button>
-  </main>
-
-  <main id="screen-stats" class="screen hidden">
-    <h2>Estadísticas globales</h2>
-    <canvas id="stats-chart"></canvas>
-    <div id="stats-tables"></div>
-    <button id="btn-back-game" class="secondary">⬅️ Volver</button>
-  </main>
-
-  <script src="colors.js"></script>
-  <script src="api.js"></script>
-  <script src="game.js"></script>
-  <script src="stats.js"></script>
-  <script src="main.js"></script>
-</body>
-</html>
+<div id="screen-results" class="screen hidden">
+  <h2>Resultados</h2>
+  <table id="results-table"></table>
+  <button id="btn-to-stats">Ver estadísticas</button>
+  <button id="btn-home">Volver al inicio</butto
