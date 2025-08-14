@@ -4,98 +4,118 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Japontinder</title>
-<link href="https://fonts.googleapis.com/css2?family=Yuji+Syuku&display=swap" rel="stylesheet">
 <style>
-:root {
-  --sakura-light:#fff7fb; --sakura-mid:#ffe3ef; --sakura-dark:#d38cb1; --sakura-a1:#d7a6f1; --sakura-a2:#b48ad6;
-  --sky-light:#f2f9ff; --sky-mid:#e0f1ff; --sky-dark:#8dbfe6; --sky-a1:#a3c9ff; --sky-a2:#7fb2f0;
-  --lav-light:#faf5ff; --lav-mid:#efe3ff; --lav-dark:#b48ad6; --lav-a1:#d7a6f1; --lav-a2:#b48ad6;
-  --sun-light:#fff9e0; --sun-mid:#ffefb0; --sun-dark:#e0c050; --sun-a1:#f0d46a; --sun-a2:#e1b84f;
-  --mint-light:#edfff7; --mint-mid:#d8ffee; --mint-dark:#68cba7; --mint-a1:#9fe6cc; --mint-a2:#68cba7;
-  --btn-accept:#87cefa; --btn-reject:#ffc0cb; --btn-me:#dda0dd; --btn-stats:#dda0dd;
-  --font-title:'Yuji Syuku', serif;
-}
-body,html{margin:0;padding:0;font-family:sans-serif; background:var(--sakura-light);}
-.screen{display:none;width:100vw;height:100vh;align-items:center;justify-content:center;flex-direction:column;position:relative;}
-.screen.active{display:flex;}
-h1,h2,h3{font-family:var(--font-title);}
-button{padding:10px 16px;border-radius:10px;border:none;font-weight:700;cursor:pointer;}
-.centered{display:flex;flex-direction:column;align-items:center;justify-content:center;}
-input[name="playerName"]{padding:8px 12px;font-size:16px;border-radius:6px;border:1px solid #ccc;margin-bottom:12px;}
+  /* Paleta de colores */
+  :root {
+    --sakura-light:#fff7fb; --sakura-mid:#ffe3ef; --sakura-dark:#d38cb1; --sakura-a1:#d7a6f1; --sakura-a2:#b48ad6;
+    --sky-light:#f2f9ff; --sky-mid:#e0f1ff; --sky-dark:#8dbfe6; --sky-a1:#a3c9ff; --sky-a2:#7fb2f0;
+    --lav-light:#faf5ff; --lav-mid:#efe3ff; --lav-dark:#b48ad6; --lav-a1:#d7a6f1; --lav-a2:#b48ad6;
+    --sun-light:#fff9e0; --sun-mid:#ffefb0; --sun-dark:#e0c050; --sun-a1:#f0d46a; --sun-a2:#e1b84f;
+    --mint-light:#edfff7; --mint-mid:#d8ffee; --mint-dark:#68cba7; --mint-a1:#9fe6cc; --mint-a2:#68cba7;
 
-/* Pantalla selección modo */
-.mode-split{position:relative;width:100vw;height:100vh;display:grid;grid-template-columns:1fr 1fr;}
-.mode-half{display:flex;flex-direction:column;justify-content:center;align-items:center;cursor:pointer;transition:transform .15s ease;}
-.mode-half:hover{transform:scale(1.015);}
-.mode-title{font-size:clamp(26px,4vw,40px);font-weight:800;text-align:center;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.2);}
-.mode-desc{font-size:clamp(14px,2vw,18px);opacity:.95;text-align:center;max-width:580px;color:#fff;}
+    --btn-accept:#87cefa; --btn-reject:#ffc0cb; --btn-me:#dda0dd; --btn-stats:#dda0dd;
+  }
 
-/* Pantalla juego */
-#screen-game .card-container{max-height:80vh;width:90vw;max-width:400px;display:flex;justify-content:center;align-items:center;}
-#screen-game .btns-row{margin-top:12px;display:flex;justify-content:center;gap:12px;flex-wrap:wrap;}
-#screen-game button{min-width:100px;}
+  body{margin:0;font-family:'Yuji Syuku', serif;background:var(--sakura-light);display:flex;flex-direction:column;align-items:center;justify-content:center;}
+  .hidden{display:none;}
 
-/* Pantalla estadísticas */
-#screen-stats{overflow-x:auto;padding:12px;}
-#screen-stats table{width:100%;max-width:100%;border-collapse:collapse;display:block;}
-#screen-stats th, #screen-stats td{border:1px solid #ccc;padding:6px 8px;text-align:center;font-size:14px;}
-#screen-stats th{background:var(--sky-mid);}
+  /* Pantalla de inicio */
+  #start-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;gap:20px;padding:20px;}
+  #start-screen input{padding:10px;font-size:1rem;border-radius:8px;border:1px solid #ccc;}
+  #start-screen button{padding:10px 20px;font-size:1rem;border:none;border-radius:8px;cursor:pointer;background:var(--btn-accept);color:#fff;}
 
-/* Tutorial */
-.tutorial{background:var(--sun-light);padding:12px;border-radius:8px;margin-bottom:12px;text-align:center;font-size:14px;}
+  /* Pantalla de selección de modo */
+  .mode-split{position:relative;width:100vw;height:100vh;display:grid;grid-template-columns:1fr 1fr;}
+  .mode-half{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;cursor:pointer;padding:20px;transition:transform .15s ease;}
+  .mode-half:hover{transform:scale(1.015);}
+  .mode-title{font-size:clamp(26px,4vw,40px);font-weight:800;text-align:center;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.2);}
+  .mode-desc{font-size:clamp(14px,2vw,18px);opacity:.95;text-align:center;max-width:580px;color:#fff;}
+  .mode-half.short{background:var(--sun-mid);}
+  .mode-half.full{background:var(--sky-mid);}
+
+  /* Pantalla de juego */
+  #game-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;width:100vw;position:relative;}
+  #card-container{display:flex;flex-direction:column;align-items:center;justify-content:center;width:90%;height:70%;background:#fff;border-radius:16px;box-shadow:0 4px 12px rgba(0,0,0,.2);}
+  #card-container img{max-width:100%;max-height:100%;border-radius:12px;}
+  #card-container h2{margin:10px 0;}
+  .btn-row{display:flex;gap:12px;margin-top:20px;}
+  .btn{padding:10px 16px;border:none;border-radius:12px;font-weight:700;cursor:pointer;}
+  #accept-btn{background:var(--btn-accept);}
+  #reject-btn{background:var(--btn-reject);}
+  #me-btn{background:var(--btn-me);}
+
+  /* Resultados */
+  #result-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;width:100vw;gap:16px;padding:20px;}
+  #result-screen h2{margin:0;}
+  #result-screen button{padding:10px 20px;border:none;border-radius:8px;background:var(--btn-stats);color:#fff;font-weight:700;cursor:pointer;}
+
+  /* Estadísticas */
+  #stats-screen{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;height:100vh;width:100vw;overflow-y:auto;padding:20px;}
+  #stats-screen table{border-collapse:collapse;width:90%;max-width:800px;}
+  #stats-screen th, #stats-screen td{border:1px solid #ccc;padding:8px;text-align:center;}
+  #stats-screen th{background:#eee;font-weight:700;}
 </style>
 </head>
 <body>
 
-<!-- Pantalla Inicio -->
-<div id="screen-start" class="screen active centered">
-  <h1>Japontinder</h1>
-  <div class="tutorial">
-    Selecciona por botón o haz swipe:<br>
-    Arriba=Me da igual, Derecha=Sí, Izquierda=No
-  </div>
-  <input type="text" id="playerName" name="playerName" placeholder="Escribe tu nombre">
-  <button id="startBtn">Comenzar</button>
-  <button id="statsBtn">Ver estadísticas</button>
+<!-- Pantalla de inicio -->
+<div id="start-screen">
+  <h1>Bienvenido a Japontinder</h1>
+  <p>Introduce tu nombre:</p>
+  <input type="text" id="player-name" placeholder="Nombre">
+  <button id="start-btn">Empezar</button>
+  <p>Tutorial: Puedes seleccionar tarjetas con los botones o haciendo swipe. Swipe a la derecha: aceptar, izquierda: rechazar, arriba: "Me da igual".</p>
+  <button id="view-stats-btn">Ver estadísticas</button>
 </div>
 
-<!-- Pantalla selección modo -->
-<div id="screen-mode" class="screen">
+<!-- Selección de modo -->
+<div id="mode-screen" class="hidden">
   <div class="mode-split">
-    <div class="mode-half" id="mode-short" style="background:var(--sakura-mid);">
-      <div class="mode-title">Corto</div>
-      <div class="mode-desc">20 tarjetas, 5 "Me da igual"</div>
+    <div class="mode-half short" data-mode="short">
+      <h2 class="mode-title">Modo Corto</h2>
+      <p class="mode-desc">20 tarjetas, solo 5 "Me da igual".</p>
     </div>
-    <div class="mode-half" id="mode-full" style="background:var(--sky-mid);">
-      <div class="mode-title">Completo</div>
-      <div class="mode-desc">Todas las tarjetas, 10 "Me da igual"</div>
+    <div class="mode-half full" data-mode="full">
+      <h2 class="mode-title">Modo Completo</h2>
+      <p class="mode-desc">Todas las tarjetas, solo 10 "Me da igual".</p>
     </div>
   </div>
 </div>
 
-<!-- Pantalla juego -->
-<div id="screen-game" class="screen centered">
-  <div class="card-container" id="card-container"></div>
-  <div class="btns-row">
-    <button id="btn-reject" style="background:var(--btn-reject)">No</button>
-    <button id="btn-me" style="background:var(--btn-me)">Me da igual</button>
-    <button id="btn-accept" style="background:var(--btn-accept)">Sí</button>
+<!-- Pantalla de juego -->
+<div id="game-screen" class="hidden">
+  <div id="card-container">
+    <img id="card-img" src="" alt="">
+    <h2 id="card-name"></h2>
+  </div>
+  <div class="btn-row">
+    <button id="accept-btn" class="btn">Sí</button>
+    <button id="me-btn" class="btn">Me da igual</button>
+    <button id="reject-btn" class="btn">No</button>
   </div>
 </div>
 
-<!-- Pantalla resultado -->
-<div id="screen-result" class="screen centered">
-  <h1>Resultados</h1>
-  <div id="result-content"></div>
-  <button id="result-stats-btn" style="background:var(--btn-stats)">Ver estadísticas</button>
-  <button id="result-home-btn">Volver al inicio</button>
+<!-- Pantalla de resultados -->
+<div id="result-screen" class="hidden">
+  <h2>Resultados</h2>
+  <button id="stats-btn-result">Ver estadísticas</button>
 </div>
 
-<!-- Pantalla estadísticas -->
-<div id="screen-stats" class="screen centered">
-  <h1>Estadísticas globales</h1>
-  <div id="stats-content"></div>
-  <button id="back-home-btn" style="background:var(--btn-accept)">Volver al inicio</button>
+<!-- Pantalla de estadísticas -->
+<div id="stats-screen" class="hidden">
+  <h2>Estadísticas Globales</h2>
+  <table id="stats-table">
+    <thead>
+      <tr>
+        <th>Jugador</th>
+        <th>Tarjeta</th>
+        <th>Elección</th>
+        <th>Fecha</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <button id="back-from-stats">Volver</button>
 </div>
 
 <script>
@@ -123,112 +143,102 @@ const BASE_CARDS = [
   { name: "Bandai Museum", img: "img/bandai.jpg" }
 ];
 
-let currentPlayer = '';
-let gameMode = '';
+const PLAYER_COLORS = {
+  "Vaini": "#b48ad6",
+  "Alicia": "#d68ad3",
+  "Sara": "#ffc0cb",
+  "Alba": "#87cefa"
+};
+
+let playerName = '';
 let currentCards = [];
 let currentIndex = 0;
 let meCount = 0;
-let maxMe = 0;
-let results = [];
+let meLimit = 0;
 
-function showScreen(id){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
+const startScreen = document.getElementById('start-screen');
+const modeScreen = document.getElementById('mode-screen');
+const gameScreen = document.getElementById('game-screen');
+const resultScreen = document.getElementById('result-screen');
+const statsScreen = document.getElementById('stats-screen');
+const cardImg = document.getElementById('card-img');
+const cardName = document.getElementById('card-name');
 
-document.getElementById('startBtn').onclick=()=>{
-  const name=document.getElementById('playerName').value.trim();
-  if(!name) return alert('Debes poner tu nombre');
-  currentPlayer=name;
-  showScreen('screen-mode');
-};
+document.getElementById('start-btn').addEventListener('click', ()=>{
+  const input = document.getElementById('player-name').value.trim();
+  if(!input) return alert("Introduce tu nombre");
+  playerName = input;
+  startScreen.classList.add('hidden');
+  modeScreen.classList.remove('hidden');
+});
 
-document.getElementById('mode-short').onclick=()=>{
-  gameMode='Corto'; currentCards=BASE_CARDS.slice(0,20); maxMe=5; startGame();
-};
-document.getElementById('mode-full').onclick=()=>{
-  gameMode='Completo'; currentCards=[...BASE_CARDS]; maxMe=10; startGame();
-};
+document.querySelectorAll('.mode-half').forEach(div=>{
+  div.addEventListener('click', ()=>{
+    startGame(div.dataset.mode);
+  });
+});
 
-function startGame(){
-  currentIndex=0; meCount=0; results=[];
+document.getElementById('accept-btn').addEventListener('click', ()=>choose('Sí'));
+document.getElementById('reject-btn').addEventListener('click', ()=>choose('No'));
+document.getElementById('me-btn').addEventListener('click', ()=>choose('Me da igual'));
+
+document.getElementById('view-stats-btn').addEventListener('click', ()=>{startScreen.classList.add('hidden'); statsScreen.classList.remove('hidden'); loadStats();});
+document.getElementById('stats-btn-result').addEventListener('click', ()=>{resultScreen.classList.add('hidden'); statsScreen.classList.remove('hidden'); loadStats();});
+document.getElementById('back-from-stats').addEventListener('click', ()=>{statsScreen.classList.add('hidden'); startScreen.classList.remove('hidden');});
+
+function shuffle(array){return array.sort(()=>Math.random()-0.5);}
+
+function startGame(mode){
+  modeScreen.classList.add('hidden');
+  gameScreen.classList.remove('hidden');
+  currentIndex = 0;
+  meCount = 0;
+  meLimit = (mode==='short')?5:10;
+  currentCards = shuffle([...BASE_CARDS]);
+  if(mode==='short') currentCards = currentCards.slice(0,20);
+  document.getElementById('me-btn').style.background = PLAYER_COLORS[playerName] || 'var(--btn-me)';
   showCard();
-  showScreen('screen-game');
 }
 
 function showCard(){
-  const cardContainer=document.getElementById('card-container');
-  if(currentIndex>=currentCards.length){showResults(); return;}
-  const c=currentCards[currentIndex];
-  cardContainer.innerHTML=`<img src="${c.img}" alt="${c.name}" style="width:100%;border-radius:12px;"><h2>${c.name}</h2>`;
+  if(currentIndex>=currentCards.length){
+    gameScreen.classList.add('hidden');
+    resultScreen.classList.remove('hidden');
+    saveResult();
+    return;
+  }
+  const card = currentCards[currentIndex];
+  cardImg.src = card.img;
+  cardName.textContent = card.name;
 }
 
-function vote(v){
-  if(v==='Me da igual' && meCount>=maxMe) return alert('Has usado todos los "Me da igual"');
-  if(v==='Me da igual') meCount++;
-  results.push({name:currentCards[currentIndex].name,vote:v});
-  currentIndex++; showCard();
+function choose(choice){
+  if(choice==='Me da igual' && meCount>=meLimit) return alert(`Solo puedes usar "Me da igual" ${meLimit} veces`);
+  if(choice==='Me da igual') meCount++;
+  // Guardamos elección en data.json vía API o lógica backend (aquí simplificado)
+  // Aquí se puede llamar a save.js en Vercel
+  currentIndex++;
+  showCard();
 }
 
-document.getElementById('btn-reject').onclick=()=>vote('No');
-document.getElementById('btn-me').onclick=()=>vote('Me da igual');
-document.getElementById('btn-accept').onclick=()=>vote('Sí');
-
-function showResults(){
-  const c=document.getElementById('result-content');
-  c.innerHTML=results.map(r=>`${r.name}: ${r.vote}`).join('<br>');
-  saveResults(currentPlayer,results);
-  showScreen('screen-result');
-}
-
-document.getElementById('result-home-btn').onclick=()=>showScreen('screen-start');
-document.getElementById('result-stats-btn').onclick=()=>showStatistics();
-document.getElementById('statsBtn').onclick=()=>showStatistics();
-document.getElementById('back-home-btn').onclick=()=>showScreen('screen-start');
-
-// Fetch data.json y mostrar estadísticas
-async function fetchResults(){
+async function loadStats(){
+  const tbody = document.querySelector('#stats-table tbody');
+  tbody.innerHTML='';
   try{
-    const res=await fetch('results/data.json?' + Date.now());
-    if(!res.ok) return [];
-    return await res.json();
-  }catch(e){console.error(e); return [];}
+    const res = await fetch('results/data.json');
+    const data = await res.json();
+    data.forEach(entry=>{
+      const tr = document.createElement('tr');
+      tr.style.backgroundColor = PLAYER_COLORS[entry.player] || 'inherit';
+      tr.innerHTML = `<td>${entry.player}</td><td>${entry.card}</td><td>${entry.choice}</td><td>${entry.date}</td>`;
+      tbody.appendChild(tr);
+    });
+  }catch(e){console.error(e);}
 }
 
-async function showStatistics(){
-  const data=await fetchResults();
-  const statsContent=document.getElementById('stats-content');
-  statsContent.innerHTML='';
-  if(!data.length){statsContent.innerHTML='<p>No hay datos</p>';showScreen('screen-stats');return;}
-  const votes={};
-  data.forEach(g=>{
-    g.results.forEach(r=>{
-      if(!votes[r.name]) votes[r.name]={Sí:0,No:0,'Me da igual':0};
-      votes[r.name][r.vote]++;
-    });
-  });
-  const table=document.createElement('table');
-  const header=document.createElement('tr');
-  header.innerHTML='<th>Tarjeta</th><th>Sí</th><th>No</th><th>Me da igual</th>';
-  table.appendChild(header);
-  Object.keys(votes).forEach(k=>{
-    const row=document.createElement('tr');
-    row.innerHTML=`<td>${k}</td><td>${votes[k]['Sí']}</td><td>${votes[k]['No']}</td><td>${votes[k]['Me da igual']}</td>`;
-    table.appendChild(row);
-  });
-  statsContent.appendChild(table);
-  showScreen('screen-stats');
-}
-
-// Guardar resultados vía API
-async function saveResults(player, results){
-  try{
-    await fetch('/api/save',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({player,results,date:new Date().toISOString()})
-    });
-  }catch(e){console.error('Error guardando resultados',e);}
+function saveResult(){
+  // Aquí se llama a Vercel API para guardar partida actual
+  // Ejemplo: fetch('/api/save', {method:'POST', body: JSON.stringify({player:playerName, results:currentCards})})
 }
 </script>
 </body>
