@@ -1,0 +1,55 @@
+:root {
+  --bg-light: #fff7fb;
+  --bg-mid: #ffe3ef;
+  --bg-dark: #d38cb1;
+  --accent-1: #d7a6f1;
+  --accent-2: #b48ad6;
+}
+
+body {
+  font-family: sans-serif;
+  margin: 0;
+  background-color: var(--bg-light);
+  color: #333;
+}
+
+header {
+  background: var(--bg-dark);
+  color: white;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.screen {
+  padding: 1rem;
+}
+
+.hidden {
+  display: none;
+}
+
+button {
+  padding: 0.5rem 1rem;
+  border: none;
+  cursor: pointer;
+}
+
+button.accent {
+  background: var(--accent-1);
+  color: white;
+}
+
+button.secondary {
+  background: #ccc;
+}
+
+button.yes { background: #4CAF50; color: white; }
+button.no { background: #F44336; color: white; }
+button.meh { background: #FFC107; color: black; }
+
+.tutorial {
+  background: var(--bg-mid);
+  padding: 1rem;
+  border-radius: 8px;
+}
