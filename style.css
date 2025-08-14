@@ -4,52 +4,141 @@
   --bg-dark: #d38cb1;
   --accent-1: #d7a6f1;
   --accent-2: #b48ad6;
+  --color-yes: #68cba7;   /* Verde menta */
+  --color-meh: #ffd666;   /* Amarillo pastel legible */
+  --color-no: #ff6fa1;    /* Rosa fuerte */
+  --text-dark: #333;
+  --text-light: #fff;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  font-family: sans-serif;
-  margin: 0;
-  background-color: var(--bg-light);
-  color: #333;
+  font-family: system-ui, sans-serif;
+  background: var(--bg-light);
+  color: var(--text-dark);
+  padding: 20px;
 }
 
-header {
-  background: var(--bg-dark);
-  color: white;
-  padding: 1rem;
-  display: flex;
-  justify-content: space-between;
+h1, h2 {
+  color: var(--bg-dark);
+  margin-bottom: 10px;
 }
 
 .screen {
-  padding: 1rem;
-}
-
-.hidden {
-  display: none;
+  max-width: 800px;
+  margin: auto;
+  background: var(--bg-mid);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
 button {
-  padding: 0.5rem 1rem;
-  border: none;
-  cursor: pointer;
-}
-
-button.accent {
   background: var(--accent-1);
-  color: white;
+  border: none;
+  color: var(--text-light);
+  font-weight: bold;
+  padding: 10px 20px;
+  margin: 5px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
 }
 
-button.secondary {
-  background: #ccc;
+button:hover {
+  background: var(--accent-2);
 }
 
-button.yes { background: #4CAF50; color: white; }
-button.no { background: #F44336; color: white; }
-button.meh { background: #FFC107; color: black; }
+/* Botones de juego */
+.btn-yes {
+  background: var(--color-yes);
+  color: var(--text-dark);
+}
+.btn-yes:hover {
+  background: #4cb691;
+}
 
+.btn-meh {
+  background: var(--color-meh);
+  color: var(--text-dark);
+}
+.btn-meh:hover {
+  background: #e6c250;
+}
+
+.btn-no {
+  background: var(--color-no);
+  color: var(--text-light);
+}
+.btn-no:hover {
+  background: #e35f91;
+}
+
+/* Tablas */
+.stats-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 15px 0;
+}
+
+.stats-table th,
+.stats-table td {
+  padding: 8px;
+  border: 1px solid var(--bg-dark);
+  text-align: center;
+}
+
+.stats-table th {
+  background: var(--accent-2);
+  color: var(--text-light);
+}
+
+.stats-table tr:nth-child(even) {
+  background: rgba(255,255,255,0.6);
+}
+
+/* Imagen de estadísticas */
+.stats-img {
+  max-width: 100%;
+  margin: 15px 0;
+  display: block;
+  border-radius: 8px;
+  border: 2px solid var(--accent-2);
+}
+
+/* Swipe cards */
+.card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  padding: 20px;
+  text-align: center;
+}
+
+.card img {
+  max-width: 100%;
+  border-radius: 12px;
+  margin-bottom: 10px;
+}
+
+.card-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+/* Tutorial modal */
 .tutorial {
   background: var(--bg-mid);
-  padding: 1rem;
-  border-radius: 8px;
+  border: 2px solid var(--accent-2);
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+.tutorial p {
+  margin-bottom: 8px;
 }
