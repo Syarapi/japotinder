@@ -162,11 +162,17 @@
   .card-block {
     background: var(--card-bg); border:2px solid var(--accent-1);
     border-radius:16px; box-shadow:0 10px 24px rgba(0,0,0,.14);
-    padding:10px; display:flex; flex-direction:column; min-width:0;
+    padding:10px; display:flex; flex-direction:column; min-width:0; min-height:0;
   }
   .block-title { margin:0 0 6px; font-size:18px; font-family:'Yuji Syuku',serif; color:var(--accent-2); text-align:center; }
-  .inner-scroll{ overflow:auto; background:#fff; border:1px solid #f0e7f8; border-radius:10px; padding:8px; flex:1; min-height:0; }
+
+  /* NUEVO: scrolls internos robustos para tablas/gráfico */
+  .inner-scroll{
+    overflow:auto; background:#fff; border:1px solid #f0e7f8; border-radius:10px; padding:8px;
+    flex:1; min-height:0; max-height: 100%;
+  }
   .x-scroll{ overflow-x:auto; overflow-y:hidden; }
+
   .compact-table { width:100%; border-collapse:collapse; font-size: 13px; }
   .compact-table th, .compact-table td { padding: 8px 10px; border-bottom:1px solid #f5efff; text-align:left; }
   .compact-table th {
@@ -174,10 +180,29 @@
     color:#fff; position: sticky; top: 0; z-index: 1;
   }
   .compact-table tr:nth-child(even){ background:#faf7ff; }
-  .wide-table { min-width: 420px; } /* un poco más ancha para el TOP */
+  .wide-table { min-width: 500px; } /* más ancha para el TOP */
   .smaller-cards { font-size: 12px; } /* nombres de tarjetas más pequeños en afinidad */
 
+  /* NUEVO: celda ranking con medallas kawaii */
+  .rank-col{ width: 42px; text-align:center; }
+  .medal{
+    display:inline-block; width:22px; height:22px; vertical-align:middle;
+    background-size: contain; background-repeat: no-repeat; background-position: center;
+    filter: drop-shadow(0 1px 0 rgba(0,0,0,.1));
+  }
+  .m1{ background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="%23ffd54f"/><stop offset="1" stop-color="%23ffb300"/></linearGradient></defs><circle cx="11" cy="11" r="8" fill="url(%23g)"/><circle cx="8.5" cy="9" r="1.2" fill="%23fff"/><circle cx="13.5" cy="9" r="1.2" fill="%23fff"/><path d="M7 12c2.2 2 5.8 2 8 0" stroke="%238b5e00" stroke-width="1.2" fill="none" stroke-linecap="round"/><path d="M6 3l3 4M16 3l-3 4" stroke="%23e57373" stroke-width="2" stroke-linecap="round"/></svg>'); }
+  .m2{ background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="%23e0e0e0"/><stop offset="1" stop-color="%23bdbdbd"/></linearGradient></defs><circle cx="11" cy="11" r="8" fill="url(%23g)"/><circle cx="8.5" cy="9" r="1.2" fill="%23fff"/><circle cx="13.5" cy="9" r="1.2" fill="%23fff"/><path d="M7 12c2.2 2 5.8 2 8 0" stroke="%23666666" stroke-width="1.2" fill="none" stroke-linecap="round"/><path d="M6 3l3 4M16 3l-3 4" stroke="%2399aaff" stroke-width="2" stroke-linecap="round"/></svg>'); }
+  .m3{ background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="%23ffcc80"/><stop offset="1" stop-color="%23fb8c00"/></linearGradient></defs><circle cx="11" cy="11" r="8" fill="url(%23g)"/><circle cx="8.5" cy="9" r="1.2" fill="%23fff"/><circle cx="13.5" cy="9" r="1.2" fill="%23fff"/><path d="M7 12c2.2 2 5.8 2 8 0" stroke="%238a4f00" stroke-width="1.2" fill="none" stroke-linecap="round"/><path d="M6 3l3 4M16 3l-3 4" stroke="%23ff9eb0" stroke-width="2" stroke-linecap="round"/></svg>'); }
+
   .notice { color: var(--accent-2); }
+
+  /* NUEVO: responsive para evitar amontonamiento */
+  @media (max-width: 900px){
+    .results-grid{ grid-template-columns: 1fr; height: 64vh; }
+    .stats-grid{ grid-template-columns: 1fr; height: 46vh; }
+    .affinity-grid{ grid-template-columns: 1fr; height: 44vh; }
+    .wide-table{ min-width: 420px; } /* mantén ancho mínimo con scroll horizontal */
+  }
 </style>
 </head>
 <body>
@@ -196,7 +221,7 @@
   </div>
 </section>
 
-<!-- ===== SELECCIÓN DE MODO (dos mitades, botones transparentes) ===== -->
+<!-- ===== SELECCIÓN DE MODO ===== -->
 <section id="mode-screen" class="screen">
   <div class="mode-split">
     <div class="mode-half" id="shortHalf">
@@ -266,7 +291,7 @@
       <div class="inner-scroll">
         <table class="compact-table wide-table" id="topTable">
           <thead>
-            <tr><th>Tarjeta</th><th>Sí</th><th>Meh</th><th>No</th></tr>
+            <tr><th class="rank-col">#</th><th>Tarjeta</th><th>Sí</th><th>Meh</th><th>No</th></tr>
           </thead>
           <tbody></tbody>
         </table>
@@ -379,7 +404,7 @@ function hexToRGB(hex){
   const bigint = parseInt(full,16);
   return [(bigint>>16)&255, (bigint>>8)&255, bigint&255];
 }
-function darker([r,g,b], f=0.75){ return [Math.floor(r*f), Math.floor(g*f), Math.floor(b*f)]; }
+function darker([r,g,b], f=0.72){ return [Math.floor(r*f), Math.floor(g*f), Math.floor(b*f)]; }
 function setPetalColorFromHex(hex){
   const rgb = hexToRGB(hex); const d = darker(rgb, 0.72);
   document.documentElement.style.setProperty("--petal-rgba", `${d[0]},${d[1]},${d[2]}`);
@@ -416,10 +441,6 @@ function sakuraLoop(){
 
 /* =========================
    COLORES ÚNICOS DE JUGADORES
-   - Alba: único azul
-   - Sara: único rosa
-   - Alicia & Vaini: morados distintos, exclusivos
-   - Resto: sin azules ni rosas; preferencia teal/mint/aquamarine; único por jugador (determinista)
 ========================= */
 const RESERVED = {
   "alba":   "#2f7bdc",   // azul exclusivo
@@ -427,21 +448,15 @@ const RESERVED = {
   "alicia": "#8a5adf",   // morado A exclusivo
   "vaini":  "#6f4bd4"    // morado B exclusivo
 };
-
-// Pool preferente para otros (teal/mint/aquamarine y afines; legibles)
 const PLAYER_COLOR_POOL = [
-  "#20b2aa", "#2aa79b", "#1fa8a0",   // teal
-  "#68cba7", "#56bfa0", "#4cc3a5",   // mint
-  "#7fffd4", "#5fe8c6", "#55d9b8",   // aquamarine family
-  "#5fb5ef", "#72bff2", "#64b2ef",   // azules verdosos (permitidos si NO son el de Alba)
-  "#9fe6cc", "#8edfc4", "#7fd3ba",   // mint claro
-  "#7fb2f0"                          // azul-verdoso suave
+  "#20b2aa", "#2aa79b", "#1fa8a0",
+  "#68cba7", "#56bfa0", "#4cc3a5",
+  "#7fffd4", "#5fe8c6", "#55d9b8",
+  "#5fb5ef", "#72bff2", "#64b2ef",
+  "#9fe6cc", "#8edfc4", "#7fd3ba",
+  "#7fb2f0"
 ];
-
-const FORBIDDEN_HUES = {
-  blue:   {min: 200, max: 245},   // evitar azules "puros" (reservado a Alba)
-  pink:   {min: 330, max: 360},   // evitar rosas (reservado a Sara)
-};
+const FORBIDDEN_HUES = { blue:{min:200,max:245}, pink:{min:330,max:360} };
 function hexToHSL(hex){
   let [r,g,b] = hexToRGB(hex).map(v=>v/255);
   const max = Math.max(r,g,b), min = Math.min(r,g,b);
@@ -463,39 +478,22 @@ function hueForbidden(h){
   const inRange = (r)=> (h>=r.min && h<=r.max);
   return inRange(FORBIDDEN_HUES.blue) || inRange(FORBIDDEN_HUES.pink);
 }
-
 const playerColorMap = new Map();
 function getPlayerColorDeterministic(name){
   const n = (name||"").trim(); const key = n.toLowerCase();
   if(playerColorMap.has(key)) return playerColorMap.get(key);
-
-  // Reservados exactos
-  if(RESERVED[key]){
-    const col = RESERVED[key];
-    playerColorMap.set(key, col);
-    return col;
-    }
-
-  // Construir set de usados (reservas + ya asignados)
+  if(RESERVED[key]){ const col=RESERVED[key]; playerColorMap.set(key,col); return col; }
   const used = new Set([...Object.values(RESERVED), ...playerColorMap.values()]);
-
-  // Hash simple determinista
-  let hash=0; for(let i=0;i<key.length;i++) hash = (hash*31 + key.charCodeAt(i))|0;
-
-  // 1) Buscar en POOL permitido: evitar tonos con hue prohibido si no son “azules verdosos”
+  let hash=0; for(let i=0;i<key.length;i++) hash=(hash*31 + key.charCodeAt(i))|0;
   for(let i=0;i<PLAYER_COLOR_POOL.length;i++){
     const idx = Math.abs(hash + i) % PLAYER_COLOR_POOL.length;
     const cand = PLAYER_COLOR_POOL[idx];
     if(used.has(cand)) continue;
     const hsl = hexToHSL(cand);
-    // Permitimos “azules verdosos” (hue ~ 180-200) pero evitamos azules puros y rosas
     if(hueForbidden(hsl.h)) continue;
-    playerColorMap.set(key, cand);
-    return cand;
+    playerColorMap.set(key, cand); return cand;
   }
-
-  // 2) Fallback: generar HSL en rango permitido (teal→aquamarine: 160–200º)
-  const h = 160 + (Math.abs(hash)%40);   // 160..199
+  const h = 160 + (Math.abs(hash)%40);
   const s = 70, l = 42;
   const fallback = `hsl(${h} ${s}% ${l}%)`;
   playerColorMap.set(key, fallback);
@@ -529,7 +527,7 @@ $("#btnContinue").addEventListener("click", ()=>{
 /* Inicio → estadísticas directas */
 $("#btnGoStats").addEventListener("click", ()=> showStatsScreen());
 
-/* Modo: botones transparentes sobre cada mitad */
+/* Modo */
 $("#btnShort").addEventListener("click", ()=> startGame("short"));
 $("#btnLong").addEventListener("click",  ()=> startGame("long"));
 
@@ -554,7 +552,6 @@ function cardHTML(item){
 }
 
 function attachSwipe(el, onCommit){
-  // Evitar listeners duplicados: se atan por tarjeta
   let sx=0, sy=0, dx=0, dy=0, active=false;
 
   const start=(x,y)=>{ active=true; sx=x; sy=y; dx=0; dy=0; el.style.transition=""; };
@@ -586,7 +583,6 @@ function attachSwipe(el, onCommit){
   window.addEventListener("mousemove", mm, { once:false });
   window.addEventListener("mouseup", end, { once:false });
 
-  // Limpiar al retirar la tarjeta
   el._cleanupSwipe = () => {
     el.removeEventListener("touchstart", ts);
     el.removeEventListener("touchmove",  tm);
@@ -626,14 +622,12 @@ function commit(kind){
     }
     meh.push(name);
   }
-  // limpiar listeners de swipe
   if(typeof el._cleanupSwipe==="function") el._cleanupSwipe();
   idx++;
   loadCard();
 }
 
 async function endGame(){
-  // Ir a Resultados (listas) y guardar en /api/save
   const color = getPlayerColorDeterministic(playerName);
   $("#resultsMeta").innerHTML = `Jugador: <span style="font-weight:700;color:${color}">${playerName}</span>
     · Modo: ${mode==="short"?"Corto":"Largo"} · ${nowStr()}`;
@@ -662,6 +656,21 @@ $("#btnBackHome").addEventListener("click", ()=> showScreen("start-screen"));
 let chartInstance = null;
 function destroyChart(){ if(chartInstance){ chartInstance.destroy(); chartInstance = null; } }
 function ensureGames(json){ if(Array.isArray(json)) return json; if(json && Array.isArray(json.games)) return json.games; return []; }
+
+/* NUEVO: plugin de sombra para las barras */
+const barShadowPlugin = {
+  id: "barShadow",
+  beforeDatasetDraw(chart, args, pluginOptions) {
+    const {ctx} = chart;
+    ctx.save();
+    ctx.shadowColor = "rgba(0,0,0,0.14)";
+    ctx.shadowBlur = 8;
+    ctx.shadowOffsetY = 4;
+  },
+  afterDatasetDraw(chart, args, pluginOptions) {
+    chart.ctx.restore();
+  }
+};
 
 async function fetchGames(){
   try{
@@ -698,9 +707,9 @@ async function showStatsScreen(){
   const mehD = labels.map(l=>stats[l].meh);
   const no   = labels.map(l=>stats[l].no);
 
-  // Gráfico con scroll horizontal
+  // Gráfico con scroll horizontal (más ancho por etiqueta para evitar amontonamiento)
   const canvas = document.getElementById("statsChart");
-  const desiredWidth = Math.max(labels.length*42, 720);
+  const desiredWidth = Math.max(labels.length*56, 720); // antes 42 → más aire
   canvas.width = desiredWidth;
   const ctx = canvas.getContext("2d");
   const css = getComputedStyle(document.documentElement);
@@ -708,34 +717,71 @@ async function showStatsScreen(){
   const cMeh = css.getPropertyValue("--meh").trim();
   const cNo  = css.getPropertyValue("--no").trim();
 
+  // Gradientes bonitos por dataset
+  function makeGrad(colorTop, colorBottom){
+    const g = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    g.addColorStop(0, colorTop);
+    g.addColorStop(1, colorBottom);
+    return g;
+  }
+  const gradYes = makeGrad(cYes, "#5fb5ef");
+  const gradMeh = makeGrad(cMeh, "#7343d8");
+  const gradNo  = makeGrad(cNo,  "#ff5f93");
+
   destroyChart();
   chartInstance = new Chart(ctx, {
     type: "bar",
     data: {
       labels,
       datasets: [
-        { label:"Aquí sí",    data: yes,  backgroundColor: cYes, borderRadius: 6, stack:"s" },
-        { label:"Me da igual",data: mehD, backgroundColor: cMeh, borderRadius: 6, stack:"s" },
-        { label:"Pasando",    data: no,   backgroundColor: cNo,  borderRadius: 6, stack:"s" }
+        { label:"Aquí sí",    data: yes,  backgroundColor: gradYes, borderColor:"#ffffffaa", borderWidth:1, borderRadius: 8, stack:"s", barThickness: 28 },
+        { label:"Me da igual",data: mehD, backgroundColor: gradMeh, borderColor:"#ffffffaa", borderWidth:1, borderRadius: 8, stack:"s", barThickness: 28 },
+        { label:"Pasando",    data: no,   backgroundColor: gradNo,  borderColor:"#ffffffaa", borderWidth:1, borderRadius: 8, stack:"s", barThickness: 28 }
       ]
     },
     options:{
       responsive:false, maintainAspectRatio:false,
-      scales:{ x:{ stacked:true }, y:{ stacked:true, beginAtZero:true } },
+      scales:{
+        x:{
+          stacked:true,
+          grid:{ display:false },
+          ticks:{ color:"#444", maxRotation:0, autoSkip:false }
+        },
+        y:{
+          stacked:true, beginAtZero:true,
+          grid:{ color:"rgba(0,0,0,0.06)" },
+          ticks:{ color:"#444", precision:0 }
+        }
+      },
       plugins:{
-        legend:{ labels:{ color:"#333" } },
-        tooltip:{ backgroundColor:"rgba(255,255,255,.95)", titleColor:"#333", bodyColor:"#333", borderColor:"#ddd", borderWidth:1 }
-      }
-    }
+        legend:{ labels:{ color:"#333", usePointStyle:true, pointStyle:"round" } },
+        tooltip:{
+          backgroundColor:"rgba(255,255,255,.95)", titleColor:"#333", bodyColor:"#333",
+          borderColor:"#ddd", borderWidth:1, displayColors:true
+        }
+      },
+      categoryPercentage: 0.7,
+      barPercentage: 0.9
+    },
+    plugins: [barShadowPlugin]
   });
 
-  // Top tarjetas (más ancha y letra algo menor para caber bien)
+  // Top tarjetas (ahora con ranking + medallas kawaii)
   const top = Object.entries(stats)
     .sort((a,b)=> b[1].yes - a[1].yes || a[0].localeCompare(b[0]))
     .slice(0, 20);
   const topBody = $("#topTable tbody");
-  topBody.innerHTML = top.map(([n,v]) =>
-    `<tr><td>${n}</td><td>${v.yes}</td><td>${v.meh}</td><td>${v.no}</td></tr>`).join("");
+  topBody.innerHTML = top.map(([n,v], i) => {
+    const rank = i+1;
+    const medal =
+      rank===1 ? '<span class="medal m1" title="🥇"></span>' :
+      rank===2 ? '<span class="medal m2" title="🥈"></span>' :
+      rank===3 ? '<span class="medal m3" title="🥉"></span>' : "";
+    return `<tr>
+      <td class="rank-col">${rank<=3 ? medal : rank}</td>
+      <td>${n}</td><td>${v.yes}</td><td>${v.meh}</td><td>${v.no}</td>
+    </tr>`;
+  }).join("");
 
   // Afinidades por intersección de SÍ
   const byPlayer = {};
@@ -743,7 +789,6 @@ async function showStatsScreen(){
     byPlayer[g.player] = byPlayer[g.player] || [];
     byPlayer[g.player].push(new Set(g.accepted));
   });
-  // Unir múltiples sesiones por jugador
   Object.keys(byPlayer).forEach(p=>{
     const u = new Set(); byPlayer[p].forEach(s=>s.forEach(x=>u.add(x))); byPlayer[p]=u;
   });
@@ -761,7 +806,6 @@ async function showStatsScreen(){
   }
   pairs.sort((x,y)=> y.count - x.count || (x.a+x.b).localeCompare(y.a+y.b));
 
-  // Pintar global con **mismo esquema de color** que la tabla personal
   const affGBody = $("#affGlobalTable tbody");
   affGBody.innerHTML = pairs.slice(0,100).map(row=>{
     const cA = getPlayerColorDeterministic(row.a);
