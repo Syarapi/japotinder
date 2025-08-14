@@ -14,14 +14,14 @@ export default async function handler(req, res) {
   const branch = process.env.GH_BRANCH || 'main';
   const token  = process.env.GH_TOKEN;
   const path   = 'results/data.json';
-
   if (!owner || !repo || !token) {
-    return res.status(500).json({ error: 'Faltan variables de entorno GH_OWNER, GH_REPO o GH_TOKEN' });
+    return res.status(500).json({ error: 'Faltan GH_OWNER / GH_REPO / GH_TOKEN' });
   }
 
   const baseUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${encodeURIComponent(path)}`;
 
-  async function getCurrent() {
+  // Lee SIEMPRE el último contenido y su SHA
+  async function fetchCurrent() {
     const r = await fetch(`${baseUrl}?ref=${encodeURIComponent(branch)}`, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -31,31 +31,25 @@ export default async function handler(req, res) {
     });
 
     if (r.status === 404) {
+      // Si aún no existe, arrancamos desde array vacío
       return { sha: null, data: [] };
     }
-    if (!r.ok) {
-      throw new Error(`GET ${path} -> ${r.status}`);
-    }
+    if (!r.ok) throw new Error(`GET ${path} -> ${r.status}`);
 
     const json = await r.json();
-    let data = [];
+    let parsed = [];
     try {
-      const decoded = Buffer.from(json.content || '', 'base64').toString('utf8');
-      const parsed = JSON.parse(decoded);
-      data = Array.isArray(parsed) ? parsed : (Array.isArray(parsed?.games) ? parsed.games : []);
+      const text = Buffer.from(json.content || '', 'base64').toString('utf8');
+      const obj = JSON.parse(text);
+      parsed = Array.isArray(obj) ? obj : (Array.isArray(obj?.games) ? obj.games : []);
     } catch {
-      // Si el archivo está corrupto, empezamos con array vacío
-      data = [];
+      parsed = [];
     }
-    return { sha: json.sha, data };
+    return { sha: json.sha, data: parsed };
   }
 
-  async function putFile(contentBase64, sha) {
-    const body = {
-      message: `Guardar partida de ${player} - ${date}`,
-      content: contentBase64,
-      branch
-    };
+  async function putFile(contentBase64, sha, message) {
+    const body = { message, content: contentBase64, branch };
     if (sha) body.sha = sha;
 
     const r = await fetch(baseUrl, {
@@ -68,41 +62,47 @@ export default async function handler(req, res) {
       body: JSON.stringify(body)
     });
 
-    // Manejo de conflicto por carreras de commits
-    if (r.status === 409) return { conflict: true };
-
+    if (r.status === 409) return { conflict: true }; // SHA desactualizado
     if (!r.ok) {
       const err = await r.text().catch(() => '');
       throw new Error(`PUT ${path} -> ${r.status} ${err}`);
     }
-
-    const json = await r.json();
-    return { ok: true, json };
+    return { ok: true, json: await r.json() };
   }
 
+  // Reintenta en caso de conflicto de SHA (carreras)
   try {
-    // 1) Leer versión actual (o crear desde vacío)
-    let { sha, data } = await getCurrent();
+    let attempts = 0;
+    let lastLen = 0;
 
-    // 2) Agregar nueva partida
-    data.push({ player, date, accepted, rejected });
+    while (attempts < 3) {
+      attempts++;
 
-    // 3) Subir
-    let content64 = Buffer.from(JSON.stringify(data, null, 2), 'utf8').toString('base64');
-    let put = await putFile(content64, sha);
+      // 1) lee la última versión
+      const { sha, data } = await fetchCurrent();
 
-    // 4) Reintentar una vez si hubo conflicto
-    if (put.conflict) {
-      const again = await getCurrent();
-      const merged = Array.isArray(again.data) ? again.data : [];
-      merged.push({ player, date, accepted, rejected });
-      const content64b = Buffer.from(JSON.stringify(merged, null, 2), 'utf8').toString('base64');
-      put = await putFile(content64b, again.sha);
+      // 2) añade la nueva partida
+      data.push({ player, date, accepted, rejected });
+      lastLen = data.length;
+
+      // 3) sube con el SHA actual
+      const content64 = Buffer.from(JSON.stringify(data, null, 2), 'utf8').toString('base64');
+      const msg = `Guardar partida de ${player} - ${date} (${attempts})`;
+      const result = await putFile(content64, sha, msg);
+
+      if (result.conflict) {
+        // alguien ha escrito entre el GET y el PUT -> reintenta
+        continue;
+      }
+
+      if (result.ok) {
+        return res.status(200).json({ ok: true, total: lastLen, attempt: attempts });
+      }
+      // fallback (por seguridad)
+      break;
     }
 
-    if (!put.ok) throw new Error('Error desconocido al subir a GitHub');
-
-    return res.status(200).json({ ok: true, count: (JSON.parse(Buffer.from(content64, 'base64').toString()) || []).length });
+    return res.status(409).json({ error: 'Conflicto al guardar tras varios intentos' });
   } catch (err) {
     console.error('save.js error:', err);
     return res.status(500).json({ error: 'Error al guardar en GitHub', details: String(err.message || err) });
