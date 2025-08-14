@@ -335,5 +335,35 @@
       "Enoshima",
       "Musical Tokyo Revengers"
     ]
+  },
+  {
+    "player": "Lopopo",
+    "date": "14/8/2025, 12:15:28 p.m.",
+    "mode": "short",
+    "accepted": [
+      "Disney Tokyo",
+      "Kumachan Onsen Tokyo",
+      "Shibazakura park Hokkaido",
+      "Nagano y monos de nieve",
+      "Museo/cafe de los yokai",
+      "Otaru",
+      "Musical Tokyo Revengers",
+      "Beppu",
+      "Shikisai no oka",
+      "Eventos Kisekoi/Sailor Moon",
+      "Tarde de recreativas",
+      "Shinkansen Hello Kitty",
+      "Gotokuji",
+      "Pokemon Cafe",
+      "Maid cafe",
+      "RJ Cafe Osaka",
+      "Ginzan Onsen"
+    ],
+    "meh": [
+      "Bandai Museum",
+      "Nabana no sato",
+      "Kumamoto"
+    ],
+    "rejected": []
   }
 ]
