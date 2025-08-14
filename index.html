@@ -8,30 +8,31 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
   :root{
-    /* Colores base fijos para botones y series */
+    /* Colores fijos para botones y series */
     --pink: #FFB7C5;     /* Pasando */
     --purple: #B19CD9;   /* Me da igual */
     --blue: #89CFF0;     /* Aquí sí */
 
-    /* Paleta para fondos/aleatorio */
-    --sun: #FFF2B2;      /* Amarillo pastel */
+    /* Paleta base para fondos/aleatorios */
+    --sun: #FFE480;      /* Amarillo pastel legible */
     --mint: #A8E6CF;     /* Verde menta */
+    --sakura: #FFD6E2;   /* Rosa sakura suave */
+    --lav: #D7C8FF;      /* Lavanda claro */
+    --sky: #D2EDFF;      /* Azul muy claro */
+
     --ink:#333;
     --shadow: 0 10px 25px rgba(0,0,0,0.15);
 
-    /* Estos se recalculan por JS al cargar (random) */
-    --bg-top: #fff5f8;
-    --bg-mid: #ffeaf0;
-    --bg-bot: #ffe0ea;
-
-    --card-border: #ffe1ea;
+    /* Calculados por JS (aleatorios) */
+    --bg-solid: #FFD6E2;
+    --card-border: #FFD6E2;
     --card-bg: #ffffffee;
-    --table-head-from: #E4D7FF;
-    --table-head-to:   #D0C0FF;
+    --table-head-from: #EDE6FF;
+    --table-head-to:   #DCD0FF;
     --accent-text: #5c2a4a;
   }
 
-  /* ===== Fondo temático sakura con degradado aleatorio ===== */
+  /* ===== Fondo sakura dinámico (sólido + pétalos animados) ===== */
   body {
     margin: 0;
     font-family: 'Segoe UI', sans-serif;
@@ -40,27 +41,45 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    background: linear-gradient(180deg, var(--bg-top) 0%, var(--bg-mid) 40%, var(--bg-bot) 100%);
+    background: var(--bg-solid); /* Color sólido (no degradado) */
     position: relative;
     overflow-x: hidden;
   }
-  /* Pétalos decorativos: se mantienen sobre cualquier color */
-  body::before, body::after{
-    content:"";
+  /* Capa de pétalos que caen con animación */
+  .sakura-layer, .sakura-layer2{
     position: fixed;
     inset: 0;
-    pointer-events:none;
-    background-image:
-      radial-gradient(14px 9px at 10px 10px, rgba(255,182,193,0.25) 40%, transparent 41%),
-      radial-gradient(12px 8px at 40% 30%, rgba(255,182,193,0.18) 40%, transparent 41%),
-      radial-gradient(10px 7px at 70% 60%, rgba(255,182,193,0.15) 40%, transparent 41%),
-      radial-gradient(12px 8px at 85% 20%, rgba(255,182,193,0.18) 40%, transparent 41%);
-    animation: petals 24s linear infinite;
-    filter: blur(0.2px);
+    pointer-events: none;
+    z-index: -1;
+    background-repeat: repeat;
+    animation: petalsFall 22s linear infinite;
+    opacity: .9;
   }
-  body::after{ animation-duration:32s; opacity:.6; }
-  @keyframes petals {
-    0% { background-position: 0 -10vh, 20vw -20vh, 60vw -15vh, 85vw -25vh; }
+  .sakura-layer2{
+    animation-duration: 30s;
+    opacity: .6;
+    filter: blur(.4px);
+  }
+  /* Textura de pétalos dibujada con gradientes radiales */
+  .sakura-layer{
+    background-image:
+      radial-gradient(14px 9px at 10px 10px, rgba(255,182,193,0.35) 40%, transparent 41%),
+      radial-gradient(12px 8px at 40% 30%, rgba(255,182,193,0.26) 40%, transparent 41%),
+      radial-gradient(10px 7px at 70% 60%, rgba(255,182,193,0.22) 40%, transparent 41%),
+      radial-gradient(12px 8px at 85% 20%, rgba(255,182,193,0.28) 40%, transparent 41%);
+    background-size: 220px 220px, 260px 260px, 240px 240px, 280px 280px;
+    background-position: 0 -10vh, 20vw -20vh, 60vw -15vh, 85vw -25vh;
+  }
+  .sakura-layer2{
+    background-image:
+      radial-gradient(14px 9px at 15px 12px, rgba(255,182,193,0.25) 40%, transparent 41%),
+      radial-gradient(12px 8px at 45% 35%, rgba(255,182,193,0.20) 40%, transparent 41%),
+      radial-gradient(10px 7px at 65% 55%, rgba(255,182,193,0.18) 40%, transparent 41%);
+    background-size: 260px 260px, 300px 300px, 280px 280px;
+    background-position: 10vw -18vh, 35vw -22vh, 70vw -12vh;
+  }
+  @keyframes petalsFall {
+    0%   { background-position: 0 -10vh, 20vw -20vh, 60vw -15vh, 85vw -25vh; }
     100% { background-position: 0 120vh, 20vw 130vh, 60vw 125vh, 85vw 135vh; }
   }
 
@@ -118,7 +137,7 @@
     padding-top: 6px;
   }
 
-  /* Botones (colores fijos por regla) */
+  /* Botones */
   #buttons { margin-top: 20px; display: flex; gap: 16px; z-index: 10; }
   .btn {
     padding: 14px 22px;
@@ -132,7 +151,6 @@
   }
   .btn:hover { transform: translateY(-1px); box-shadow: 0 10px 20px rgba(0,0,0,.16); }
   .btn:active { transform: translateY(0); opacity:.95; }
-
   .btn-yes  { background: linear-gradient(180deg, var(--blue) 0%, #5bb4e9 100%); }
   .btn-meh  { background: linear-gradient(180deg, var(--purple) 0%, #9f89d0 100%); }
   .btn-no   { background: linear-gradient(180deg, var(--pink) 0%, #ff91aa 100%); }
@@ -170,7 +188,7 @@
     border-collapse: collapse;
     margin-top: 15px;
     width: 90%;
-    max-width: 680px;
+    max-width: 720px;
     background: #fff;
     border-radius: 14px;
     overflow: hidden;
@@ -229,7 +247,7 @@
     margin-top: 18px;
   }
   .affinity-wrap{ text-align: center; }
-  .affinity-wrap table{ margin-left: auto; margin-right: auto; max-width: 620px; }
+  .affinity-wrap table{ margin-left: auto; margin-right: auto; max-width: 720px; }
 
   /* Responsive */
   @media (max-width: 900px) {
@@ -240,6 +258,10 @@
 </style>
 </head>
 <body>
+
+<!-- Capas de pétalos -->
+<div class="sakura-layer"></div>
+<div class="sakura-layer2"></div>
 
 <!-- Pantalla de inicio -->
 <div id="start-screen">
@@ -334,17 +356,16 @@
   const saveEndpoint = "https://japotinder.vercel.app/api/save";
   const dataUrl = "https://raw.githubusercontent.com/Syarapi/japotinder/main/results/data.json";
 
-  /* ===== Paleta aleatoria para fondos/elementos ===== */
-  const PALETTE = ["#FFB7C5", "#B19CD9", "#89CFF0", "#FFF2B2", "#A8E6CF"];
+  /* ===== Paleta aleatoria para fondos/elementos (no afecta a botones/series) ===== */
+  const PALETTE = ["var(--sakura)", "var(--lav)", "var(--sky)", "var(--sun)", "var(--mint)"];
   function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+  function val(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim() || v; }
   function randomizeTheme() {
-    const top = pick(PALETTE), mid = pick(PALETTE), bot = pick(PALETTE);
-    document.documentElement.style.setProperty('--bg-top', top);
-    document.documentElement.style.setProperty('--bg-mid', mid);
-    document.documentElement.style.setProperty('--bg-bot', bot);
-    document.documentElement.style.setProperty('--card-border', pick(PALETTE));
-    document.documentElement.style.setProperty('--table-head-from', pick(PALETTE));
-    document.documentElement.style.setProperty('--table-head-to', pick(PALETTE));
+    const solid = val(pick(PALETTE));
+    document.documentElement.style.setProperty('--bg-solid', solid);
+    document.documentElement.style.setProperty('--card-border', val(pick(PALETTE)));
+    document.documentElement.style.setProperty('--table-head-from', val(pick(PALETTE)));
+    document.documentElement.style.setProperty('--table-head-to',   val(pick(PALETTE)));
   }
   randomizeTheme();
 
@@ -385,15 +406,14 @@
   function shuffleArray(array) { return array.map(v=>[Math.random(),v]).sort((a,b)=>a[0]-b[0]).map(x=>x[1]); }
 
   /* ===== Colores por jugador (fijos) ===== */
-  const playerFixedColors = {}; // nombre -> color (para "otros")
+  const playerFixedColors = {}; // nombre -> color
   function getNameColor(name){
     const n = (name || "").trim().toLowerCase();
     if(n === "alba")   return "#2f7bdc";        // azul
     if(n === "alicia" || n === "vaini") return "#8a5adf"; // morado
     if(n === "sara")   return "#ff6fa1";        // rosa
     if(playerFixedColors[n]) return playerFixedColors[n];
-    const candidates = ["#FFF2B2", "#A8E6CF"]; // sun o mint para otros
-    // hashing simple para selección fija
+    const candidates = ["#FFE480", "#A8E6CF"]; // sun legible o mint
     let hash = 0; for(let i=0;i<n.length;i++){ hash = (hash*31 + n.charCodeAt(i))|0; }
     const chosen = candidates[Math.abs(hash)%candidates.length];
     playerFixedColors[n] = chosen;
@@ -415,10 +435,12 @@
     document.getElementById("mode-screen").style.display = "none";
     document.getElementById("results").style.display = "none";
     document.getElementById("start-screen").style.display = "flex";
+    randomizeTheme(); // refresca colores al volver
   }
   function restartGame() {
     document.getElementById("results").style.display = "none";
     document.getElementById("start-screen").style.display = "flex";
+    randomizeTheme();
   }
 
   function startGame(mode='full') {
@@ -546,7 +568,7 @@
       return;
     }
 
-    // Normaliza entradas (acepta que ciertos registros no tengan "meh")
+    // Normaliza (algunos registros antiguos pueden no tener "meh")
     const safeGames = games
       .filter(g => g && Array.isArray(g.accepted) && Array.isArray(g.rejected))
       .map(g => ({
@@ -556,7 +578,7 @@
         rejected: g.rejected || []
       }));
 
-    // Conteo por tarjeta
+    // Conteo por tarjeta (sí/meh/no)
     const stats = {};
     safeGames.forEach(g => {
       g.accepted.forEach(a => { stats[a] = stats[a] || { yes:0, meh:0, no:0 }; stats[a].yes++; });
@@ -568,7 +590,7 @@
     const mehData = labels.map(l => stats[l].meh);
     const noData  = labels.map(l => stats[l].no);
 
-    // Config canvas ancho (scroll horizontal)
+    // Canvas ancho (scroll horizontal)
     const canvas = document.getElementById('statsChart');
     const desiredWidth = Math.max(labels.length * 50, 500);
     canvas.width = desiredWidth;
@@ -618,7 +640,12 @@
       .sort((a, b) => b[1].yes - a[1].yes || a[0].localeCompare(b[0]))
       .slice(0, 5);
 
-    // Afinidad del jugador actual
+    // ===== Afinidad por coincidencia de tarjetas en "sí" =====
+    // Mapa player -> Set(yes)
+    const yesByPlayer = {};
+    safeGames.forEach(g => { yesByPlayer[g.player] = new Set(g.accepted); });
+
+    // Afinidad personal (coincidencias con el jugador actual por tarjetas)
     const myGame = safeGames.find(g => g.player === playerName);
     let affinityPersonal = [];
     if (myGame) {
@@ -626,7 +653,7 @@
       const list = [];
       safeGames.forEach(g => {
         if (g.player !== playerName) {
-          const commons = g.accepted.filter(x => myYes.has(x));
+          const commons = g.accepted.filter(x => myYes.has(x)); // tarjetas coincidentes
           list.push([g.player, commons.length, commons]);
         }
       });
@@ -635,17 +662,14 @@
         .slice(0, 5);
     }
 
-    // Afinidad general (parejas de jugadores con más coincidencias de "sí")
-    // Construimos mapa player -> Set(yes)
-    const yesByPlayer = {};
-    safeGames.forEach(g => { yesByPlayer[g.player] = new Set(g.accepted); });
+    // Afinidad general: parejas con más tarjetas coincidentes en “sí”
     const players = Object.keys(yesByPlayer);
     const pairs = [];
     for(let i=0;i<players.length;i++){
       for(let j=i+1;j<players.length;j++){
         const p1 = players[i], p2 = players[j];
         const set1 = yesByPlayer[p1], set2 = yesByPlayer[p2];
-        const commons = [...set1].filter(x => set2.has(x));
+        const commons = [...set1].filter(x => set2.has(x)); // tarjetas coincidentes
         if(commons.length>0){
           pairs.push([p1, p2, commons.length, commons]);
         }
@@ -655,7 +679,7 @@
       .sort((a,b)=> b[2]-a[2] || (a[0]+a[1]).localeCompare(b[0]+b[1]))
       .slice(0, 5);
 
-    // Render HTML (solo nombres, sin imágenes)
+    // Render (solo nombres)
     let html = "";
     html += "<h3>TOP 5 tarjetas con más 'sí'</h3>";
     html += "<table><tr><th>Tarjeta</th><th>Aquí sí</th><th>Meh</th><th>Pasando</th></tr>";
@@ -664,19 +688,20 @@
     });
     html += "</table>";
 
-    // Grid doble para afinidades
+    // Grid doble de afinidades
     html += `<div class="affinity-grid">`;
 
     // Afinidad general (izquierda)
     html += `<div class="affinity-wrap">`;
-    html += "<h3>TOP 5 afinidades generales (coincidencias de 'sí')</h3>";
+    html += "<h3>TOP 5 afinidades generales (tarjetas coincidentes en 'sí')</h3>";
     html += "<table><tr><th>Jugadores</th><th>Coincidencias</th><th>Tarjetas coincidentes</th></tr>";
-    affinityGeneral.forEach(([p1,p2,count, commons])=>{
-      const c1 = getNameColor(p1), c2 = getNameColor(p2);
-      const names = commons.join(", ");
-      html += `<tr><td><span style="font-weight:600;color:${c1}">${p1}</span> &amp; <span style="font-weight:600;color:${c2}">${p2}</span></td><td>${count}</td><td>${names}</td></tr>`;
-    });
-    if(!affinityGeneral.length){
+    if(affinityGeneral.length){
+      affinityGeneral.forEach(([p1,p2,count, commons])=>{
+        const c1 = getNameColor(p1), c2 = getNameColor(p2);
+        const names = commons.join(", ");
+        html += `<tr><td><span style="font-weight:600;color:${c1}">${p1}</span> &amp; <span style="font-weight:600;color:${c2}">${p2}</span></td><td>${count}</td><td>${names}</td></tr>`;
+      });
+    } else {
       html += `<tr><td colspan="3" class="muted">Aún no hay suficientes datos.</td></tr>`;
     }
     html += "</table>";
@@ -684,7 +709,7 @@
 
     // Afinidad personal (derecha)
     html += `<div class="affinity-wrap">`;
-    html += `<h3>TOP 5 jugadores más afines contigo</h3>`;
+    html += `<h3>TOP 5 jugadores más afines contigo (tarjetas coincidentes en 'sí')</h3>`;
     html += "<table><tr><th>Jugador</th><th>Coincidencias</th><th>Tarjetas coincidentes</th></tr>";
     if (affinityPersonal.length){
       affinityPersonal.forEach(([p, s, commons]) => {
