@@ -9,9 +9,9 @@
 <style>
   :root{
     /* Paleta fija para botones/series (NO aleatoria) */
-    --yes:#87cefa;          
-    --meh:#8a5adf;          
-    --no:#ff7aa3;           
+    --yes:#87cefa;          /* AZUL para "Aquí sí" */
+    --meh:#8a5adf;          /* MORADO para "Me da igual" */
+    --no:#ff7aa3;           /* ROSA para "Pasando" */
 
     /* Variables de tema aleatorio */
     --ink:#333;
@@ -19,7 +19,7 @@
     --bg-mid:#ffe3ef;
     --bg-dark:#d38cb1;
     --card-bg:#ffffffee;
-    --accent-1:#d7a6f1;     
+    --accent-1:#d7a6f1;
     --accent-2:#b48ad6;
     --petal-rgba: 255,182,193;
   }
@@ -35,7 +35,7 @@
     align-items: center;
     background: var(--bg-light);
     position: relative;
-    overflow: hidden;
+    overflow-x: hidden;
   }
   body::before, body::after{
     content:"";
@@ -63,14 +63,14 @@
   h3 { color: var(--accent-1); margin: 10px 0; }
 
   /* Pantallas */
-  #start-screen, #mode-screen, #results, #stats-screen {
+  #start-screen, #mode-screen, #game-screen, #results, #stats-screen {
     display: none;
     flex-direction: column;
     align-items: center;
     width: 100%;
   }
   #start-screen {
-    display: flex; justify-content: center; gap: 15px; height: 100vh;
+    display: flex; justify-content: center; gap: 15px; min-height: 100vh; padding: 16px 10px;
   }
 
   /* Tarjetas */
@@ -162,21 +162,67 @@
 
   .cards-small { line-height: 1.4; }
 
+  /* ===== Start screen: tutorial ===== */
+  .tutorial {
+    margin-top: 8px;
+    max-width: 640px;
+    background: var(--card-bg);
+    border: 2px solid var(--accent-1);
+    border-radius: 14px;
+    padding: 10px 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+    font-size: 14px;
+  }
+  .tutorial p { margin: 6px 0; text-align: left; }
+
+  /* ===== Mode split screen ===== */
+  #mode-screen {
+    display:none; align-items:stretch; padding:0; min-height:100vh; width:100%;
+  }
+  .mode-split {
+    display:grid; grid-template-columns: 1fr 1fr; width:100%; min-height:100vh; position:relative;
+  }
+  .half {
+    position:relative; display:flex; align-items:center; justify-content:center; cursor:pointer; user-select:none;
+    padding: 20px 10px;
+  }
+  .half::after{ /* área clicable completa */
+    content:""; position:absolute; inset:0;
+  }
+  .half .content {
+    z-index:1; text-align:center; max-width: 520px;
+    background: color-mix(in oklab, var(--card-bg) 75%, white 25%);
+    border: 2px solid var(--accent-1);
+    border-radius: 16px; padding: 18px 16px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  }
+  .half.left {
+    background: linear-gradient(180deg, var(--bg-mid) 0%, var(--bg-light) 100%);
+    border-right: 1px dashed color-mix(in oklab, var(--accent-2) 60%, white);
+  }
+  .half.right {
+    background: linear-gradient(180deg, var(--bg-dark) 0%, var(--bg-mid) 100%);
+  }
+  .half h2 { margin: 4px 0 8px; }
+  .half p { margin: 0; font-size: 14px; opacity:.9; }
+  .badge {
+    display:inline-block; margin-top:8px; padding:4px 8px; border-radius:999px; font-weight:600; font-size:12px; color:#fff;
+    background: linear-gradient(180deg, var(--accent-1), var(--accent-2));
+  }
+
   /* ===== Layout estadísticas ===== */
   #stats-screen {
     min-height: 100vh;
     padding: 6px 10px 10px;
     box-sizing: border-box;
-    overflow-y: auto; /* scroll general */
+    overflow-y: auto;
   }
-
   .stats-grid {
     display:grid;
     grid-template-columns: minmax(340px, 1fr) minmax(420px, 1.2fr);
     gap: 12px;
     align-items: start;
   }
-
   .chart-card, .top-card, .aff-card {
     background: var(--card-bg);
     border: 2px solid var(--accent-1);
@@ -185,25 +231,16 @@
     padding: 8px;
     display:flex; flex-direction:column;
   }
-
-  /* Gráficos con límite */
   .chart-scroll {
     overflow-y: auto;
     max-height: 360px;
     padding-bottom: 6px;
   }
-  .chart-container canvas {
-    height: auto !important;
-    max-width: 100%;
-  }
+  .chart-container canvas { height: auto !important; max-width: 100%; }
 
-  /* Tablas TOP y Afinidad con límite */
-  .top-scroll,
-  .aff-scroll {
-    overflow-y: auto;
-    max-height: 280px;
-    padding-bottom: 6px;
-  }
+  /* Tablas TOP y Afinidad con LÍMITE (más corto que antes) */
+  .top-scroll { overflow-y:auto; max-height: 220px; padding-bottom:6px; }
+  .aff-scroll { overflow-y:auto; max-height: 220px; padding-bottom:6px; }
 
   .affinity-wrap {
     margin-top: 8px;
@@ -219,15 +256,12 @@
     .stats-grid { grid-template-columns: 1fr; }
     .affinity-wrap { grid-template-columns: 1fr; }
   }
-
   @media (max-width: 760px) {
     .stats-grid, .affinity-wrap { grid-template-columns: 1fr !important; gap: 16px; }
     table th, table td { font-size: 13px; padding: 6px 8px; }
     .top-card table td, .aff-card table td { font-size: 12px; }
-
-    /* Gráficos y tablas más compactos en móvil */
     .chart-scroll { max-height: 240px; }
-    .top-scroll, .aff-scroll { max-height: 200px; }
+    .top-scroll, .aff-scroll { max-height: 180px; }
   }
 </style>
 </head>
@@ -243,24 +277,36 @@
       <button class="btn accept" id="btnNameNext">Siguiente</button>
       <button class="btn stats-btn" onclick="showStats()">Ver estadísticas</button>
     </div>
+
+    <div class="tutorial">
+      <h3 style="margin:2px 0 6px;">¿Cómo se juega?</h3>
+      <p>Puedes jugar <strong>deslizando</strong> las tarjetas (<em>swipe</em>) o usando los <strong>botones</strong>:</p>
+      <ul style="margin:6px 0 0 18px; padding:0;">
+        <li><strong>Izquierda</strong> = <span style="color:var(--no); font-weight:600;">No (Pasando)</span></li>
+        <li><strong>Derecha</strong> = <span style="color:var(--yes); font-weight:600;">Sí (Aquí sí)</span></li>
+        <li><strong>Arriba</strong> = <span style="color:var(--meh); font-weight:600;">Me da igual</span></li>
+      </ul>
+    </div>
   </div>
 </div>
 
-<!-- Elección de modo -->
-<div id="mode-screen" style="display:none; align-items:center; padding:12px 10px;">
-  <h2>Elige cómo jugar</h2>
-  <div class="mode-grid">
-    <div class="mode-card">
-      <button class="btn stats-btn" id="btnShort">Versión corta</button>
-      <p>20 tarjetas al azar. Puedes usar “Me da igual” <strong>5 veces</strong>.</p>
+<!-- Elección de modo: pantalla partida -->
+<div id="mode-screen">
+  <div class="mode-split">
+    <div class="half left" id="halfShort">
+      <div class="content">
+        <h2>Modo corto</h2>
+        <p>20 tarjetas <strong>aleatorias</strong>. Puedes usar “Me da igual” <strong>5 veces</strong>.</p>
+        <span class="badge">Toca o haz clic para jugar</span>
+      </div>
     </div>
-    <div class="mode-card">
-      <button class="btn stats-btn" id="btnFull">Completo</button>
-      <p>Todas las tarjetas en orden aleatorio. “Me da igual” disponible <strong>10 veces</strong>.</p>
+    <div class="half right" id="halfFull">
+      <div class="content">
+        <h2>Modo completo</h2>
+        <p>Todas las tarjetas en orden aleatorio. “Me da igual” disponible <strong>10 veces</strong>.</p>
+        <span class="badge">Toca o haz clic para jugar</span>
+      </div>
     </div>
-  </div>
-  <div style="margin-top:10px">
-    <button class="btn reject" onclick="goToStart()">Volver</button>
   </div>
 </div>
 
@@ -274,27 +320,28 @@
   </div>
 </div>
 
-<!-- Resultados -->
-<div id="results" style="display:none; align-items:center; padding:10px;">
+<!-- Resultados: SOLO tabla + botón a estadísticas -->
+<div id="results" style="display:none; align-items:center; padding:10px; width:100%; max-width:980px;">
   <h2>Resultados</h2>
-  <p id="player-info"></p>
-  <div class="results-container">
-    <div class="list">
-      <h3>Aquí sí</h3>
-      <ul id="accepted-list"></ul>
-    </div>
-    <div class="list">
-      <h3>Me da igual</h3>
-      <ul id="meh-list"></ul>
-    </div>
-    <div class="list">
-      <h3>Pasando</h3>
-      <ul id="rejected-list"></ul>
-    </div>
+  <p id="player-info" style="margin:4px 0 8px;"></p>
+
+  <div class="results-table" style="width:100%;">
+    <table>
+      <thead>
+        <tr>
+          <th>Aquí sí</th>
+          <th>Me da igual</th>
+          <th>Pasando</th>
+        </tr>
+      </thead>
+      <tbody id="results-body">
+        <!-- Se rellena dinámicamente -->
+      </tbody>
+    </table>
   </div>
+
   <div style="margin-top:10px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
     <button class="btn stats-btn" onclick="showStats()">Ver estadísticas</button>
-    <button class="btn reject" onclick="restartGame()">Volver al inicio</button>
   </div>
 </div>
 
@@ -431,37 +478,28 @@
   function hslColor(i){
     const hue = (i * 47) % 360;
     return `hsl(${hue} 70% 55%)`;
-    // rango medio para contraste suficiente
   }
 
   // Asigna color único por nombre (persistente, sin colisiones con reservados ni entre sí)
   function getPlayerColorUnique(name){
     const key = (name||"").trim().toLowerCase();
     let map = loadColorMap();
-    // Si ya existe, devuélvelo
     if (map[key]) return map[key];
 
-    // Reservados estrictos
     if (RESERVED[key]) {
-      // Asegurar exclusividad: nadie más puede tenerlo
-      // (si ya está asignado a otro nombre por error, lo respetamos para el reservado)
-      // Buscar si alguien lo usó
       const reservedColor = RESERVED[key];
       for (const n in map) if (map[n] === reservedColor) delete map[n];
       map[key] = reservedColor; saveColorMap(map); return reservedColor;
     }
 
-    // Marcar usados (incluye reservados + los del mapa)
     const used = new Set(Object.values(map));
     Object.values(RESERVED).forEach(c=>used.add(c));
 
-    // Elegir desde la pool evitando usados
     for (const c of COLOR_POOL) {
       if (!used.has(c)) {
         map[key] = c; saveColorMap(map); return c;
       }
     }
-    // Fallback: generar HSLs hasta dar con uno libre
     let i = 0;
     while(true){
       const c = hslColor(i++);
@@ -475,7 +513,7 @@
       { name:"sakura", light:"#fff7fb", mid:"#ffe3ef", dark:"#d38cb1", accent1:"#d7a6f1", accent2:"#b48ad6", petal:[220,120,160] },
       { name:"sky",    light:"#f2f9ff", mid:"#e0f1ff", dark:"#8dbfe6", accent1:"#a3c9ff", accent2:"#7fb2f0", petal:[120,160,220] },
       { name:"lav",    light:"#faf5ff", mid:"#efe3ff", dark:"#b48ad6", accent1:"#d7a6f1", accent2:"#b48ad6", petal:[150,110,200] },
-      { name:"sun",    light:"#fff7cc", mid:"#ffe89a", dark:"#e0c050", accent1:"#f0d46a", accent2:"#e1b84f", petal:[220,190,80] }, /* amarillo legible */
+      { name:"sun",    light:"#fff7cc", mid:"#ffe89a", dark:"#e0c050", accent1:"#f0d46a", accent2:"#e1b84f", petal:[220,190,80] },
       { name:"mint",   light:"#e9fff8", mid:"#d1fff0", dark:"#68cba7", accent1:"#9fe6cc", accent2:"#68cba7", petal:[90,170,140] }
     ];
     const pick = themes[Math.floor(Math.random()*themes.length)];
@@ -510,16 +548,17 @@
     document.getElementById("mode-screen").style.display = "flex";
   });
 
-  document.getElementById("btnShort").addEventListener("click", () => {
+  // Mitades clicables (modo)
+  document.getElementById("halfShort").addEventListener("click", () => {
     mode = "short"; mehLimit = 5; startGameWithMode();
   });
-  document.getElementById("btnFull").addEventListener("click", () => {
+  document.getElementById("halfFull").addEventListener("click", () => {
     mode = "full"; mehLimit = 10; startGameWithMode();
   });
 
   function startGameWithMode(){
     data = shuffleArray(originalData);
-    if (mode === "short") data = data.slice(0, 20);
+    if (mode === "short") data = data.slice(0, 20); // 20 aleatorias
     index = 0; accepted = []; rejected = []; meh = [];
     container.innerHTML = "";
     document.getElementById("mode-screen").style.display = "none";
@@ -617,19 +656,31 @@
   }
 
   /************ Resultados + Guardado ************/
+  function buildResultsTableRows(a, m, r){
+    // Calcula máximo de filas para alinear columnas
+    const maxRows = Math.max(a.length, m.length, r.length);
+    const rows = [];
+    for (let i=0;i<maxRows;i++){
+      rows.push(`
+        <tr>
+          <td>${a[i] ? a[i] : ""}</td>
+          <td>${m[i] ? m[i] : ""}</td>
+          <td>${r[i] ? r[i] : ""}</td>
+        </tr>
+      `);
+    }
+    return rows.join("");
+  }
+
   async function showResults() {
     document.getElementById('game-screen').style.display = 'none';
     document.getElementById('results').style.display = 'flex';
     const now = new Date(); const dateTime = now.toLocaleString();
     setPlayerInfo(dateTime);
 
-    const fillList = (id, arr) => {
-      const ul = document.getElementById(id); ul.innerHTML="";
-      arr.forEach(n => { const li = document.createElement('li'); li.textContent = n; ul.appendChild(li); });
-    };
-    fillList('accepted-list', accepted);
-    fillList('meh-list', meh);
-    fillList('rejected-list', rejected);
+    // Rellenar tabla única
+    const tbody = document.getElementById('results-body');
+    tbody.innerHTML = buildResultsTableRows(accepted, meh, rejected);
 
     try {
       await fetch(saveEndpoint, {
@@ -672,12 +723,12 @@
       return;
     }
 
-    // Normalizar
+    // Normalizar (IGNORAR modos de juego)
     const safeGames = games
       .filter(g => g && Array.isArray(g.accepted) && Array.isArray(g.rejected))
       .map(g => ({
         player: g.player || "¿anon?",
-        mode: g.mode || "unknown",
+        // mode ignorado intencionadamente
         accepted: Array.isArray(g.accepted) ? g.accepted : [],
         meh: Array.isArray(g.meh) ? g.meh : [],
         rejected: Array.isArray(g.rejected) ? g.rejected : []
@@ -719,9 +770,9 @@
       data: {
         labels,
         datasets: [
-          { label: 'Aquí sí',   data: yesData, backgroundColor: grad(css.getPropertyValue('--yes').trim()), borderRadius: 8, stack: 'stack' },
+          { label: 'Aquí sí',     data: yesData, backgroundColor: grad(css.getPropertyValue('--yes').trim()), borderRadius: 8, stack: 'stack' },
           { label: 'Me da igual', data: mehData, backgroundColor: grad(css.getPropertyValue('--meh').trim()), borderRadius: 8, stack: 'stack' },
-          { label: 'Pasando',  data: noData,  backgroundColor: grad(css.getPropertyValue('--no').trim()),  borderRadius: 8, stack: 'stack' }
+          { label: 'Pasando',     data: noData,  backgroundColor: grad(css.getPropertyValue('--no').trim()),  borderRadius: 8, stack: 'stack' }
         ]
       },
       options: {
@@ -835,7 +886,3 @@
 </script>
 </body>
 </html>
-
-
-
-
