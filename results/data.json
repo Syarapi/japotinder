@@ -52,5 +52,34 @@
       "RJ Cafe Osaka",
       "Eventos Kisekoi/Sailor Moon"
     ]
+  },
+  {
+    "player": "Sara",
+    "date": "14/8/2025, 9:47:56 a.m.",
+    "accepted": [
+      "Gotokuji",
+      "Beppu",
+      "Bandai Museum",
+      "Kumachan Onsen Tokyo",
+      "Shinkansen Hello Kitty",
+      "Ginzan Onsen",
+      "Nabana no sato",
+      "Nagano y monos de nieve",
+      "Kumamoto",
+      "Otaru"
+    ],
+    "rejected": [
+      "Musical Tokyo Revengers",
+      "Museo/cafe de los yokai",
+      "Disney Tokyo",
+      "RJ Cafe Osaka",
+      "Enoshima",
+      "Pokemon Cafe",
+      "Maid cafe",
+      "Shikisai no oka",
+      "Tarde de recreativas",
+      "Shibazakura park Hokkaido",
+      "Eventos Kisekoi/Sailor Moon"
+    ]
   }
 ]
