@@ -260,6 +260,65 @@
     .stats-grid{ grid-template-columns: 1fr; height: auto; }
     .affinity-wrap{ grid-template-columns: 1fr; height: auto; }
   }
+  /* Evitar que las tablas se amontonen y dar scroll si hay muchas filas */
+.top-scroll, .aff-scroll {
+  overflow-y: auto;
+  max-height: calc(100vh - 200px); /* ajusta según tu layout */
+  padding-bottom: 6px;
+}
+
+/* Espaciado entre celdas para mayor legibilidad */
+table th, table td {
+  padding: 10px 12px;
+  word-break: break-word; /* evitar que nombres largos deformen la tabla */
+}
+
+/* Evitar que los textos se peguen demasiado */
+.cards-small {
+  line-height: 1.4;
+}
+/* ===== Mejoras de tablas estadísticas ===== */
+
+/* Scroll interno y mejor legibilidad */
+.top-scroll, .aff-scroll {
+  overflow-y: auto;
+  max-height: calc(100vh - 200px);
+  padding-bottom: 6px;
+}
+
+table th, table td {
+  padding: 10px 12px;
+  word-break: break-word;
+}
+
+.cards-small {
+  line-height: 1.4;
+}
+
+/* ===== Vista móvil optimizada ===== */
+@media (max-width: 760px) {
+  /* Las tablas de afinidad se apilan */
+  .affinity-wrap {
+    grid-template-columns: 1fr !important;
+    gap: 16px;
+  }
+
+  /* Evitar scroll horizontal en móvil */
+  .stats-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Tablas más compactas pero legibles */
+  table th, table td {
+    font-size: 13px;
+    padding: 8px 10px;
+  }
+
+  .top-card table td,
+  .aff-card table td {
+    font-size: 12px;
+  }
+}  
 </style>
 </head>
 <body>
@@ -454,8 +513,8 @@
   const RESERVED = {
     "alba":   "#2f7bdc",
     "sara":   "#ff6fa1",
-    "alicia": "#8a5adf",
-    "vaini":  "#6f49d4"
+    "alicia": "#c95ced",
+    "vaini":  "#b082e8"
   };
 
   // Genera colores HSL legibles (fallback si se agota pool)
@@ -866,3 +925,4 @@
 </script>
 </body>
 </html>
+
