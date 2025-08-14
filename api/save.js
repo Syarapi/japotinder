@@ -88,3 +88,23 @@ export default async function handler(req, res) {
     data.push({ player, date, accepted, rejected });
 
     // 3) Subir
+    let content64 = Buffer.from(JSON.stringify(data, null, 2), 'utf8').toString('base64');
+    let put = await putFile(content64, sha);
+
+    // 4) Reintentar una vez si hubo conflicto
+    if (put.conflict) {
+      const again = await getCurrent();
+      const merged = Array.isArray(again.data) ? again.data : [];
+      merged.push({ player, date, accepted, rejected });
+      const content64b = Buffer.from(JSON.stringify(merged, null, 2), 'utf8').toString('base64');
+      put = await putFile(content64b, again.sha);
+    }
+
+    if (!put.ok) throw new Error('Error desconocido al subir a GitHub');
+
+    return res.status(200).json({ ok: true, count: (JSON.parse(Buffer.from(content64, 'base64').toString()) || []).length });
+  } catch (err) {
+    console.error('save.js error:', err);
+    return res.status(500).json({ error: 'Error al guardar en GitHub', details: String(err.message || err) });
+  }
+}
