@@ -647,5 +647,36 @@
       "RJ Cafe Osaka",
       "Ginzan Onsen"
     ]
+  },
+  {
+    "player": "Lara",
+    "date": "14/8/2025, 3:42:00 p.m.",
+    "mode": "short",
+    "accepted": [
+      "Shikisai no oka",
+      "Kumamoto",
+      "Kumachan Onsen Tokyo",
+      "Pokemon Cafe",
+      "Enoshima",
+      "Gotokuji",
+      "Disney Tokyo"
+    ],
+    "meh": [
+      "Shibazakura park Hokkaido",
+      "Shinkansen Hello Kitty",
+      "RJ Cafe Osaka",
+      "Nagano y monos de nieve"
+    ],
+    "rejected": [
+      "Ginzan Onsen",
+      "Nabana no sato",
+      "Eventos Kisekoi/Sailor Moon",
+      "Museo/cafe de los yokai",
+      "Maid cafe",
+      "Otaru",
+      "Musical Tokyo Revengers",
+      "Bandai Museum",
+      "Beppu"
+    ]
   }
 ]
