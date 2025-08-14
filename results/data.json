@@ -1,1 +1,31 @@
-[]
+[
+  {
+    "player": "Sara",
+    "date": "14/8/2025, 9:59:05 a.m.",
+    "accepted": [
+      "Nabana no sato",
+      "Museo/cafe de los yokai",
+      "Beppu",
+      "Tarde de recreativas",
+      "RJ Cafe Osaka",
+      "Maid cafe",
+      "Pokemon Cafe",
+      "Musical Tokyo Revengers",
+      "Shibazakura park Hokkaido",
+      "Kumachan Onsen Tokyo",
+      "Ginzan Onsen"
+    ],
+    "rejected": [
+      "Shinkansen Hello Kitty",
+      "Eventos Kisekoi/Sailor Moon",
+      "Kumamoto",
+      "Gotokuji",
+      "Enoshima",
+      "Shikisai no oka",
+      "Disney Tokyo",
+      "Nagano y monos de nieve",
+      "Bandai Museum",
+      "Otaru"
+    ]
+  }
+]
