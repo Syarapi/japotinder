@@ -24,7 +24,7 @@
     --petal-rgba: 255,182,193; /* se sobreescribe desde JS */
   }
 
-  /* ===== Fondo temático con pétalos (sin degradado) ===== */
+  /* ===== Fondo con pétalos (sin degradado) ===== */
   body {
     margin: 0;
     font-family: 'Segoe UI', sans-serif;
@@ -35,9 +35,8 @@
     align-items: center;
     background: var(--bg-light);
     position: relative;
-    overflow-x: hidden;
+    overflow: hidden; /* sin scroll de página */
   }
-  /* Capa de pétalos 1 */
   body::before, body::after{
     content:"";
     position: fixed;
@@ -51,7 +50,6 @@
     animation: petals 24s linear infinite;
     filter: blur(0.2px);
   }
-  /* Capa de pétalos 2 (más lenta) */
   body::after{
     animation-duration: 32s;
     opacity: .6;
@@ -61,7 +59,7 @@
     100% { background-position: 0 120vh, 20vw 130vh, 60vw 125vh, 85vw 135vh; }
   }
 
-  h1, h2, h3 { font-family: 'Yuji Syuku', serif; text-align: center; }
+  h1, h2, h3 { font-family: 'Yuji Syuku', serif; text-align: center; margin: 10px 0; }
   h1 { color: var(--accent-1); text-shadow: 0 2px 0 #fff; }
   h2 { color: var(--accent-2); }
   h3 { color: var(--accent-1); }
@@ -71,17 +69,19 @@
     display: none;
     flex-direction: column;
     align-items: center;
-    padding: 20px;
+    padding: 16px;
     width: 100%;
+    height: 100vh;         /* ocupar viewport */
+    box-sizing: border-box;
   }
-  #start-screen { display: flex; justify-content: center; gap: 15px; min-height: 100vh; }
+  #start-screen { display: flex; justify-content: center; gap: 15px; }
 
   /* Tarjetas */
   #card-container {
     position: relative;
     width: 90%;
     max-width: 520px;
-    height: 66vh;
+    height: 62vh;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -115,14 +115,14 @@
 
   /* Botonera */
   #buttons {
-    margin-top: 20px;
+    margin-top: 12px;
     display: flex;
-    gap: 16px;
+    gap: 12px;
     z-index: 10;
   }
   .btn {
-    padding: 14px 22px;
-    font-size: 17px;
+    padding: 12px 18px;
+    font-size: 16px;
     border: none;
     border-radius: 12px;
     cursor: pointer;
@@ -137,73 +137,99 @@
   .btn:hover { transform: translateY(-1px); box-shadow: 0 10px 20px rgba(0,0,0,.16); }
   .btn:active { transform: translateY(0); opacity:.95; }
 
-  .results-container { display: flex; gap: 50px; justify-content: center; flex-wrap: wrap; }
-  .list { margin: 10px 0; }
-  ul { list-style: none; padding: 0; font-size: 18px; }
+  .results-container { display: flex; gap: 28px; justify-content: center; flex-wrap: wrap; }
+  .list { margin: 6px 0; }
+  ul { list-style: none; padding: 0; font-size: 16px; }
   input {
-    padding: 12px 14px; font-size: 16px; border-radius: 10px;
+    padding: 10px 12px; font-size: 16px; border-radius: 10px;
     border: 2px solid var(--accent-1); width: 220px; text-align: center; background: #fff;
     box-shadow: 0 6px 16px rgba(0,0,0,.08);
   }
 
   /* Modo elección */
   .mode-grid{
-    display:grid; grid-template-columns: 1fr; gap:16px; max-width:720px; width:100%;
+    display:grid; grid-template-columns: 1fr; gap:12px; max-width:720px; width:100%;
   }
   .mode-card{
     background: var(--card-bg); border:2px solid var(--accent-1); border-radius:16px;
-    padding:16px; box-shadow: 0 8px 24px rgba(0,0,0,.12);
+    padding:12px; box-shadow: 0 8px 24px rgba(0,0,0,.12);
   }
-  .mode-card p{ margin:8px 0 0 0; color:#555; }
+  .mode-card p{ margin:6px 0 0 0; color:#555; font-size: 14px; }
   @media (min-width:760px){ .mode-grid{ grid-template-columns: 1fr 1fr; } }
 
   /* Tablas */
   table {
     border-collapse: collapse;
-    margin-top: 15px;
-    width: 90%;
-    max-width: 680px;
+    width: 100%;
     background: #fff;
     border-radius: 14px;
     overflow: hidden;
     box-shadow: 0 8px 24px rgba(0,0,0,0.12);
     border: 2px solid var(--accent-1);
+    table-layout: fixed;
   }
-  table th, table td { padding: 10px 14px; border-bottom: 1px solid #f0e7f8; text-align: left; }
+  table th, table td { padding: 8px 10px; border-bottom: 1px solid #f0e7f8; text-align: left; word-wrap: break-word; }
   table th {
     background: linear-gradient(180deg, var(--accent-2) 0%, var(--accent-1) 100%);
-    color: white; letter-spacing:.3px;
+    color: white; letter-spacing:.3px; position: sticky; top: 0; z-index: 1;
   }
   table tr:nth-child(even) { background-color: #faf7ff; }
   table tr:hover { background-color: #f4ecff; transition: background .2s ease; }
 
-  .notice { color: var(--accent-2); margin-top: 10px; }
-  .error { color: #d6456a; margin-top: 10px; }
+  .notice { color: var(--accent-2); margin-top: 6px; }
+  .error { color: #d6456a; margin-top: 6px; }
   .muted { color: #777; }
 
-  /* ===== Layout de estadísticas ===== */
+  /* ===== Pantalla de estadísticas sin scroll global ===== */
+  #stats-screen > h2 { margin: 6px 0 8px; }
   .stats-layout {
-    display: flex; flex-direction: column; gap: 24px; align-items: stretch;
-    width: 100%; max-width: 1200px; margin: 0 auto; padding-inline: 10px;
-  }
-  .chart-container {
+    display: grid;
+    grid-template-rows: auto 1fr;  /* fila superior fija, fila inferior ocupa resto */
+    gap: 10px;
     width: 100%;
+    max-width: 1200px;
+    height: calc(100vh - 90px); /* dentro del viewport, sin scroll de página */
+    box-sizing: border-box;
   }
-  .chart-card{
-    background: var(--card-bg); border: 2px solid var(--accent-1);
-    border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-    padding: 10px 10px 6px;
+
+  /* Fila superior: gráfico (izq) + tabla top (dcha) mismas alturas */
+  .top-row {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 10px;
+    min-height: 280px;
+    max-height: 360px;
+    height: 36vh; /* altura consistente */
   }
+  .panel {
+    background: var(--card-bg);
+    border: 2px solid var(--accent-1);
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    display: flex;
+    flex-direction: column;
+    min-height: 0; /* necesario para overflow en grid */
+  }
+  .panel-header { padding: 8px 12px; font-weight: 700; color: var(--accent-2); }
+  .panel-body   { padding: 8px; overflow: auto; }
+
   .chart-scroll { width: 100%; overflow-x: auto; overflow-y: hidden; }
   .chart-scroll canvas { display: block; }
-  .chart-container canvas { height: 360px !important; }
+  .chart-container canvas { height: 260px !important; } /* se ajusta a la altura del panel */
 
-  /* Doble columna para afinidades */
-  .affinity-grid{
-    display:grid; grid-template-columns: 1fr; gap:20px; align-items:start; width:100%;
+  /* Fila inferior: dos columnas de afinidad, con scroll interno */
+  .affinity-row {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px; min-height: 0;
   }
-  @media (min-width:980px){
-    .affinity-grid{ grid-template-columns: 1fr 1fr; }
+
+  /* Tablas de afinidad: tipografías más pequeñas para tarjetas */
+  .affinity-table td.card-list { font-size: 12px; line-height: 1.25; }
+
+  /* Responsive */
+  @media (max-width: 980px){
+    .top-row { grid-template-columns: 1fr; height: 48vh; }
+    .affinity-row { grid-template-columns: 1fr; }
+    .chart-container canvas { height: 220px !important; }
   }
 </style>
 </head>
@@ -235,7 +261,7 @@
       <p>Todas las tarjetas en orden aleatorio. “Me da igual” disponible <strong>10 veces</strong>.</p>
     </div>
   </div>
-  <div style="margin-top:14px">
+  <div style="margin-top:10px">
     <button class="btn reject" onclick="goToStart()">Volver</button>
   </div>
 </div>
@@ -268,7 +294,7 @@
       <ul id="rejected-list"></ul>
     </div>
   </div>
-  <div style="margin-top:14px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+  <div style="margin-top:10px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
     <button class="btn stats-btn" onclick="showStats()">Ver estadísticas</button>
     <button class="btn reject" onclick="restartGame()">Volver al inicio</button>
   </div>
@@ -276,38 +302,54 @@
 
 <!-- Pantalla de estadísticas -->
 <div id="stats-screen">
-  <h2>Estadísticas globales</h2>
+  <h2>Estadísticas</h2>
+
   <div class="stats-layout">
-    <div class="chart-container">
-      <div class="chart-card">
-        <div class="chart-scroll">
-          <canvas id="statsChart"></canvas>
+    <!-- Fila superior: gráfico (izq) + top tabla (dcha) -->
+    <div class="top-row">
+      <div class="panel">
+        <div class="panel-header">Distribución de votos por tarjeta</div>
+        <div class="panel-body">
+          <div class="chart-scroll chart-container">
+            <canvas id="statsChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">TOP tarjetas con más “sí”</div>
+        <div class="panel-body" id="topCardsWrap">
+          <!-- tabla inject -->
         </div>
       </div>
     </div>
 
-    <div id="extraStats"></div>
-
-    <!-- Afinidades: izquierda global, derecha jugador actual -->
-    <div class="affinity-grid" id="affinityGrids" style="display:none;">
-      <div>
-        <h3>Ranking de afinidad (todos los jugadores)</h3>
-        <div id="affinityGlobal"></div>
+    <!-- Fila inferior: afinidades -->
+    <div class="affinity-row" id="affinityGrids" style="display:none;">
+      <div class="panel">
+        <div class="panel-header">Ranking de afinidad (todos los jugadores)</div>
+        <div class="panel-body" id="affinityGlobal">
+          <!-- tabla inject -->
+        </div>
       </div>
-      <div>
-        <h3>Jugadores más afines contigo</h3>
-        <div id="affinityPersonal"></div>
+
+      <div class="panel">
+        <div class="panel-header">Jugadores más afines contigo</div>
+        <div class="panel-body" id="affinityPersonal">
+          <!-- tabla inject -->
+        </div>
       </div>
     </div>
   </div>
-  <div style="margin-top:14px;">
+
+  <div style="margin-top:8px;">
     <button class="btn reject" onclick="goToStart()">Volver</button>
   </div>
 </div>
 
 <script>
   /************ Config ************/
-  const saveEndpoint = "/api/save"; // deja tu ruta del backend
+  const saveEndpoint = "/api/save"; // tu ruta backend
   const dataUrl = "https://raw.githubusercontent.com/Syarapi/japotinder/main/results/data.json";
 
   /************ Datos base ************/
@@ -351,14 +393,14 @@
   /************ Utilidades ************/
   const shuffleArray = (array) => array.slice().sort(() => Math.random() - 0.5);
 
-  // Colores fijos para nombres: Alba=azul, Alicia/Vaini=morados, Sara=rosa, otros: amarillo pastel o verde menta pero fijo por hash
+  // Colores fijos para nombres: Alba=azul, Alicia/Vaini=morados, Sara=rosa, otros: sun pastel o mint fijo por hash
   function getNameColor(name){
     const n = (name || "").trim().toLowerCase();
     if(n === "alba")   return "#2f7bdc";          // azul
     if(n === "alicia" || n === "vaini") return "#8a5adf"; // morado
     if(n === "sara")   return "#ff6fa1";          // rosa
-    // Otros: asignación determinista entre amarillo pastel legible y verde menta
-    const options = ["#ffd666", "#56e0b5"]; // sun pastel (legible), mint
+    // Otros: determinista entre amarillo pastel legible (sun) y verde menta
+    const options = ["#ffd666", "#56e0b5"];
     let hash = 0; for(let i=0;i<n.length;i++){ hash = (hash*31 + n.charCodeAt(i))|0; }
     return options[Math.abs(hash)%options.length];
   }
@@ -369,7 +411,7 @@
       { name:"sakura", light:"#fff7fb", mid:"#ffe3ef", dark:"#d38cb1", accent1:"#d7a6f1", accent2:"#b48ad6", petal:[220,120,160] },
       { name:"sky",    light:"#f2f9ff", mid:"#e0f1ff", dark:"#8dbfe6", accent1:"#a3c9ff", accent2:"#7fb2f0", petal:[120,160,220] },
       { name:"lav",    light:"#faf5ff", mid:"#efe3ff", dark:"#b48ad6", accent1:"#d7a6f1", accent2:"#b48ad6", petal:[150,110,200] },
-      { name:"sun",    light:"#fff9e0", mid:"#ffefb0", dark:"#e0c050", accent1:"#f0d46a", accent2:"#e1b84f", petal:[220,190,80] },
+      { name:"sun",    light:"#fff6cc", mid:"#ffe899", dark:"#d6b84d", accent1:"#f0d46a", accent2:"#e1b84f", petal:[220,190,80] },
       { name:"mint",   light:"#edfff7", mid:"#d8ffee", dark:"#68cba7", accent1:"#9fe6cc", accent2:"#68cba7", petal:[90,170,140] }
     ];
     const pick = themes[Math.floor(Math.random()*themes.length)];
@@ -445,10 +487,7 @@
   }
 
   function showNextCard(initial=false) {
-    if (!initial) {
-      // limpiar cualquier resto
-      container.innerHTML = "";
-    }
+    if (!initial) container.innerHTML = "";
     if (index < data.length) {
       const card = createCard(data[index]);
       container.appendChild(card);
@@ -476,7 +515,6 @@
       if (dx <= -THX) { commitDecision(-1, el); return; }   // izquierda -> no
       if (dx >=  THX) { commitDecision( 1, el); return; }   // derecha  -> sí
       if (dy <=  THY) { commitDecision( 0, el); return; }   // arriba   -> meh
-      // volver al centro
       el.style.transition="transform .2s ease, opacity .2s ease";
       el.style.transform="translate(0,0) rotate(0)";
       el.style.opacity="1";
@@ -487,7 +525,7 @@
     el.addEventListener("touchmove",  (e)=>onMove(e.touches[0].clientX, e.touches[0].clientY), {passive:true});
     el.addEventListener("touchend",   onEnd);
 
-    // Mouse (desktop)
+    // Mouse
     el.addEventListener("mousedown", (e)=>onStart(e.clientX, e.clientY));
     window.addEventListener("mousemove", (e)=>onMove(e.clientX, e.clientY));
     window.addEventListener("mouseup", onEnd);
@@ -500,7 +538,6 @@
     else {
       if (meh.length >= mehLimit) {
         alert("Por favor, mójate un poco más…");
-        // vuelve al centro
         el.style.transition="transform .2s ease, opacity .2s ease";
         el.style.transform="translate(0,0) rotate(0)";
         el.style.opacity="1";
@@ -513,7 +550,7 @@
     showNextCard();
   }
 
-  function handleDecision(direction){ // -1 no | 0 meh | 1 sí
+  function handleDecision(direction){
     const el = container.querySelector('.card');
     if (!el) return;
     commitDecision(direction, el);
@@ -552,9 +589,16 @@
     document.getElementById('results').style.display = 'none';
     document.getElementById('stats-screen').style.display = 'flex';
 
-    const extraStats = document.getElementById('extraStats');
-    document.getElementById('affinityGrids').style.display = "none";
-    extraStats.innerHTML = `<p class="muted">Cargando datos...</p>`;
+    const topCardsWrap = document.getElementById('topCardsWrap');
+    const affinityWrap = document.getElementById('affinityGrids');
+    const affinityGlobal = document.getElementById('affinityGlobal');
+    const affinityPersonal = document.getElementById('affinityPersonal');
+
+    // Limpia
+    topCardsWrap.innerHTML = `<p class="muted">Cargando datos...</p>`;
+    affinityWrap.style.display = "none";
+    affinityGlobal.innerHTML = "";
+    affinityPersonal.innerHTML = "";
 
     let games = [];
     try {
@@ -563,13 +607,13 @@
       const json = await res.json();
       games = ensureArray(json);
     } catch (err) {
-      extraStats.innerHTML = `<p class="error">No se pudo cargar <code>results/data.json</code>. Detalle: ${err.message}</p>`;
+      topCardsWrap.innerHTML = `<p class="error">No se pudo cargar <code>results/data.json</code>. Detalle: ${err.message}</p>`;
       destroyChart();
       return;
     }
 
     if (!games.length) {
-      extraStats.innerHTML = `<p class="notice">No hay partidas guardadas aún.</p>`;
+      topCardsWrap.innerHTML = `<p class="notice">No hay partidas guardadas aún.</p>`;
       destroyChart();
       return;
     }
@@ -602,20 +646,14 @@
     const mehData = labels.map(l => stats[l].meh);
     const noData  = labels.map(l => stats[l].no);
 
-    // Canvas ancho (máx 1/3 visual con scroll)
+    // Canvas ancho (scroll horizontal)
     const canvas = document.getElementById('statsChart');
     const desiredWidth = Math.max(labels.length * 42, 420);
-    canvas.width = desiredWidth; canvas.height = 360;
+    canvas.width = desiredWidth; canvas.height = 260;
     const ctx = canvas.getContext('2d');
 
-    // Gradientes que igualan los botones
-    const grad = (hex) => {
-      const g = ctx.createLinearGradient(0, 0, 0, canvas.height);
-      // degradado simple del color hacia un tono algo más oscuro
-      g.addColorStop(0, hex);
-      g.addColorStop(1, hex);
-      return g;
-    };
+    const getVar = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    const grad = (hex) => { const g = ctx.createLinearGradient(0,0,0,canvas.height); g.addColorStop(0,hex); g.addColorStop(1,hex); return g; };
 
     destroyChart();
     statsChartInstance = new Chart(ctx, {
@@ -623,20 +661,20 @@
       data: {
         labels,
         datasets: [
-          { label: 'Aquí sí',   data: yesData, backgroundColor: grad(getComputedStyle(document.documentElement).getPropertyValue('--yes').trim()), borderRadius: 8, stack: 'stack' },
-          { label: 'Me da igual', data: mehData, backgroundColor: grad(getComputedStyle(document.documentElement).getPropertyValue('--meh').trim()), borderRadius: 8, stack: 'stack' },
-          { label: 'Pasando',  data: noData,  backgroundColor: grad(getComputedStyle(document.documentElement).getPropertyValue('--no').trim()),  borderRadius: 8, stack: 'stack' }
+          { label: 'Aquí sí',   data: yesData, backgroundColor: grad(getVar('--yes')), borderRadius: 8, stack: 's' },
+          { label: 'Me da igual', data: mehData, backgroundColor: grad(getVar('--meh')), borderRadius: 8, stack: 's' },
+          { label: 'Pasando',  data: noData,  backgroundColor: grad(getVar('--no')),  borderRadius: 8, stack: 's' }
         ]
       },
       options: {
         responsive: false, maintainAspectRatio: false,
         scales: {
-          x: { stacked: true, ticks: { maxRotation: 60, minRotation: 0 } },
+          x: { stacked: true, ticks: { maxRotation: 60, minRotation: 0, autoSkip: false } },
           y: { stacked: true, beginAtZero: true }
         },
         plugins: {
           legend: {
-            labels: { color: '#333', boxWidth: 18, usePointStyle: true, pointStyle: 'rectRounded' }
+            labels: { color: '#333', boxWidth: 14, usePointStyle: true, pointStyle: 'rectRounded', font: { size: 12 } }
           },
           tooltip: {
             backgroundColor: 'rgba(255,255,255,.95)',
@@ -644,31 +682,38 @@
             borderColor: '#ddd', borderWidth: 1
           }
         },
-        animation: { duration: 250 }
+        animation: { duration: 200 }
       }
     });
 
-    // TOP 5 tarjetas por "sí"
+    // TOP tarjetas por "sí" (tabla derecha)
     const topCards = Object.entries(stats)
       .sort((a, b) => b[1].yes - a[1].yes || a[0].localeCompare(b[0]))
-      .slice(0, 5);
+      .slice(0, 20);
 
-    // Afinidad por intersección de SÍ (no cuenta cantidades totales, solo coincidencias)
-    // Global: ranking de pares (A,B) con lista de coincidencias
+    let topHtml = "<div style='height:100%; overflow:auto;'><table><thead><tr><th>Tarjeta</th><th>Sí</th><th>Meh</th><th>No</th></tr></thead><tbody>";
+    topCards.forEach(([name, v]) => {
+      topHtml += `<tr><td>${name}</td><td>${v.yes}</td><td>${v.meh}</td><td>${v.no}</td></tr>`;
+    });
+    topHtml += "</tbody></table></div>";
+    topCardsWrap.innerHTML = topHtml;
+
+    // === Afinidades (intersección de SÍ) ===
     const byPlayer = {};
     safeGames.forEach(g => {
       byPlayer[g.player] = byPlayer[g.player] || [];
       byPlayer[g.player].push(new Set(g.accepted));
     });
-    // Reducir por jugador a conjunto unión de sus "sí" (para no romper por sesiones)
+    // Reducir por jugador a unión de sus "sí"
     Object.keys(byPlayer).forEach(p => {
       const union = new Set();
       byPlayer[p].forEach(s => s.forEach(x => union.add(x)));
       byPlayer[p] = union;
     });
 
-    // Construir ranking global
     const players = Object.keys(byPlayer).sort((a,b)=>a.localeCompare(b));
+
+    // Ranking global de pares
     const pairs = [];
     for(let i=0;i<players.length;i++){
       for(let j=i+1;j<players.length;j++){
@@ -676,12 +721,12 @@
         const s1 = byPlayer[p1], s2 = byPlayer[p2];
         const inter = [];
         s1.forEach(x => { if (s2.has(x)) inter.push(x); });
-        if (inter.length>0) pairs.push({ a:p1, b:p2, common:inter, count:inter.length });
+        if (inter.length>0) pairs.push({ a:p1, b:p2, common:inter.sort(), count:inter.length });
       }
     }
     pairs.sort((x,y)=> y.count - x.count || (x.a+x.b).localeCompare(y.a+y.b));
 
-    // Afinidad del jugador actual (si hay)
+    // Afinidad del jugador actual
     let personalRows = [];
     if (playerName && byPlayer[playerName]) {
       const mine = byPlayer[playerName];
@@ -693,40 +738,31 @@
       personalRows.sort((x,y)=> y.count - x.count || x.player.localeCompare(y.player));
     }
 
-    // Render tablas
-    let html = "";
-    html += "<h3>TOP 5 tarjetas con más 'sí'</h3>";
-    html += "<table><tr><th>Tarjeta</th><th>Sí</th><th>Meh</th><th>No</th></tr>";
-    topCards.forEach(([name, v]) => {
-      html += `<tr><td>${name}</td><td>${v.yes}</td><td>${v.meh}</td><td>${v.no}</td></tr>`;
-    });
-    html += "</table>";
-    extraStats.innerHTML = html;
+    // Tablas de afinidad (con colores de nombres y nombres de tarjetas pequeños)
+    const colorNameHTML = (n) => `<span style="font-weight:600; color:${getNameColor(n)}">${n}</span>`;
 
-    // Afinidades
-    const affinityGlobal = document.getElementById("affinityGlobal");
-    const affinityPersonal = document.getElementById("affinityPersonal");
-
-    let ghtml = "<table><tr><th>Par</th><th># Coincidencias SÍ</th><th>Tarjetas en común (SÍ)</th></tr>";
-    (pairs.slice(0,20)).forEach(row=>{
-      ghtml += `<tr><td>${row.a} &amp; ${row.b}</td><td>${row.count}</td><td>${row.common.sort().join(", ")}</td></tr>`;
+    // Global
+    let ghtml = "<div style='max-height:100%; overflow:auto;'><table class='affinity-table'><thead><tr><th>Par</th><th># Coincidencias SÍ</th><th>Tarjetas en común (SÍ)</th></tr></thead><tbody>";
+    (pairs.slice(0,50)).forEach(row=>{
+      const parHtml = `${colorNameHTML(row.a)} &nbsp;&amp;&nbsp; ${colorNameHTML(row.b)}`;
+      ghtml += `<tr><td>${parHtml}</td><td>${row.count}</td><td class="card-list">${row.common.join(", ")}</td></tr>`;
     });
-    ghtml += "</table>";
+    ghtml += "</tbody></table></div>";
     affinityGlobal.innerHTML = ghtml;
 
+    // Personal
     if (personalRows.length){
-      let phtml = "<table><tr><th>Jugador</th><th># Coincidencias SÍ</th><th>Tarjetas en común (SÍ)</th></tr>";
-      personalRows.slice(0,20).forEach(r=>{
-        const c = getNameColor(r.player);
-        phtml += `<tr><td style="font-weight:600; color:${c}">${r.player}</td><td>${r.count}</td><td>${r.list.join(", ")}</td></tr>`;
+      let phtml = "<div style='max-height:100%; overflow:auto;'><table class='affinity-table'><thead><tr><th>Jugador</th><th># Coincidencias SÍ</th><th>Tarjetas en común (SÍ)</th></tr></thead><tbody>";
+      personalRows.slice(0,50).forEach(r=>{
+        phtml += `<tr><td>${colorNameHTML(r.player)}</td><td>${r.count}</td><td class="card-list">${r.list.join(", ")}</td></tr>`;
       });
-      phtml += "</table>";
+      phtml += "</tbody></table></div>";
       affinityPersonal.innerHTML = phtml;
     } else {
       affinityPersonal.innerHTML = `<p class="notice">Juega una partida para ver tu afinidad personal.</p>`;
     }
 
-    document.getElementById('affinityGrids').style.display = "grid";
+    affinityWrap.style.display = "grid";
   }
 
   function destroyChart() {
