@@ -241,5 +241,36 @@
       "Shibazakura park Hokkaido",
       "Nagano y monos de nieve"
     ]
+  },
+  {
+    "player": "Sara",
+    "date": "14/8/2025, 11:24:21 a.m.",
+    "mode": "short",
+    "accepted": [
+      "Gotokuji",
+      "Kumachan Onsen Tokyo",
+      "Eventos Kisekoi/Sailor Moon",
+      "RJ Cafe Osaka",
+      "Pokemon Cafe",
+      "Bandai Museum",
+      "Nabana no sato",
+      "Beppu"
+    ],
+    "meh": [
+      "Disney Tokyo",
+      "Disney Tokyo",
+      "Shinkansen Hello Kitty",
+      "Pokemon Cafe",
+      "Maid cafe"
+    ],
+    "rejected": [
+      "Ginzan Onsen",
+      "Enoshima",
+      "Kumamoto",
+      "Otaru",
+      "Tarde de recreativas",
+      "Museo/cafe de los yokai",
+      "Nagano y monos de nieve"
+    ]
   }
 ]
