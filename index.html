@@ -148,7 +148,6 @@ const BASE_CARDS = [
   { name: "Enoshima", img: "img/enoshima.jpg" },
   { name: "Ginzan Onsen", img: "img/ginzan.jpg" },
   { name: "Tarde de recreativas", img: "img/arcade.jpg" },
-  { name: "Shibazakura park Hokkaido", img: "img/shibazakura.jpg" },
   { name: "Musical Tokyo Revengers", img: "img/tokyo-revengers.jpg" },
   { name: "Eventos Kisekoi/Sailor Moon", img: "img/kisekoi.jpg" },
   { name: "Museo/cafe de los yokai", img: "img/yokai.jpg" },
@@ -196,10 +195,10 @@ function startGame(){
   showCard();
 }
 
-function shuffle(array){for(let i=array.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[array[i],array[j]]=[array[j],array[i]];}}
+function shuffle(array){for(let i=array.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[array[i],[array[i]=array[j]]=[array[j],array[i]];}} // seguro
 
 function showCard(){
-  if(currentIndex>=currentCards.length){showResults();return;}
+  if(currentIndex>=currentCards.length){saveResult();return;}
   const card=currentCards[currentIndex];
   document.getElementById('card-img').src=card.img;
   document.getElementById('card-name').textContent=card.name;
@@ -230,13 +229,31 @@ cardContainer.addEventListener('touchend',e=>{
   const dx=e.changedTouches[0].clientX-startX;
   const dy=e.changedTouches[0].clientY-startY;
   if(Math.abs(dx)>50){choose(dx>0?'yes':'no');}
-  else if(dy<-50){choose('me');}
+  else if(dy<-30){choose('me');} // swipe vertical más ancho
 });
 
-// Resultados
-function showResults(){
-  showScreen('result-screen');
+// Guardar resultados en data.json
+async function saveResult(){
+  const results = currentCards.map(c=>({
+    player: playerName,
+    card: c.name,
+    choice: c.choice,
+    date: new Date().toLocaleString()
+  }));
+  try{
+    const res = await fetch('results/data.json');
+    const oldData = await res.json();
+    await fetch('results/data.json',{
+      method:'PUT',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify([...oldData,...results],null,2)
+    });
+  }catch(e){console.warn('No se pudo guardar localmente en Vercel', e);}
+  showResults();
 }
+
+// Resultados
+function showResults(){showScreen('result-screen');}
 
 // Estadísticas
 async function showStats(){
@@ -258,7 +275,7 @@ async function showStats(){
     tbody.appendChild(tr);
   });
 
-  // Comparativa
+  // Comparativa afinidad
   const affinityTbody=document.querySelector('#affinity-table tbody');
   affinityTbody.innerHTML='';
   const players=[...new Set(data.map(d=>d.player))];
@@ -283,7 +300,8 @@ document.getElementById('stats-btn-result').addEventListener('click',showStats);
 document.getElementById('back-from-stats').addEventListener('click',()=>showScreen('start-screen'));
 
 function randomColor(){
-  return '#' + Math.floor(Math.random()*16777215).toString(16);
+  const colors=['#1abc9c','#3498db','#9b59b6','#f39c12','#16a085','#2980b9','#8e44ad','#c0392b','#d35400'];
+  return colors[Math.floor(Math.random()*colors.length)];
 }
 </script>
 
