@@ -15,12 +15,15 @@
     --sky-2:#6fbde8;
     --lav:#b48ad6;
     --lav-2:#9f74c2;
+    /* NUEVOS pasteles (sustituyen a #C2F9BB y #FFFFA2) */
+    --pastel-green:#CDEFD3;
+    --pastel-yellow:#FFF3B3;
     --shadow: 0 10px 25px rgba(0,0,0,0.15);
     --card-bg:#ffffffee;
     --ink:#333;
   }
 
-  /* ===== Fondo temático sakura ===== */
+  /* ===== Fondos temáticos ===== */
   body {
     margin: 0;
     font-family: 'Segoe UI', sans-serif;
@@ -29,12 +32,17 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    /* Degradado cielo a rosa */
-    background: linear-gradient(180deg, #f7fbff 0%, #fff5f8 40%, #ffeaf0 100%);
+    background: linear-gradient(180deg, #f7fbff 0%, #fff5f8 40%, #ffeaf0 100%); /* rosa (Completo) */
     position: relative;
     overflow-x: hidden;
+    transition: background .3s ease;
   }
-  /* Pétalos decorativos con blur sutil */
+  /* Versión Corta = fondo azul */
+  body.mode-short{
+    background: linear-gradient(180deg, #eef6ff 0%, #e6f3ff 40%, #dff0ff 100%);
+  }
+
+  /* Pétalos decorativos */
   body::before, body::after{
     content:"";
     position: fixed;
@@ -48,37 +56,33 @@
     animation: petals 24s linear infinite;
     filter: blur(0.2px);
   }
-  body::after{
-    animation-duration: 32s;
-    opacity: .6;
+  body.mode-short::before, body.mode-short::after{
+    background-image:
+      radial-gradient(14px 9px at 10px 10px, rgba(135,206,250,0.22) 40%, transparent 41%),
+      radial-gradient(12px 8px at 40% 30%, rgba(135,206,250,0.18) 40%, transparent 41%),
+      radial-gradient(10px 7px at 70% 60%, rgba(135,206,250,0.15) 40%, transparent 41%),
+      radial-gradient(12px 8px at 85% 20%, rgba(135,206,250,0.18) 40%, transparent 41%);
   }
+  body::after{ animation-duration: 32s; opacity: .6; }
   @keyframes petals {
     0% { background-position: 0 -10vh, 20vw -20vh, 60vw -15vh, 85vw -25vh; }
     100% { background-position: 0 120vh, 20vw 130vh, 60vw 125vh, 85vw 135vh; }
   }
 
-  h1, h2, h3 {
-    font-family: 'Yuji Syuku', serif;
-    text-align: center;
-  }
+  h1, h2, h3 { font-family: 'Yuji Syuku', serif; text-align: center; }
   h1 { color: #d78ccf; text-shadow: 0 2px 0 #fff; }
   h2 { color: var(--sky-2); }
   h3 { color: var(--sakura-pink-2); }
 
   /* Contenedores principales */
-  #start-screen, #results, #stats-screen {
+  #start-screen, #mode-screen, #results, #stats-screen, #game-screen {
     display: none;
     flex-direction: column;
     align-items: center;
     padding: 20px;
     width: 100%;
   }
-  #start-screen {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    min-height: 100vh;
-  }
+  #start-screen { display:flex; justify-content:center; gap:15px; min-height:100vh; }
 
   /* Tarjetas */
   #card-container {
@@ -112,18 +116,18 @@
     border-radius: 14px;
     box-shadow: 0 6px 16px rgba(0,0,0,0.12);
   }
-  .card div {
-    font-weight: 600;
-    color: #8c4a78;
-    padding-top: 6px;
-  }
+  .card div { font-weight: 600; color: #8c4a78; padding-top: 6px; }
 
   #buttons {
     margin-top: 20px;
     display: flex;
-    gap: 20px;
+    gap: 14px;
     z-index: 10;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
   }
+
   .btn {
     padding: 14px 22px;
     font-size: 17px;
@@ -132,21 +136,20 @@
     cursor: pointer;
     transition: transform .15s ease, box-shadow .15s ease, opacity .2s ease;
     box-shadow: 0 8px 18px rgba(0,0,0,.12);
+    color: #fff;
   }
-  .accept { background: linear-gradient(180deg, var(--sky) 0%, var(--sky-2) 100%); color: white; }
-  .reject { background: linear-gradient(180deg, #ffafc1 0%, var(--sakura-pink-2) 100%); color: white; }
-  .stats-btn { background: linear-gradient(180deg, #d7a6f1 0%, var(--lav-2) 100%); color: white; }
+  .accept { background: linear-gradient(180deg, var(--sky) 0%, var(--sky-2) 100%); }
+  /* "Me da igual" ahora MORADO */
+  .neutral { background: linear-gradient(180deg, var(--lav) 0%, var(--lav-2) 100%); }
+  .reject { background: linear-gradient(180deg, #ffafc1 0%, var(--sakura-pink-2) 100%); }
+  .stats-btn { background: linear-gradient(180deg, #d7a6f1 0%, var(--lav-2) 100%); }
   .btn:hover { transform: translateY(-1px); box-shadow: 0 10px 20px rgba(0,0,0,.16); }
   .btn:active { transform: translateY(0); opacity:.95; }
 
-  .results-container {
-    display: flex;
-    gap: 50px;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
+  .results-container { display:flex; gap:50px; justify-content:center; flex-wrap:wrap; }
   .list { margin: 10px 0; }
   ul { list-style: none; padding: 0; font-size: 18px; }
+
   input {
     padding: 12px 14px;
     font-size: 16px;
@@ -157,6 +160,32 @@
     background: #fff;
     box-shadow: 0 6px 16px rgba(255,182,193,.18);
   }
+
+  /* Tarjetas informativas */
+  .mode-card{
+    background: var(--card-bg);
+    border: 2px solid #ffe1ea;
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    padding: 16px;
+    max-width: 680px;
+  }
+  .mode-grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap:16px;
+    width:100%;
+    max-width:800px;
+  }
+  .mode-item{
+    background: #fff;
+    border: 2px solid #f1e9ff;
+    border-radius: 14px;
+    padding: 14px;
+    text-align:center;
+    box-shadow: 0 6px 16px rgba(0,0,0,.08);
+  }
+  .mode-item p{ color:#555; margin:8px 0 0; font-size:14px; }
 
   /* Tablas */
   table {
@@ -170,11 +199,7 @@
     box-shadow: 0 8px 24px rgba(0,0,0,0.12);
     border: 2px solid #ffe1ea;
   }
-  table th, table td {
-    padding: 10px 14px;
-    border-bottom: 1px solid #f7edf1;
-    text-align: left;
-  }
+  table th, table td { padding: 10px 14px; border-bottom: 1px solid #f7edf1; text-align: left; }
   table th {
     background: linear-gradient(180deg, #e7b7f6 0%, #d7a6f1 100%);
     color: white;
@@ -198,45 +223,24 @@
     margin: 0 auto;
     padding-inline: 10px;
   }
-  /* Columna del gráfico: máx. 1/3 y scroll horizontal interno */
-  .chart-container {
-    flex: 0 0 33%;
-    max-width: 420px;
-    width: 100%;
-  }
-  .chart-card{
-    background: var(--card-bg);
-    border: 2px solid #ffe4ec;
-    border-radius: 16px;
-    box-shadow: var(--shadow);
-    padding: 10px 10px 6px;
-  }
-  .chart-scroll {
-    width: 100%;
-    overflow-x: auto;
-    overflow-y: hidden;
-  }
+  .chart-container { flex: 0 0 33%; max-width: 420px; width: 100%; }
+  .chart-card{ background: var(--card-bg); border: 2px solid #ffe4ec; border-radius: 16px; box-shadow: var(--shadow); padding: 10px 10px 6px; }
+  .chart-scroll { width: 100%; overflow-x: auto; overflow-y: hidden; }
   .chart-scroll canvas { display: block; }
   .chart-container canvas { height: 360px !important; }
 
-  /* Zona de tablas/extra stats ocupa el resto */
-  #extraStats {
-    flex: 1 1 auto;
-    min-width: 300px;
-  }
+  #extraStats { flex: 1 1 auto; min-width: 300px; }
+  .affinity-wrap{ text-align: center; margin-top: 28px; }
+  .affinity-wrap table{ margin-left:auto; margin-right:auto; max-width: 520px; }
 
-  /* Tabla afinidad centrada y separada */
-  .affinity-wrap{
-    text-align: center;
-    margin-top: 28px; /* extra espacio */
-  }
-  .affinity-wrap table{
-    margin-left: auto;
-    margin-right: auto;
-    max-width: 520px;
-  }
+  /* Colores por jugador */
+  .name-Alba { color: #2f7bdc; font-weight: bold; }
+  .name-Alicia, .name-Vaini { color: #8a5adf; font-weight: bold; }
+  .name-Sara { color: #ff6fa1; font-weight: bold; }
+  /* Cualquier otro: SOLO verde o amarillo pastel nuevos (alternando) */
+  .name-default-green { color: var(--pastel-green); font-weight: bold; }
+  .name-default-yellow { color: var(--pastel-yellow); font-weight: bold; }
 
-  /* Responsive */
   @media (max-width: 900px) {
     .stats-layout { flex-direction: column; align-items: stretch; }
     .chart-container { flex: none; width: 100%; max-width: 640px; margin: 0 auto; }
@@ -252,8 +256,25 @@
     <p>¿Quién eres? O no empezamos ò_ó</p>
     <input type="text" id="username" placeholder="Tu nombre" />
     <div style="margin-top:12px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
-      <button class="btn accept" onclick="startGame()">Empezar</button>
+      <button class="btn accept" onclick="goToMode()">Continuar</button>
       <button class="btn stats-btn" onclick="showStats()">Ver estadísticas</button>
+    </div>
+  </div>
+</div>
+
+<!-- Selección de versión -->
+<div id="mode-screen">
+  <div class="mode-card">
+    <h2>Elige cómo jugar</h2>
+    <div class="mode-grid">
+      <div class="mode-item">
+        <button class="btn neutral" onclick="startGame('short')">Versión Corta</button>
+        <p>20 tarjetas aleatorias. Fondo azul. Puedes usar <strong>“Me da igual”</strong> hasta <strong>5</strong> veces.</p>
+      </div>
+      <div class="mode-item">
+        <button class="btn accept" onclick="startGame('full')">Completo</button>
+        <p>Todas las tarjetas en orden aleatorio. Fondo rosa. <strong>“Me da igual”</strong> hasta <strong>10</strong> veces.</p>
+      </div>
     </div>
   </div>
 </div>
@@ -263,6 +284,7 @@
   <div id="card-container"></div>
   <div id="buttons">
     <button class="btn reject" onclick="handleDecision(-1)">Pasando</button>
+    <button class="btn neutral" onclick="handleNeutral()">Me da igual</button>
     <button class="btn accept" onclick="handleDecision(1)">Aquí sí</button>
   </div>
 </div>
@@ -275,6 +297,10 @@
     <div class="list">
       <h3>Aquí sí</h3>
       <ul id="accepted-list"></ul>
+    </div>
+    <div class="list">
+      <h3>Me da igual</h3>
+      <ul id="meh-list"></ul>
     </div>
     <div class="list">
       <h3>Pasando</h3>
@@ -310,6 +336,12 @@
   const dataUrl = "https://raw.githubusercontent.com/Syarapi/japotinder/main/results/data.json";
 
   let playerName = "";
+  let gameMode = null; // 'short' | 'full'
+  const MEH_LIMIT_SHORT = 5;
+  const MEH_LIMIT_FULL  = 10;
+  let mehLimit = MEH_LIMIT_SHORT;
+  let mehCount = 0;
+
   const originalData = [
     { name: "Disney Tokyo", img: "img/disney.jpg" },
     { name: "Gotokuji", img: "img/gotokuji.jpg" },
@@ -335,80 +367,112 @@
   ];
   let data = [];
   let accepted = [];
+  let meh = [];
   let rejected = [];
   let index = 0;
   const container = document.getElementById('card-container');
 
-  function shuffleArray(array) { return array.sort(() => Math.random() - 0.5); }
+  function shuffleArray(array){ return array.sort(() => Math.random() - 0.5); }
 
+  // Colores por nombre: casos especiales + SOLO (verde/amarillo pastel) para el resto
   function getNameColor(name){
-    const n = (name || "").trim().toLowerCase();
-    if(n === "alba")   return "#2f7bdc";          // azul
-    if(n === "alicia" || n === "vaini") return "#8a5adf"; // morado
-    if(n === "sara")   return "#ff6fa1";          // rosa
-    // Colores pastel combinables por defecto
-    const palette = ["#5aa6ff","#a874e3","#ff83b4","#6cd2ff","#f6a1ff"];
-    let hash = 0; for(let i=0;i<n.length;i++){ hash = (hash*31 + n.charCodeAt(i))|0; }
-    return palette[Math.abs(hash)%palette.length];
+    const n = (name || "").trim();
+    const low = n.toLowerCase();
+    if(low === "alba") return "#2f7bdc";
+    if(low === "alicia" || low === "vaini") return "#8a5adf";
+    if(low === "sara") return "#ff6fa1";
+    // Alternar entre verde y amarillo pastel para cualquier otro
+    let hash = 0; for (let i=0;i<low.length;i++){ hash = (hash*31 + low.charCodeAt(i))|0; }
+    return (Math.abs(hash)%2===0) ? getComputedStyle(document.documentElement).getPropertyValue('--pastel-green').trim()
+                                  : getComputedStyle(document.documentElement).getPropertyValue('--pastel-yellow').trim();
   }
 
-  function startGame() {
+  function goToMode(){
     const nameInput = document.getElementById("username").value.trim();
     if (!nameInput) { alert("Que me digas quién eres o no jugamos ù3ú"); return; }
     playerName = nameInput;
-    data = shuffleArray([...originalData]);
     document.getElementById("start-screen").style.display = "none";
+    document.getElementById("mode-screen").style.display = "flex";
+  }
+
+  function startGame(mode){
+    gameMode = mode === 'short' ? 'short' : 'full';
+    document.body.classList.toggle('mode-short', gameMode === 'short');
+
+    data = shuffleArray([...originalData]);
+    if(gameMode === 'short'){ data = data.slice(0, 20); mehLimit = MEH_LIMIT_SHORT; }
+    else { mehLimit = MEH_LIMIT_FULL; }
+
+    document.getElementById("mode-screen").style.display = "none";
     document.getElementById("game-screen").style.display = "flex";
-    index = 0; accepted = []; rejected = []; container.innerHTML = "";
+
+    index = 0; accepted = []; meh = []; rejected = []; mehCount = 0; container.innerHTML = "";
     showNextCard();
   }
 
-  function createCard(person) {
+  function createCard(person){
     const card = document.createElement('div'); card.className = 'card';
     const img = document.createElement('img'); img.src = person.img; img.alt = person.name;
     const name = document.createElement('div'); name.textContent = person.name;
     card.appendChild(img); card.appendChild(name); container.appendChild(card);
   }
 
-  function swipeCard(direction) {
+  function animateUp(el, cb){
+    el.style.transition = 'transform .25s ease, opacity .25s ease';
+    el.style.transform = 'translateY(-80px)'; el.style.opacity = '0';
+    setTimeout(cb, 250);
+  }
+
+  function swipeCard(direction){ // 1=aceptar, 0=meh, -1=rechazar
     const currentCard = container.querySelector('.card:last-child');
     if (!currentCard) return;
     const name = currentCard.querySelector('div').textContent;
-    if (direction === 1) { accepted.push(name); } else { rejected.push(name); }
-    currentCard.remove(); showNextCard();
+
+    if (direction === 1) { accepted.push(name); currentCard.remove(); showNextCard(); }
+    else if (direction === -1) { rejected.push(name); currentCard.remove(); showNextCard(); }
+    else {
+      if(mehCount >= mehLimit){ alert("Por favor, mójate un poco más..."); return; }
+      meh.push(name); mehCount++;
+      animateUp(currentCard, () => { currentCard.remove(); showNextCard(); });
+    }
   }
 
-  function handleDecision(direction) { swipeCard(direction); }
+  function handleDecision(direction){ swipeCard(direction); }
+  function handleNeutral(){ swipeCard(0); }
 
-  function showNextCard() {
+  function showNextCard(){
     if (index < data.length) { createCard(data[index]); index++; }
     else { showResults(); }
   }
 
   function setPlayerInfo(dateTime){
     const spanColor = getNameColor(playerName);
-    const html = `Jugador: <span style="font-weight:700; color:${spanColor}">${playerName}</span> | ${dateTime}`;
+    const html = `Jugador: <span style="font-weight:700; color:${spanColor}">${playerName}</span> | ${dateTime} | Modo: ${gameMode==='short'?'Corto':'Completo'}`;
     document.getElementById('player-info').innerHTML = html;
   }
 
-  async function showResults() {
+  async function showResults(){
     document.getElementById('game-screen').style.display = 'none';
     document.getElementById('results').style.display = 'flex';
     const now = new Date(); const dateTime = now.toLocaleString();
     setPlayerInfo(dateTime);
 
-    const acceptedList = document.getElementById('accepted-list'); const rejectedList = document.getElementById('rejected-list');
-    acceptedList.innerHTML = ""; rejectedList.innerHTML = "";
+    const acceptedList = document.getElementById('accepted-list');
+    const mehList = document.getElementById('meh-list');
+    const rejectedList = document.getElementById('rejected-list');
+    acceptedList.innerHTML = ""; mehList.innerHTML = ""; rejectedList.innerHTML = "";
+
     accepted.forEach(n => { const li = document.createElement('li'); li.textContent = n; acceptedList.appendChild(li); });
+    meh.forEach(n => { const li = document.createElement('li'); li.textContent = n; mehList.appendChild(li); });
     rejected.forEach(n => { const li = document.createElement('li'); li.textContent = n; rejectedList.appendChild(li); });
 
-    try {
+    try{
       await fetch(saveEndpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ player: playerName, date: dateTime, accepted, rejected })
+        body: JSON.stringify({ player: playerName, date: dateTime, mode: gameMode, accepted, meh, rejected })
       });
-    } catch (e) {
+    }catch(e){
       console.warn("No se pudo guardar en la API:", e);
     }
   }
@@ -416,14 +480,15 @@
   // ===== Estadísticas =====
   let statsChartInstance = null;
 
-  function ensureArray(maybeArray) {
+  function ensureArray(maybeArray){
     if (Array.isArray(maybeArray)) return maybeArray;
     if (maybeArray && Array.isArray(maybeArray.games)) return maybeArray.games;
     return [];
   }
 
-  async function showStats() {
+  async function showStats(){
     document.getElementById('start-screen').style.display = 'none';
+    document.getElementById('mode-screen').style.display = 'none';
     document.getElementById('results').style.display = 'none';
     document.getElementById('stats-screen').style.display = 'flex';
 
@@ -431,18 +496,18 @@
     extraStats.innerHTML = `<p class="muted">Cargando datos...</p>`;
 
     let games = [];
-    try {
+    try{
       const res = await fetch(`${dataUrl}?t=${Date.now()}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = await res.json();
       games = ensureArray(json);
-    } catch (err) {
+    }catch(err){
       extraStats.innerHTML = `<p class="error">No se pudo cargar <code>results/data.json</code>. Detalle: ${err.message}</p>`;
       destroyChart();
       return;
     }
 
-    if (!games.length) {
+    if (!games.length){
       extraStats.innerHTML = `<p class="notice">No hay partidas guardadas aún.</p>`;
       destroyChart();
       return;
@@ -452,33 +517,35 @@
       .filter(g => g && Array.isArray(g.accepted) && Array.isArray(g.rejected))
       .map(g => ({
         player: g.player || "¿anon?",
-        accepted: g.accepted,
-        rejected: g.rejected
+        accepted: g.accepted || [],
+        meh: Array.isArray(g.meh) ? g.meh : [],
+        rejected: g.rejected || []
       }));
 
     const stats = {};
     safeGames.forEach(g => {
-      g.accepted.forEach(a => { stats[a] = stats[a] || { yes: 0, no: 0 }; stats[a].yes++; });
-      g.rejected.forEach(r => { stats[r] = stats[r] || { yes: 0, no: 0 }; stats[r].no++; });
+      g.accepted.forEach(a => { stats[a] = stats[a] || { yes:0, meh:0, no:0 }; stats[a].yes++; });
+      g.meh.forEach(m => { stats[m] = stats[m] || { yes:0, meh:0, no:0 }; stats[m].meh++; });
+      g.rejected.forEach(r => { stats[r] = stats[r] || { yes:0, meh:0, no:0 }; stats[r].no++; });
     });
     const labels = Object.keys(stats);
     const yesData = labels.map(l => stats[l].yes);
+    const mehData = labels.map(l => stats[l].meh);
     const noData  = labels.map(l => stats[l].no);
 
-    // === Canvas ancho para scroll horizontal (máx. 1/3 Layout) ===
     const canvas = document.getElementById('statsChart');
-    const desiredWidth = Math.max(labels.length * 40, 400);
+    const desiredWidth = Math.max(labels.length * 48, 420);
     canvas.width = desiredWidth;
     canvas.height = 360;
 
-    // Crear gradientes sakura
     const ctx = canvas.getContext('2d');
     const gradYes = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    gradYes.addColorStop(0, "#ffb3c7");  // rosa claro
-    gradYes.addColorStop(1, "#ff7aa3");  // rosa sakura intenso
+    gradYes.addColorStop(0, "#ffb3c7"); gradYes.addColorStop(1, "#ff7aa3");
+    const gradMeh = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    gradMeh.addColorStop(0, getComputedStyle(document.documentElement).getPropertyValue('--pastel-yellow').trim());
+    gradMeh.addColorStop(1, getComputedStyle(document.documentElement).getPropertyValue('--pastel-green').trim());
     const gradNo = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    gradNo.addColorStop(0, "#bfa1ff");   // lila claro
-    gradNo.addColorStop(1, "#8e67e6");   // lila intenso
+    gradNo.addColorStop(0, "#bfa1ff"); gradNo.addColorStop(1, "#8e67e6");
 
     destroyChart();
     statsChartInstance = new Chart(ctx, {
@@ -486,8 +553,9 @@
       data: {
         labels,
         datasets: [
-          { label: 'Aquí sí', data: yesData, backgroundColor: gradYes, borderRadius: 8 },
-          { label: 'Pasando', data: noData,  backgroundColor: gradNo,  borderRadius: 8 }
+          { label: 'Aquí sí',    data: yesData, backgroundColor: gradYes, borderRadius: 8 },
+          { label: 'Me da igual',data: mehData, backgroundColor: gradMeh, borderRadius: 8 },
+          { label: 'Pasando',    data: noData,  backgroundColor: gradNo,  borderRadius: 8 }
         ]
       },
       options: {
@@ -513,12 +581,12 @@
       }
     });
 
-    // ======= Render SOLO NOMBRES (sin imágenes) =======
+    // TOP 5 por "sí"
     const topCards = Object.entries(stats)
       .sort((a, b) => b[1].yes - a[1].yes || a[0].localeCompare(b[0]))
       .slice(0, 5);
 
-    // Afinidad con el jugador actual
+    // Afinidad con jugador actual
     const myGame = safeGames.find(g => g.player === playerName);
     let affinity = [];
     if (myGame) {
@@ -535,16 +603,16 @@
         .slice(0, 5);
     }
 
-    // Construcción de tablas bonitas
+    // Render de tablas (solo nombres)
     let html = "";
     html += "<h3>TOP 5 tarjetas con más 'sí'</h3>";
-    html += "<table><tr><th>Tarjeta</th><th>Sí</th><th>No</th></tr>";
+    html += "<table><tr><th>Tarjeta</th><th>Sí</th><th>Me da igual</th><th>No</th></tr>";
     topCards.forEach(([name, v]) => {
-      html += `<tr><td>${name}</td><td>${v.yes}</td><td>${v.no}</td></tr>`;
+      html += `<tr><td>${name}</td><td>${v.yes}</td><td>${v.meh}</td><td>${v.no}</td></tr>`;
     });
     html += "</table>";
 
-    // Dos saltos de línea de separación
+    // Separación doble
     html += "<br><br>";
 
     if (myGame && affinity.length) {
@@ -552,8 +620,16 @@
       html += "<h3>TOP 5 jugadores más afines contigo</h3>";
       html += "<table><tr><th>Jugador</th><th>Coincidencias de 'sí'</th></tr>";
       affinity.forEach(([p, s]) => {
-        const c = getNameColor(p);
-        html += `<tr><td style="font-weight:600; color:${c}">${p}</td><td>${s}</td></tr>`;
+        let cls = "";
+        if (p === "Alba") cls = "name-Alba";
+        else if (p === "Alicia" || p === "Vaini") cls = "name-Alicia";
+        else if (p === "Sara") cls = "name-Sara";
+        else {
+          // alternar entre verde/amarillo pastel
+          const pick = (Math.abs((p||"").split("").reduce((a,c)=>((a*31+c.charCodeAt(0))|0),0))%2===0);
+          cls = pick ? "name-default-green" : "name-default-yellow";
+        }
+        html += `<tr><td class="${cls}">${p}</td><td>${s}</td></tr>`;
       });
       html += "</table>";
       html += `</div>`;
@@ -564,23 +640,24 @@
     extraStats.innerHTML = html;
   }
 
-  function destroyChart() {
-    if (statsChartInstance) {
-      statsChartInstance.destroy();
-      statsChartInstance = null;
-    }
+  function destroyChart(){
+    if (statsChartInstance) { statsChartInstance.destroy(); statsChartInstance = null; }
   }
 
-  function restartGame() {
+  function restartGame(){
     document.getElementById("results").style.display = "none";
     document.getElementById("start-screen").style.display = "flex";
+    document.getElementById("mode-screen").style.display = "none";
+    document.body.classList.remove('mode-short');
   }
-  function goToStart() {
+  function goToStart(){
     document.getElementById("stats-screen").style.display = "none";
     document.getElementById("start-screen").style.display = "flex";
+    document.getElementById("mode-screen").style.display = "none";
+    document.body.classList.remove('mode-short');
   }
 
-  // Al cargar la página, muestra la pantalla de inicio
+  // Arranque
   document.getElementById("start-screen").style.display = "flex";
 </script>
 </body>
