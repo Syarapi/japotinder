@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Japontinder</title>
 <link href="https://fonts.googleapis.com/css2?family=Yuji+Syuku&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -105,7 +105,7 @@
     border-collapse: collapse;
     margin-top: 15px;
     width: 90%;
-    max-width: 500px;
+    max-width: 600px;
     background: white;
     border-radius: 8px;
     overflow: hidden;
@@ -113,16 +113,15 @@
   }
   table th, table td {
     padding: 8px 12px;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid #eee;
     text-align: left;
   }
-  table th {
-    background: #dda0dd;
-    color: white;
-  }
-  table tr:nth-child(even) {
-    background-color: #f8f4fb;
-  }
+  table th { background: #dda0dd; color: white; }
+  table tr:nth-child(even) { background-color: #f8f4fb; }
+
+  .notice { color: #dda0dd; margin-top: 10px; }
+  .error { color: #ff4d6d; margin-top: 10px; }
+  .muted { color: #777; }
 </style>
 </head>
 <body>
@@ -250,90 +249,154 @@
     accepted.forEach(n => { const li = document.createElement('li'); li.textContent = n; acceptedList.appendChild(li); });
     rejected.forEach(n => { const li = document.createElement('li'); li.textContent = n; rejectedList.appendChild(li); });
 
-    await fetch(saveEndpoint, {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ player: playerName, date: dateTime, accepted, rejected })
-    });
+    try {
+      await fetch(saveEndpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ player: playerName, date: dateTime, accepted, rejected })
+      });
+    } catch (e) {
+      console.warn("No se pudo guardar en la API:", e);
+    }
+  }
+
+  // ===== Estadísticas =====
+  let statsChartInstance = null;
+
+  function ensureArray(maybeArray) {
+    // Permite que data.json sea un array o un objeto con campo games
+    if (Array.isArray(maybeArray)) return maybeArray;
+    if (maybeArray && Array.isArray(maybeArray.games)) return maybeArray.games;
+    return [];
   }
 
   async function showStats() {
     document.getElementById('start-screen').style.display = 'none';
     document.getElementById('results').style.display = 'none';
     document.getElementById('stats-screen').style.display = 'flex';
-    const res = await fetch(dataUrl);
-    const games = await res.json();
 
-    // Estadísticas globales
+    const extraStats = document.getElementById('extraStats');
+    extraStats.innerHTML = `<p class="muted">Cargando datos...</p>`;
+
+    // Cargar JSON con cache-busting
+    let games = [];
+    try {
+      const res = await fetch(`${dataUrl}?t=${Date.now()}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json();
+      games = ensureArray(json);
+    } catch (err) {
+      extraStats.innerHTML = `<p class="error">No se pudo cargar <code>results/data.json</code>. Revisa la URL o permisos (CORS). Detalle: ${err.message}</p>`;
+      destroyChart();
+      return;
+    }
+
+    if (!games.length) {
+      extraStats.innerHTML = `<p class="notice">No hay partidas guardadas aún en <code>results/data.json</code>.</p>`;
+      destroyChart();
+      return;
+    }
+
+    // Agregar un id a cada juego por si hay duplicados y normalizar campos
+    const safeGames = games
+      .filter(g => g && Array.isArray(g.accepted) && Array.isArray(g.rejected))
+      .map(g => ({
+        player: g.player || "¿anon?",
+        accepted: g.accepted,
+        rejected: g.rejected
+      }));
+
+    // 1) Conteo global sí/no por tarjeta
     const stats = {};
-    games.forEach(g => {
+    safeGames.forEach(g => {
       g.accepted.forEach(a => { stats[a] = stats[a] || { yes: 0, no: 0 }; stats[a].yes++; });
       g.rejected.forEach(r => { stats[r] = stats[r] || { yes: 0, no: 0 }; stats[r].no++; });
     });
     const labels = Object.keys(stats);
     const yesData = labels.map(l => stats[l].yes);
-    const noData = labels.map(l => stats[l].no);
+    const noData  = labels.map(l => stats[l].no);
 
-    new Chart(document.getElementById('statsChart'), {
+    // 2) Gráfico (destruir si ya existe)
+    destroyChart();
+    statsChartInstance = new Chart(document.getElementById('statsChart'), {
       type: 'bar',
       data: {
         labels,
         datasets: [
           { label: 'Aquí sí', data: yesData, backgroundColor: '#87cefa' },
-          { label: 'Pasando', data: noData, backgroundColor: '#ffc0cb' }
+          { label: 'Pasando', data: noData,  backgroundColor: '#ffc0cb' }
         ]
       },
-      options: { responsive: true, scales: { x: { stacked: true }, y: { stacked: true } } }
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } },
+        plugins: { legend: { labels: { color: '#333' } } }
+      }
     });
 
-    // Ranking TOP 5 tarjetas
-    const ranking = Object.entries(stats)
-      .sort((a, b) => b[1].yes - a[1].yes)
+    // 3) Ranking TOP 5 tarjetas por "sí"
+    const topCards = Object.entries(stats)
+      .sort((a, b) => b[1].yes - a[1].yes || a[0].localeCompare(b[0]))
       .slice(0, 5);
 
-    // Afinidad TOP 5 jugadores
-    const playerGame = games.find(g => g.player === playerName);
+    // 4) Afinidad TOP 5 (jugadores con más coincidencias de "sí" CONTIGO)
+    const myGame = safeGames.find(g => g.player === playerName);
     let affinity = [];
-    if (playerGame) {
-      const myYes = new Set(playerGame.accepted);
-      const otherPlayers = {};
-      games.forEach(g => {
+    if (myGame) {
+      const myYes = new Set(myGame.accepted);
+      const map = {};
+      safeGames.forEach(g => {
         if (g.player !== playerName) {
-          const commonYes = g.accepted.filter(a => myYes.has(a)).length;
-          if (!otherPlayers[g.player] || otherPlayers[g.player] < commonYes) {
-            otherPlayers[g.player] = commonYes;
-          }
+          const commonYes = g.accepted.filter(x => myYes.has(x)).length;
+          map[g.player] = Math.max(map[g.player] || 0, commonYes);
         }
       });
-      affinity = Object.entries(otherPlayers)
-        .sort((a, b) => b[1] - a[1])
+      affinity = Object.entries(map)
+        .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
         .slice(0, 5);
     }
 
-    // Mostrar tablas
-    const extraStats = document.getElementById('extraStats');
-    extraStats.innerHTML = "";
+    // 5) Render de tablas
+    let html = "";
 
-    let table1 = "<h3>TOP 5 tarjetas con más 'sí'</h3><table><tr><th>Tarjeta</th><th>Sí</th><th>No</th></tr>";
-    ranking.forEach(([name, val]) => {
-      table1 += `<tr><td>${name}</td><td>${val.yes}</td><td>${val.no}</td></tr>`;
+    html += "<h3>TOP 5 tarjetas con más 'sí'</h3>";
+    html += "<table><tr><th>Tarjeta</th><th>Sí</th><th>No</th></tr>";
+    topCards.forEach(([name, v]) => {
+      html += `<tr><td>${name}</td><td>${v.yes}</td><td>${v.no}</td></tr>`;
     });
-    table1 += "</table>";
-    extraStats.innerHTML += table1;
+    html += "</table>";
 
-    if (affinity.length > 0) {
-      let table2 = "<h3>TOP 5 jugadores más afines contigo</h3><table><tr><th>Jugador</th><th>Coincidencias</th></tr>";
-      affinity.forEach(([player, score]) => {
-        table2 += `<tr><td>${player}</td><td>${score}</td></tr>`;
-      });
-      table2 += "</table>";
-      extraStats.innerHTML += table2;
+    if (myGame && affinity.length) {
+      html += "<h3>TOP 5 jugadores más afines contigo</h3>";
+      html += "<table><tr><th>Jugador</th><th>Coincidencias de 'sí'</th></tr>";
+      affinity.forEach(([p, s]) => { html += `<tr><td>${p}</td><td>${s}</td></tr>`; });
+      html += "</table>";
     } else {
-      extraStats.innerHTML += "<p style='color:#dda0dd'>No hay datos de afinidad porque no has jugado aún.</p>";
+      html += `<p class="notice">No hay datos de afinidad todavía. Juega una partida para calcular tu afinidad.</p>`;
+    }
+
+    extraStats.innerHTML = html;
+  }
+
+  function destroyChart() {
+    if (statsChartInstance) {
+      statsChartInstance.destroy();
+      statsChartInstance = null;
     }
   }
 
-  function restartGame() { document.getElementById("results").style.display = "none"; document.getElementById("start-screen").style.display = "flex"; }
-  function goToStart() { document.getElementById("stats-screen").style.display = "none"; document.getElementById("start-screen").style.display = "flex"; }
+  function restartGame() {
+    document.getElementById("results").style.display = "none";
+    document.getElementById("start-screen").style.display = "flex";
+  }
+  function goToStart() {
+    document.getElementById("stats-screen").style.display = "none";
+    document.getElementById("start-screen").style.display = "flex";
+  }
+
+  // Al cargar la página, muestra la pantalla de inicio
+  document.getElementById("start-screen").style.display = "flex";
 </script>
 </body>
 </html>
