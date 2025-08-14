@@ -144,6 +144,7 @@
     overflow: hidden;
     box-shadow: 0 8px 24px rgba(0,0,0,0.12);
     border: 2px solid var(--accent-1);
+    table-layout: auto;
   }
   table th, table td {
     padding: 8px 10px;
@@ -196,17 +197,11 @@
     max-width: 100%;
   }
 
-  /* Tablas TOP con límite */
-  .top-scroll {
+  /* Tablas TOP y Afinidad con límite */
+  .top-scroll,
+  .aff-scroll {
     overflow-y: auto;
     max-height: 280px;
-    padding-bottom: 6px;
-  }
-
-  /* Tablas de afinidad sin límite */
-  .aff-scroll {
-    overflow: visible;
-    max-height: none;
     padding-bottom: 6px;
   }
 
@@ -232,11 +227,9 @@
 
     /* Gráficos y tablas más compactos en móvil */
     .chart-scroll { max-height: 240px; }
-    .top-scroll { max-height: 200px; }
+    .top-scroll, .aff-scroll { max-height: 200px; }
   }
 </style>
-
-
 </head>
 <body>
 
@@ -842,6 +835,7 @@
 </script>
 </body>
 </html>
+
 
 
 
