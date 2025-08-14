@@ -616,5 +616,36 @@
       "Nagano y monos de nieve",
       "Beppu"
     ]
+  },
+  {
+    "player": "oscar",
+    "date": "14/8/2025, 3:12:53 p.m.",
+    "mode": "short",
+    "accepted": [
+      "Otaru",
+      "Bandai Museum",
+      "Eventos Kisekoi/Sailor Moon",
+      "Musical Tokyo Revengers",
+      "Shikisai no oka",
+      "Kumachan Onsen Tokyo",
+      "Nabana no sato",
+      "Shinkansen Hello Kitty",
+      "Nagano y monos de nieve"
+    ],
+    "meh": [
+      "Museo/cafe de los yokai",
+      "Pokemon Cafe"
+    ],
+    "rejected": [
+      "Enoshima",
+      "Tarde de recreativas",
+      "Kumamoto",
+      "Beppu",
+      "Gotokuji",
+      "Maid cafe",
+      "Disney Tokyo",
+      "RJ Cafe Osaka",
+      "Ginzan Onsen"
+    ]
   }
 ]
