@@ -114,5 +114,36 @@
       "Tarde de recreativas",
       "Maid cafe"
     ]
+  },
+  {
+    "player": "Laralala",
+    "date": "14/8/2025, 11:07:28 a.m.",
+    "mode": "short",
+    "accepted": [
+      "Gotokuji",
+      "Beppu",
+      "Nagano y monos de nieve",
+      "Kumachan Onsen Tokyo",
+      "Maid cafe",
+      "Eventos Kisekoi/Sailor Moon",
+      "Shikisai no oka"
+    ],
+    "meh": [
+      "Ginzan Onsen",
+      "Shinkansen Hello Kitty",
+      "Bandai Museum",
+      "Disney Tokyo",
+      "Kumamoto"
+    ],
+    "rejected": [
+      "Enoshima",
+      "Pokemon Cafe",
+      "Tarde de recreativas",
+      "Nabana no sato",
+      "Otaru",
+      "Musical Tokyo Revengers",
+      "RJ Cafe Osaka",
+      "Museo/cafe de los yokai"
+    ]
   }
 ]
