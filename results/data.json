@@ -205,5 +205,36 @@
     ],
     "meh": [],
     "rejected": []
+  },
+  {
+    "player": "Sara",
+    "date": "15/8/2025, 22:26:23",
+    "mode": "short",
+    "accepted": [
+      "Shiroi Koibito Park",
+      "Shinkansen Hello Kitty",
+      "Museo/cafe de los yokai",
+      "Ir a ver sumo",
+      "Kumachan Onsen Tokyo",
+      "Tienda de Chopper",
+      "Enoshima",
+      "Dormir en Onyado Nono Kyoto"
+    ],
+    "meh": [
+      "Pokemon Cafe",
+      "2D Café Tokyo",
+      "Gotokuji"
+    ],
+    "rejected": [
+      "Music box Museum",
+      "Aitama Daibutsu (Buddha y moais)",
+      "Maid cafe",
+      "Oarai Isosaki shrine",
+      "Ir a ver kabuki",
+      "RJ Cafe Osaka",
+      "Dormir en Ryokan Ookawaso",
+      "Eventos de mangas específicos",
+      "Disney Tokyo"
+    ]
   }
 ]
