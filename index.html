@@ -887,14 +887,7 @@ async function getSeenCardsForPlayer(name){
     }
   }
 
- /************ Estadísticas ************/
-function destroyChart() {
-  if (statsChartInstance) {
-    try { statsChartInstance.destroy(); } catch {}
-    statsChartInstance = null;
-  }
-}
-
+/************ Estadísticas ************/
 async function showStats() {
   // Mostrar contenedor stats y limpiar anteriores
   document.getElementById('start-screen').style.display = 'none';
@@ -936,7 +929,7 @@ async function showStats() {
       ts: Date.parse(g.date || g.timestamp || "") || 0
     }));
 
-  // Un voto máximo por jugador y tarjeta (última decisión)
+  // 1 voto máximo por jugador y tarjeta
   const latest = {};
   for (const g of safeGames) {
     const p = g.player;
@@ -1013,7 +1006,7 @@ async function showStats() {
     topBody.appendChild(tr);
   }
 
-  // Afinidad (SÍ) por jugador con última decisión
+  // Afinidad (SÍ) por jugador
   const byPlayer = {};
   for (const p in latest) {
     const set = new Set();
@@ -1080,101 +1073,6 @@ async function showStats() {
   document.getElementById('affinityArea').style.display = "grid";
 }
 
-
-    // TOP tarjetas
-    const topCards = Object.entries(stats)
-      .sort((a, b) => b[1].yes - a[1].yes || a[0].localeCompare(b[0]));
-
-    const topBody = document.querySelector('#topCardsTable tbody');
-    topCards.forEach(([name, v]) => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${name}</td><td>${v.yes}</td><td>${v.meh}</td><td>${v.no}</td>`;
-      topBody.appendChild(tr);
-    });
-
-   // Afinidad por intersección de SÍ (solo última decisión por jugador)
-const latestYesByPlayer = {};
-safeGames.forEach(g => {
-  if (!latestYesByPlayer[g.player]) {
-    latestYesByPlayer[g.player] = new Map();
-  }
-  g.accepted.forEach(card => {
-    latestYesByPlayer[g.player].set(card, g.ts); // guardar fecha de último "sí"
-  });
-});
-
-// Convertir a Set de tarjetas aceptadas (solo las últimas)
-const byPlayer = {};
-Object.keys(latestYesByPlayer).forEach(player => {
-  const cards = [];
-  latestYesByPlayer[player].forEach((_ts, card) => {
-    cards.push(card);
-  });
-  byPlayer[player] = new Set(cards);
-});
-
-// Ranking global de parejas
-const players = Object.keys(byPlayer).sort((a, b) => a.localeCompare(b));
-const pairs = [];
-for (let i = 0; i < players.length; i++) {
-  for (let j = i + 1; j < players.length; j++) {
-    const p1 = players[i], p2 = players[j];
-    const s1 = byPlayer[p1], s2 = byPlayer[p2];
-    const inter = [];
-    s1.forEach(x => { if (s2.has(x)) inter.push(x); });
-    if (inter.length > 0) {
-      pairs.push({ a: p1, b: p2, common: inter.sort(), count: inter.length });
-    }
-  }
-}
-pairs.sort((x, y) => y.count - x.count || (x.a + x.b).localeCompare(y.a + y.b));
-
-// Afinidad personal contra el jugador actual
-let personalRows = [];
-if (playerName && byPlayer[playerName]) {
-  const mine = byPlayer[playerName];
-  players.filter(p => p !== playerName).forEach(p => {
-    const inter = [];
-    byPlayer[p].forEach(x => { if (mine.has(x)) inter.push(x); });
-    if (inter.length > 0) {
-      personalRows.push({ player: p, count: inter.length, list: inter.sort() });
-    }
-  });
-  personalRows.sort((x, y) => y.count - x.count || x.player.localeCompare(y.player));
-}
-
-// Render afinidad global
-const gBody = document.querySelector('#affinityGlobal tbody');
-pairs.slice(0, 200).forEach(row => {
-  const cA = getPlayerColorUnique(row.a);
-  const cB = getPlayerColorUnique(row.b);
-  const tr = document.createElement('tr');
-  tr.innerHTML =
-    `<td><span style="font-weight:600;color:${cA}">${row.a}</span> &amp; ` +
-    `<span style="font-weight:600;color:${cB}">${row.b}</span></td>` +
-    `<td>${row.count}</td>` +
-    `<td class="cards-small">${row.common.join(", ")}</td>`;
-  gBody.appendChild(tr);
-});
-
-// Render afinidad personal
-const pBody = document.querySelector('#affinityPersonal tbody');
-if (personalRows.length) {
-  personalRows.slice(0, 200).forEach(r => {
-    const c = getPlayerColorUnique(r.player);
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td style="font-weight:600; color:${c}">${r.player}</td><td>${r.count}</td><td class="cards-small">${r.list.join(", ")}</td>`;
-    pBody.appendChild(tr);
-  });
-} else {
-  const tr = document.createElement('tr');
-  tr.innerHTML = `<td colspan="3"><span class="notice">Juega una partida para ver tu afinidad personal.</span></td>`;
-  pBody.appendChild(tr);
-}
-
-document.getElementById('affinityArea').style.display = "grid";
-
-  }
   /* === Generador de kanji cayendo (reemplaza a los pétalos) === */
 function initKanjiRain(){
   // Conjunto de kanji para elegir al azar (puedes ampliar la lista)
@@ -1220,6 +1118,7 @@ function initKanjiRain(){
 </script>
 </body>
 </html>
+
 
 
 
