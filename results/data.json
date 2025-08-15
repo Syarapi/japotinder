@@ -122,5 +122,35 @@
       "Bandai Museum",
       "2D Café Tokyo"
     ]
+  },
+  {
+    "player": "csfs",
+    "date": "15/8/2025, 22:24:56",
+    "mode": "short",
+    "accepted": [],
+    "meh": [
+      "Museo/cafe de los yokai",
+      "Disney Tokyo",
+      "Tienda de Chopper",
+      "Nikko",
+      "Bandai Museum"
+    ],
+    "rejected": [
+      "Gotokuji",
+      "Pokemon Cafe",
+      "Museo de Nintendo",
+      "Dormir en Toggle (cada habitación es de un único color completa)",
+      "Katsuouji y postal de Darumas",
+      "Shikisai no oka",
+      "Otaru",
+      "Shinkansen Hello Kitty",
+      "Aitama Daibutsu (Buddha y moais)",
+      "Music box Museum",
+      "Maid cafe",
+      "Musical Tokyo Revengers",
+      "Tanuki Dori",
+      "Hakone",
+      "Ushiku Daibutsu"
+    ]
   }
 ]
