@@ -13,7 +13,6 @@
     --no:#ff7aa3;
     --ink:#333;
 
-    /* colores base del tema (se actualizan dinámicamente) */
     --bg-light:#fff7fb; --bg-mid:#ffe3ef; --bg-dark:#d38cb1;
     --card-bg:#ffffffee;
     --accent-1:#FF91C0; --accent-2:#FF68A8;
@@ -29,7 +28,7 @@
     background: var(--bg-light); position: relative; overflow-x: hidden;
   }
 
-  /* Capa de kanji (fondo animado) */
+  /* Kanji */
   #kanji-layer{ position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
   .kanji-char{
     position: absolute; top: -12vh; transform: translateX(var(--x, 0)) translateY(0) rotate(var(--r, 0deg));
@@ -55,7 +54,7 @@
   }
   #start-screen { display:flex; justify-content:center; gap:15px; min-height:100vh; padding: 16px 10px; }
 
-  /* Tutorial (toggle / hover) */
+  /* Tutorial */
   .tutorial {
     background: var(--card-bg);
     border: 2px solid var(--accent-1);
@@ -82,14 +81,40 @@
   .tutorial ul { margin: 0; padding-left: 18px; }
   .tutorial li { margin: 6px 0; }
 
-  /* Sólo en dispositivos con hover (PC): ocultar botón y usar hover para abrir */
   @media (hover: hover) and (pointer: fine){
     #tutorialToggleBtn { display: none; }
     .tutorial-header { cursor: default; }
   }
 
-  /* Tarjetas */
-  #game-screen{ padding-top: 40px; } /* más aire arriba */
+  /* Caja “¿Quién eres?” */
+  .start-card{
+    background: var(--card-bg);
+    border: 2px solid var(--accent-1);
+    border-radius: 16px;
+    width: min(92vw, 520px);
+    box-shadow: 0 10px 24px rgba(0,0,0,.10);
+    padding: 14px 14px 16px;
+  }
+  .start-input{
+    width: 100%;
+    font-size: 16px;
+    padding: 12px 14px;
+    border: 2px solid color-mix(in oklab, var(--accent-1), #000 0%);
+    border-radius: 12px;
+    background: #fff;
+    outline: none;
+    box-shadow: 0 4px 10px rgba(0,0,0,.06) inset, 0 4px 14px rgba(0,0,0,.06);
+    transition: box-shadow .2s ease, border-color .2s ease, transform .08s ease;
+  }
+  .start-input::placeholder{ color:#888; }
+  .start-input:focus{
+    border-color: var(--accent-2);
+    box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent-2), #fff 75%), 0 8px 20px rgba(0,0,0,.10);
+    transform: translateY(-1px);
+  }
+
+  /* Juego */
+  #game-screen{ padding-top: 40px; }
   #card-container { position: relative; width: min(92%, 520px); height: min(70vh, 720px); display:flex; justify-content:center; align-items:center; }
   .card {
     position: relative; width: 100%; height: 100%; border-radius: 20px; overflow: hidden;
@@ -110,14 +135,14 @@
   .btn:hover { transform: translateY(-1px); box-shadow: 0 10px 20px rgba(0,0,0,.16); }
   .btn:active{ transform: translateY(0); opacity:.95; }
 
-  /* Tablas y stats */
+  /* Tabla / stats */
   table { border-collapse: collapse; margin-top: 10px; width: 100%; background: #fff;
     border-radius: 14px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.12); border: 2px solid var(--accent-1); }
   th, td { padding: 8px 10px; border-bottom: 1px solid #f0e7f8; text-align: left; word-break: break-word; font-size: 13px; }
   th { background: linear-gradient(180deg, var(--accent-2), var(--accent-1)); color: #fff; letter-spacing:.3px; }
   tr:nth-child(even) { background-color: #faf7ff; }
 
-  /* Modo: right tint (más oscuro) */
+  /* Modo: tintado derecha */
   .half.right { position: relative; }
   .half.right::before{
     content:""; position:absolute; inset:0;
@@ -127,7 +152,6 @@
   }
   .half.right > .content { position: relative; z-index: 1; }
 
-  /* Contenedor scroll del gráfico */
   .chart-scroll { overflow-x: auto; overflow-y: hidden; }
 </style>
 </head>
@@ -142,7 +166,7 @@
       <!-- TUTORIAL -->
       <div class="tutorial" id="tutorial">
         <div class="tutorial-header" id="tutorialHeader" role="button" tabindex="0" aria-expanded="true" aria-controls="tutorialBody">
-          <h3 class="tutorial-title">Tutorial</h3>
+          <h3 class="tutorial-title">¿Cómo se juega?</h3>
           <button class="tutorial-toggle" id="tutorialToggleBtn" type="button">Ocultar</button>
         </div>
         <div class="tutorial-body" id="tutorialBody">
@@ -150,18 +174,24 @@
             <li><strong>Swipe derecha</strong> → “Aquí sí”.</li>
             <li><strong>Swipe izquierda</strong> → “Pasando”.</li>
             <li><strong>Swipe hacia arriba</strong> → “Me da igual”.</li>
-            <li>Si prefieres, usa los <strong>botones</strong> bajo la tarjeta: <em>Aquí sí / Me da igual / Pasando</em>.</li>
+            <li>También puedes usar los <strong>botones</strong> bajo la tarjeta.</li>
             <li>En <em>Modo corto</em> tienes <strong>5</strong> “Me da igual”; en <em>Modo completo</em>, <strong>10</strong>.</li>
+            <li>Si juegas más de una partida, pon el mismo nombre: en modo corto no te saldrán tarjetas repetidas. En modo completo el juego seleccionará solo tu 
+              respuesta más reciente</li>
           </ul>
         </div>
       </div>
 
-      <p>¿Quién eres?</p>
-      <input type="text" id="username" placeholder="Tu nombre" />
-      <div style="margin-top:10px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
-        <button class="btn btn-primary" id="btnNameNext">Siguiente</button>
-        <button class="btn stats-btn" onclick="showStats()">Ver estadísticas</button>
+      <!-- QUIÉN ERES -->
+      <div class="start-card">
+        <p style="margin:0 0 8px;">¿Quién eres?</p>
+        <input class="start-input" type="text" id="username" placeholder="Si no me lo dices no empezamos ù3ú" />
+        <div style="margin-top:10px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
+          <button class="btn btn-primary" id="btnNameNext">Siguiente</button>
+          <button class="btn stats-btn" onclick="showStats()">Ver estadísticas</button>
+        </div>
       </div>
+
     </div>
   </div>
 
@@ -428,7 +458,7 @@
     document.getElementById('player-info').innerHTML = html;
   }
 
-  /************ Tutorial: hover en PC / toggle en móvil ************/
+  /************ Tutorial toggle ************/
   function initTutorialToggle(){
     const box = document.getElementById('tutorial');
     const header = document.getElementById('tutorialHeader');
@@ -445,13 +475,10 @@
     const isDesktopHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
     if (isDesktopHover){
-      // PC: abrir al pasar el ratón, cerrar al salir. Por defecto cerrado.
       setOpen(false);
       box.addEventListener('mouseenter', ()=>setOpen(true));
       box.addEventListener('mouseleave', ()=>setOpen(false));
-      // No añadimos eventos de click para evitar toggles accidentales en desktop.
     } else {
-      // Móvil / sin hover: toggle clásico con persistencia (por defecto abierto)
       let open = true;
       try {
         const raw = localStorage.getItem(TUTORIAL_LS);
@@ -583,6 +610,7 @@
     const now = new Date(); const dateTime = now.toLocaleString();
     setPlayerInfo(dateTime);
     document.getElementById('results-body').innerHTML = buildResultsTableRows(accepted, meh, rejected);
+    // Guardado (mejor no bloquear UI si falla)
     try {
       await fetch(saveEndpoint, {
         method: "POST", headers: { "Content-Type": "application/json" },
@@ -591,9 +619,8 @@
     } catch (e) { console.warn("No se pudo guardar en la API:", e); }
   }
 
-  /************ Estadísticas ************/
+  /************ Estadísticas (con inyección de la partida actual) ************/
   async function showStats() {
-    // Ocultar vistas
     document.getElementById('start-screen').style.display = 'none';
     document.getElementById('mode-screen').style.display = 'none';
     document.getElementById('game-screen').style.display = 'none';
@@ -615,6 +642,19 @@
       alert("No se pudo cargar results/data.json: " + err.message);
       destroyChart();
       return;
+    }
+
+    // 👉 Inyectar partida actual para que aparezca al instante en las estadísticas
+    if (playerName && (accepted.length || meh.length || rejected.length)) {
+      games = games.slice(); // copia
+      games.push({
+        player: playerName,
+        date: new Date().toISOString(),
+        mode,
+        accepted: [...accepted],
+        meh: [...meh],
+        rejected: [...rejected]
+      });
     }
     if (!games.length) { destroyChart(); return; }
 
@@ -656,7 +696,6 @@
     const noData  = labels.map(l => stats[l].no);
 
     const canvas = document.getElementById('statsChart');
-    // Más ancho: espacio para la leyenda a la izquierda sin apretar barras
     const legendBuffer = 180;
     const desiredWidth = Math.max(labels.length * 80 + legendBuffer, 640);
     canvas.width = desiredWidth; canvas.height = 360;
@@ -701,11 +740,12 @@
     }
 
     // TOP tarjetas
+    const topBody = document.querySelector('#topCardsTable tbody');
     const topCards = Object.entries(stats).sort((a,b) => b[1].yes - a[1].yes || a[0].localeCompare(b[0]));
     for (const [name, v] of topCards) {
       const tr = document.createElement('tr');
       tr.innerHTML = `<td>${name}</td><td>${v.yes}</td><td>${v.meh}</td><td>${v.no}</td>`;
-      topBodyEl.appendChild(tr);
+      topBody.appendChild(tr);
     }
 
     // Afinidades
@@ -717,6 +757,8 @@
     }
     const players = Object.keys(byPlayer).sort((a,b)=>a.localeCompare(b));
 
+    const affGlobalBodyEl   = document.querySelector('#affinityGlobal tbody');
+    const affPersonalBodyEl = document.querySelector('#affinityPersonal tbody');
     const pairs = [];
     for (let i=0;i<players.length;i++){
       for (let j=i+1;j<players.length;j++){
@@ -727,7 +769,6 @@
       }
     }
     pairs.sort((x,y)=> y.count - x.count || (x.a+x.b).localeCompare(y.a+y.b));
-
     pairs.slice(0, 200).forEach(row=>{
       const cA = getPlayerColorUnique(row.a);
       const cB = getPlayerColorUnique(row.b);
