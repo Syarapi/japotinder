@@ -29,5 +29,36 @@
       "Comer en Tofuro Ginza",
       "Dormir en Toggle (cada habitación es de un único color completa)"
     ]
+  },
+  {
+    "player": "dgsdgs",
+    "date": "15/8/2025, 22:17:39",
+    "mode": "short",
+    "accepted": [
+      "Pokemon Cafe",
+      "Ir a ver kabuki",
+      "Nikko",
+      "Dormir en Toggle (cada habitación es de un único color completa)",
+      "Museo/cafe de los yokai",
+      "Gotokuji",
+      "Shinkansen Hello Kitty"
+    ],
+    "meh": [
+      "Nagano y monos de nieve",
+      "Comer en Tofuro Ginza",
+      "Aitama Daibutsu (Buddha y moais)",
+      "Tarde de recreativas",
+      "Shibazakura park Hokkaido"
+    ],
+    "rejected": [
+      "Music box Museum",
+      "Dormir en Onyado Nono Kyoto",
+      "Shikisai no oka",
+      "Museo de Nintendo",
+      "Enoshima",
+      "Dormir en Henn na hotel",
+      "RJ Cafe Osaka",
+      "Ginzan Onsen"
+    ]
   }
 ]
