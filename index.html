@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Japontinder</title>
+<title>Japotinder</title>
 <link href="https://fonts.googleapis.com/css2?family=Yuji+Syuku&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
@@ -78,7 +78,7 @@
   .tutorial li { margin: 6px 0; }
 
   /* Tarjetas */
-  #game-screen{ padding-top: 28px; } /* ↙️ más aire arriba */
+  #game-screen{ padding-top: 40px; } /* más aire arriba */
   #card-container { position: relative; width: min(92%, 520px); height: min(70vh, 720px); display:flex; justify-content:center; align-items:center; }
   .card {
     position: relative; width: 100%; height: 100%; border-radius: 20px; overflow: hidden;
@@ -106,12 +106,12 @@
   th { background: linear-gradient(180deg, var(--accent-2), var(--accent-1)); color: #fff; letter-spacing:.3px; }
   tr:nth-child(even) { background-color: #faf7ff; }
 
-  /* Modo: right tint */
+  /* Modo: right tint (más oscuro) */
   .half.right { position: relative; }
   .half.right::before{
     content:""; position:absolute; inset:0;
     background: var(--bg-dark);
-    opacity: .07;
+    opacity: .18; /* antes .07 */
     pointer-events: none; z-index: 0;
   }
   .half.right > .content { position: relative; z-index: 1; }
@@ -126,7 +126,7 @@
   <!-- Inicio -->
   <div id="start-screen">
     <div style="text-align:center; width:100%; display:flex; flex-direction:column; align-items:center; gap:10px;">
-      <h1>Japontinder</h1>
+      <h1>Japotinder</h1>
 
       <!-- TUTORIAL (toggle) -->
       <div class="tutorial" id="tutorial">
@@ -647,9 +647,9 @@
         data: {
           labels,
           datasets: [
-            { label: 'Aquí sí',     data: yesData, backgroundColor: grad(css.getPropertyValue('--yes').trim()), borderRadius: 8, stack: 'stack', barPercentage: 0.9, maxBarThickness: 42 },
-            { label: 'Me da igual', data: mehData, backgroundColor: grad(css.getPropertyValue('--meh').trim()), borderRadius: 8, stack: 'stack', barPercentage: 0.9, maxBarThickness: 42 },
-            { label: 'Pasando',     data: noData,  backgroundColor: grad(css.getPropertyValue('--no').trim()),  borderRadius: 8, stack: 'stack', barPercentage: 0.9, maxBarThickness: 42 }
+            { label: 'Aquí sí',     data: yesData, backgroundColor: grad(css.getPropertyValue('--yes').trim()), borderRadius: 8, stack: 'stack', barPercentage: 0.9, categoryPercentage: 0.5, maxBarThickness: 42 },
+            { label: 'Me da igual', data: mehData, backgroundColor: grad(css.getPropertyValue('--meh').trim()), borderRadius: 8, stack: 'stack', barPercentage: 0.9, categoryPercentage: 0.5, maxBarThickness: 42 },
+            { label: 'Pasando',     data: noData,  backgroundColor: grad(css.getPropertyValue('--no').trim()),  borderRadius: 8, stack: 'stack', barPercentage: 0.9, categoryPercentage: 0.5, maxBarThickness: 42 }
           ]
         },
         options: {
@@ -657,8 +657,7 @@
           scales: {
             x: {
               stacked: true,
-              ticks: { autoSkip: false, maxRotation: 70, minRotation: 45 },
-              categoryPercentage: 0.4 /* ← barras ~mitad de anchas (antes ~0.8) */
+              ticks: { autoSkip: false, maxRotation: 70, minRotation: 45 }
             },
             y: { stacked: true, beginAtZero: true }
           },
@@ -672,7 +671,6 @@
     }
 
     // TOP tarjetas
-    const topBodyEl = document.querySelector('#topCardsTable tbody');
     const topCards = Object.entries(stats).sort((a,b) => b[1].yes - a[1].yes || a[0].localeCompare(b[0]));
     for (const [name, v] of topCards) {
       const tr = document.createElement('tr');
@@ -681,8 +679,6 @@
     }
 
     // Afinidades
-    const affGlobalBodyEl   = document.querySelector('#affinityGlobal tbody');
-    const affPersonalBodyEl = document.querySelector('#affinityPersonal tbody');
     const byPlayer = {};
     for (const p in latest) {
       const set = new Set();
