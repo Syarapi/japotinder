@@ -887,8 +887,15 @@ async function getSeenCardsForPlayer(name){
     }
   }
 
-  /************ Estadísticas ************/
- async function showStats() {
+ /************ Estadísticas ************/
+function destroyChart() {
+  if (statsChartInstance) {
+    try { statsChartInstance.destroy(); } catch {}
+    statsChartInstance = null;
+  }
+}
+
+async function showStats() {
   // Mostrar contenedor stats y limpiar anteriores
   document.getElementById('start-screen').style.display = 'none';
   document.getElementById('mode-screen').style.display = 'none';
@@ -918,7 +925,7 @@ async function getSeenCardsForPlayer(name){
   }
   if (!games.length) { destroyChart(); return; }
 
-  // Normalizar juego (arrays seguros y timestamp)
+  // Normalizar juego
   const safeGames = games
     .filter(g => g && (Array.isArray(g.accepted) || Array.isArray(g.rejected) || Array.isArray(g.meh)))
     .map(g => ({
@@ -929,8 +936,7 @@ async function getSeenCardsForPlayer(name){
       ts: Date.parse(g.date || g.timestamp || "") || 0
     }));
 
-  // ===== 1 voto máximo por jugador y tarjeta (última decisión) =====
-  // latest[player][card] = { choice:'yes'|'meh'|'no', ts:number }
+  // Un voto máximo por jugador y tarjeta (última decisión)
   const latest = {};
   for (const g of safeGames) {
     const p = g.player;
@@ -944,8 +950,8 @@ async function getSeenCardsForPlayer(name){
     g.rejected.forEach(c => up(c, 'no'));
   }
 
-  // ===== Conteos por tarjeta =====
-  const stats = {}; // { card:{yes,meh,no} }
+  // Conteos por tarjeta
+  const stats = {};
   for (const p in latest) {
     for (const card in latest[p]) {
       const ch = latest[p][card].choice;
@@ -954,7 +960,7 @@ async function getSeenCardsForPlayer(name){
     }
   }
 
-  // ===== Gráfico apilado =====
+  // Gráfico apilado
   const labels  = Object.keys(stats).sort((a,b)=>a.localeCompare(b));
   const yesData = labels.map(l => stats[l].yes);
   const mehData = labels.map(l => stats[l].meh);
@@ -967,7 +973,12 @@ async function getSeenCardsForPlayer(name){
   const ctx = canvas.getContext('2d');
 
   const css = getComputedStyle(document.documentElement);
-  const grad = (hex) => { const g = ctx.createLinearGradient(0,0,0,canvas.height); g.addColorStop(0,hex); g.addColorStop(1,hex); return g; };
+  const grad = (hex) => {
+    const g = ctx.createLinearGradient(0,0,0,canvas.height);
+    g.addColorStop(0,hex);
+    g.addColorStop(1,hex);
+    return g;
+  };
 
   destroyChart();
   if (typeof Chart === 'function') {
@@ -993,7 +1004,7 @@ async function getSeenCardsForPlayer(name){
     });
   }
 
-  // ===== TOP tarjetas =====
+  // TOP tarjetas
   const topCards = Object.entries(stats)
     .sort((a,b) => b[1].yes - a[1].yes || a[0].localeCompare(b[0]));
   for (const [name, v] of topCards) {
@@ -1002,8 +1013,7 @@ async function getSeenCardsForPlayer(name){
     topBody.appendChild(tr);
   }
 
-  // ===== Afinidad (SÍ) por jugador con última decisión =====
-  // byPlayer[player] = Set de tarjetas con 'yes' (último estado)
+  // Afinidad (SÍ) por jugador con última decisión
   const byPlayer = {};
   for (const p in latest) {
     const set = new Set();
@@ -1041,7 +1051,7 @@ async function getSeenCardsForPlayer(name){
     gBody.appendChild(tr);
   });
 
-  // Afinidad personal (si hay jugador actual)
+  // Afinidad personal
   let personalRows = [];
   if (playerName && byPlayer[playerName]) {
     const mine = byPlayer[playerName];
@@ -1069,37 +1079,6 @@ async function getSeenCardsForPlayer(name){
   // Mostrar bloque inferior
   document.getElementById('affinityArea').style.display = "grid";
 }
-
-destroyChart();
-statsChartInstance = new Chart(ctx, {
-  type: 'bar',
-  data: {
-    labels,
-    datasets: [
-      { label: 'Aquí sí',     data: yesData, backgroundColor: grad(css.getPropertyValue('--yes').trim()), borderRadius: 8, stack: 'stack' },
-      { label: 'Me da igual', data: mehData, backgroundColor: grad(css.getPropertyValue('--meh').trim()), borderRadius: 8, stack: 'stack' },
-      { label: 'Pasando',     data: noData,  backgroundColor: grad(css.getPropertyValue('--no').trim()),  borderRadius: 8, stack: 'stack' }
-    ]
-  },
-  options: {
-    responsive: false, maintainAspectRatio: false,
-    scales: {
-      x: { stacked: true, ticks: { maxRotation: 60, minRotation: 0 } },
-      y: { stacked: true, beginAtZero: true }
-    },
-    plugins: {
-      legend: {
-        labels: { color: '#333', boxWidth: 18, usePointStyle: true, pointStyle: 'rectRounded' }
-      },
-      tooltip: {
-        backgroundColor: 'rgba(255,255,255,.95)',
-        titleColor: '#333', bodyColor: '#333',
-        borderColor: '#ddd', borderWidth: 1
-      }
-    },
-    animation: { duration: 220 }
-  }
-});
 
 
     // TOP tarjetas
@@ -1241,6 +1220,7 @@ function initKanjiRain(){
 </script>
 </body>
 </html>
+
 
 
 
