@@ -456,7 +456,7 @@ strong {
       <h3 style="margin:4px 0 6px;">Ranking de afinidad (todos los jugadores)</h3>
       <div class="aff-scroll">
         <table id="affinityGlobal">
-          <thead><tr><th>Pareja</th><th># Coincidencias SÍ</th><th>Tarjetas en común (SÍ)</th></tr></thead>
+          <thead><tr><th>Pareja</th><th>#</th><th>Tarjetas en común (SÍ)</th></tr></thead>
           <tbody></tbody>
         </table>
       </div>
@@ -465,7 +465,7 @@ strong {
       <h3 style="margin:4px 0 6px;">Jugadores más afines contigo</h3>
       <div class="aff-scroll">
         <table id="affinityPersonal">
-          <thead><tr><th>Jugador</th><th># Coincidencias SÍ</th><th>Tarjetas en común (SÍ)</th></tr></thead>
+          <thead><tr><th>Jugador</th><th>#</th><th>Tarjetas en común (SÍ)</th></tr></thead>
           <tbody></tbody>
         </table>
       </div>
@@ -500,11 +500,33 @@ strong {
     { name: "Tarde de recreativas", img: "img/arcade.jpg" },
     { name: "Shibazakura park Hokkaido", img: "img/shibazakura.jpg" },
     { name: "Musical Tokyo Revengers", img: "img/tokyo-revengers.jpg" },
-    { name: "Eventos Kisekoi/Sailor Moon", img: "img/kisekoi.jpg" },
+    { name: "Eventos de mangas específicos", img: "img/kisekoi.jpg" },
     { name: "Museo/cafe de los yokai", img: "img/yokai.jpg" },
     { name: "Kumamoto", img: "img/kumamoto.jpg" },
     { name: "Beppu", img: "img/beppu.jpg" },
-    { name: "Bandai Museum", img: "img/bandai.jpg" }
+    { name: "Bandai Museum", img: "img/bandai.jpg" },
+    { name: "Tanuki Dori", img: "img/tanuki.jpg" },
+    { name: "Coleccionar Manhole cards", img: "img/manhole.jpg" },
+    { name: "Entrar a Sekaido o Itoya (90 pisos de material de arte), img: "img/sekaido.jpg" },
+    { name: "Doraemon time square", img: "img/doraemon.jpg" },
+    { name: "Shiroi Koibito Park", img: "img/shiroi-koibito.jpg" },
+    { name: "2D Café Tokyo", img: "img/2dcafe.jpg" },
+    { name: "Comer en Tofuro Ginza", img: "img/tofuro.jpg" },
+    { name: "Music box Museum", img: "img/musicbox.jpg" },
+    { name: "Aitama Daibutsu (Buddha y moais)", img: "img/aitama.jpg" },
+    { name: "Hakone", img: "img/hakone.jpg" },
+    { name: "Nikko", img: "img/nikko.jpg" },
+    { name: "Oarai Isosaki shrine", img: "img/oarai.jpg" },
+    { name: "Dormir en Ryokan Ookawaso", img: "img/ookawaso.jpg" },
+    { name: "Museo de Nintendo", img: "img/nintendo.jpg" },
+    { name: "Dormir en Onyado Nono Kyoto", img: "img/onyado.jpg" },
+    { name: "Katsuouji y postal de Darumas", img: "img/katsuouji.jpg" },
+    { name: "Dormir en Toggle (cada habitación es de un único color completa)", img: "img/toggle.jpg" },
+    { name: "Dormir en Henn na hotel", img: "img/hennna.jpg" },
+    { name: "Probar los simulacros de terremotos", img: "img/terremoto.jpg" },
+    { name: "Ir a ver sumo", img: "img/sumo.jpg" },
+    { name: "Ir a ver kabuki", img: "img/kabuki.jpg" },
+    { name: "Ushiku Daibutsu", img: "img/ushiku.jpg" },
   ];
 
   /************ Estado ************/
@@ -828,76 +850,94 @@ strong {
     }
 
     // Normalizar (IGNORAR modos de juego)
-    const safeGames = games
-      .filter(g => g && Array.isArray(g.accepted) && Array.isArray(g.rejected))
-      .map(g => ({
-        player: g.player || "¿anon?",
-        // mode ignorado intencionadamente
-        accepted: Array.isArray(g.accepted) ? g.accepted : [],
-        meh: Array.isArray(g.meh) ? g.meh : [],
-        rejected: Array.isArray(g.rejected) ? g.rejected : []
-      }));
+  const safeGames = games
+  .filter(g => g && Array.isArray(g.accepted) && Array.isArray(g.rejected))
+  .map(g => ({
+    player: g.player || "¿anon?",
+    accepted: Array.isArray(g.accepted) ? g.accepted : [],
+    meh: Array.isArray(g.meh) ? g.meh : [],
+    rejected: Array.isArray(g.rejected) ? g.rejected : [],
+    ts: Date.parse(g.date || g.timestamp || "") || 0 // clave: fecha para elegir la última decisión
+  }));
+    
 
-    // Conteos por tarjeta
-    const stats = {};
-    const upsert = (name, key) => {
-      stats[name] = stats[name] || { yes:0, meh:0, no:0 };
-      stats[name][key] += 1;
-    };
-    safeGames.forEach(g => {
-      g.accepted.forEach(a => upsert(a, 'yes'));
-      g.meh.forEach(m => upsert(m, 'meh'));
-      g.rejected.forEach(r => upsert(r, 'no'));
-    });
+// ===== Deduplicar: última decisión por jugador y tarjeta =====
+// latest[player][card] = { choice: 'yes'|'meh'|'no', ts: number }
+const latest = {};
+safeGames.forEach(g => {
+  const p = g.player;
+  latest[p] = latest[p] || {};
+  const apply = (card, choice) => {
+    const prev = latest[p][card];
+    if (!prev || g.ts >= prev.ts) {
+      latest[p][card] = { choice, ts: g.ts };
+    }
+  };
+  g.accepted.forEach(c => apply(c, 'yes'));
+  g.meh.forEach(c => apply(c, 'meh'));
+  g.rejected.forEach(c => apply(c, 'no'));
+});
 
-    const labels = Object.keys(stats).sort((a,b)=>a.localeCompare(b));
-    const yesData = labels.map(l => stats[l].yes);
-    const mehData = labels.map(l => stats[l].meh);
-    const noData  = labels.map(l => stats[l].no);
+// ===== Conteos por tarjeta (1 voto máximo por jugador) =====
+const stats = {}; // { [card]: { yes:0, meh:0, no:0 } }
+for (const p in latest) {
+  const byCard = latest[p];
+  for (const card in byCard) {
+    const ch = byCard[card].choice;
+    if (!stats[card]) stats[card] = { yes:0, meh:0, no:0 };
+    stats[card][ch] += 1;
+  }
+}
 
-    // Canvas ancho (scroll horizontal)
-    const canvas = document.getElementById('statsChart');
-    const desiredWidth = Math.max(labels.length * 42, 420);
-    canvas.width = desiredWidth; canvas.height = 320;
-    const ctx = canvas.getContext('2d');
+const labels = Object.keys(stats).sort((a,b)=>a.localeCompare(b));
+const yesData = labels.map(l => stats[l].yes);
+const mehData = labels.map(l => stats[l].meh);
+const noData  = labels.map(l => stats[l].no);
 
-    const css = getComputedStyle(document.documentElement);
-    const grad = (hex) => {
-      const g = ctx.createLinearGradient(0, 0, 0, canvas.height);
-      g.addColorStop(0, hex); g.addColorStop(1, hex);
-      return g;
-    };
+// ===== Gráfico (igual que antes) =====
+const canvas = document.getElementById('statsChart');
+const desiredWidth = Math.max(labels.length * 42, 420);
+canvas.width = desiredWidth; canvas.height = 320;
+const ctx = canvas.getContext('2d');
 
-    destroyChart();
-    statsChartInstance = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [
-          { label: 'Aquí sí',     data: yesData, backgroundColor: grad(css.getPropertyValue('--yes').trim()), borderRadius: 8, stack: 'stack' },
-          { label: 'Me da igual', data: mehData, backgroundColor: grad(css.getPropertyValue('--meh').trim()), borderRadius: 8, stack: 'stack' },
-          { label: 'Pasando',     data: noData,  backgroundColor: grad(css.getPropertyValue('--no').trim()),  borderRadius: 8, stack: 'stack' }
-        ]
+const css = getComputedStyle(document.documentElement);
+const grad = (hex) => {
+  const g = ctx.createLinearGradient(0, 0, 0, canvas.height);
+  g.addColorStop(0, hex); g.addColorStop(1, hex);
+  return g;
+};
+
+destroyChart();
+statsChartInstance = new Chart(ctx, {
+  type: 'bar',
+  data: {
+    labels,
+    datasets: [
+      { label: 'Aquí sí',     data: yesData, backgroundColor: grad(css.getPropertyValue('--yes').trim()), borderRadius: 8, stack: 'stack' },
+      { label: 'Me da igual', data: mehData, backgroundColor: grad(css.getPropertyValue('--meh').trim()), borderRadius: 8, stack: 'stack' },
+      { label: 'Pasando',     data: noData,  backgroundColor: grad(css.getPropertyValue('--no').trim()),  borderRadius: 8, stack: 'stack' }
+    ]
+  },
+  options: {
+    responsive: false, maintainAspectRatio: false,
+    scales: {
+      x: { stacked: true, ticks: { maxRotation: 60, minRotation: 0 } },
+      y: { stacked: true, beginAtZero: true }
+    },
+    plugins: {
+      legend: {
+        labels: { color: '#333', boxWidth: 18, usePointStyle: true, pointStyle: 'rectRounded' }
       },
-      options: {
-        responsive: false, maintainAspectRatio: false,
-        scales: {
-          x: { stacked: true, ticks: { maxRotation: 60, minRotation: 0 } },
-          y: { stacked: true, beginAtZero: true }
-        },
-        plugins: {
-          legend: {
-            labels: { color: '#333', boxWidth: 18, usePointStyle: true, pointStyle: 'rectRounded' }
-          },
-          tooltip: {
-            backgroundColor: 'rgba(255,255,255,.95)',
-            titleColor: '#333', bodyColor: '#333',
-            borderColor: '#ddd', borderWidth: 1
-          }
-        },
-        animation: { duration: 220 }
+      tooltip: {
+        backgroundColor: 'rgba(255,255,255,.95)',
+        titleColor: '#333', bodyColor: '#333',
+        borderColor: '#ddd', borderWidth: 1
       }
-    });
+    },
+    animation: { duration: 220 }
+  }
+});
+
 
     // TOP tarjetas
     const topCards = Object.entries(stats)
@@ -910,78 +950,88 @@ strong {
       topBody.appendChild(tr);
     });
 
-    // Afinidad por intersección de SÍ (unión por jugador para múltiples partidas)
-    const byPlayer = {};
-    safeGames.forEach(g => {
-      byPlayer[g.player] = byPlayer[g.player] || [];
-      byPlayer[g.player].push(new Set(g.accepted));
-    });
-    Object.keys(byPlayer).forEach(p => {
-      const union = new Set();
-      byPlayer[p].forEach(s => s.forEach(x => union.add(x)));
-      byPlayer[p] = union;
-    });
-
-    // Ranking global de parejas
-    const players = Object.keys(byPlayer).sort((a,b)=>a.localeCompare(b));
-    const pairs = [];
-    for(let i=0;i<players.length;i++){
-      for(let j=i+1;j<players.length;j++){
-        const p1 = players[i], p2 = players[j];
-        const s1 = byPlayer[p1], s2 = byPlayer[p2];
-        const inter = [];
-        s1.forEach(x => { if (s2.has(x)) inter.push(x); });
-        if (inter.length>0) pairs.push({ a:p1, b:p2, common:inter.sort(), count:inter.length });
-      }
-    }
-    pairs.sort((x,y)=> y.count - x.count || (x.a+x.b).localeCompare(y.a+y.b));
-
-    // Afinidad personal contra el jugador actual (si hay)
-    let personalRows = [];
-    if (playerName && byPlayer[playerName]) {
-      const mine = byPlayer[playerName];
-      players.filter(p=>p!==playerName).forEach(p => {
-        const inter = [];
-        byPlayer[p].forEach(x => { if (mine.has(x)) inter.push(x); });
-        if (inter.length>0) personalRows.push({ player:p, count:inter.length, list:inter.sort() });
-      });
-      personalRows.sort((x,y)=> y.count - x.count || x.player.localeCompare(y.player));
-    }
-
-    // Render afinidad global (aplicando los mismos colores por jugador)
-    const gBody = document.querySelector('#affinityGlobal tbody');
-    pairs.slice(0, 200).forEach(row=>{
-      const cA = getPlayerColorUnique(row.a);
-      const cB = getPlayerColorUnique(row.b);
-      const tr = document.createElement('tr');
-      tr.innerHTML =
-        `<td><span style="font-weight:600;color:${cA}">${row.a}</span> &amp; ` +
-        `<span style="font-weight:600;color:${cB}">${row.b}</span></td>` +
-        `<td>${row.count}</td>` +
-        `<td class="cards-small">${row.common.join(", ")}</td>`;
-      gBody.appendChild(tr);
-    });
-
-    // Render afinidad personal
-    const pBody = document.querySelector('#affinityPersonal tbody');
-    if (personalRows.length){
-      personalRows.slice(0, 200).forEach(r=>{
-        const c = getPlayerColorUnique(r.player);
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td style="font-weight:600; color:${c}">${r.player}</td><td>${r.count}</td><td class="cards-small">${r.list.join(", ")}</td>`;
-        pBody.appendChild(tr);
-      });
-    } else {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td colspan="3"><span class="notice">Juega una partida para ver tu afinidad personal.</span></td>`;
-      pBody.appendChild(tr);
-    }
-
-    document.getElementById('affinityArea').style.display = "grid";
+   // Afinidad por intersección de SÍ (solo última decisión por jugador)
+const latestYesByPlayer = {};
+safeGames.forEach(g => {
+  if (!latestYesByPlayer[g.player]) {
+    latestYesByPlayer[g.player] = new Map();
   }
+  g.accepted.forEach(card => {
+    latestYesByPlayer[g.player].set(card, g.ts); // guardar fecha de último "sí"
+  });
+});
 
-  function destroyChart() {
-    if (statsChartInstance) { statsChartInstance.destroy(); statsChartInstance = null; }
+// Convertir a Set de tarjetas aceptadas (solo las últimas)
+const byPlayer = {};
+Object.keys(latestYesByPlayer).forEach(player => {
+  const cards = [];
+  latestYesByPlayer[player].forEach((_ts, card) => {
+    cards.push(card);
+  });
+  byPlayer[player] = new Set(cards);
+});
+
+// Ranking global de parejas
+const players = Object.keys(byPlayer).sort((a, b) => a.localeCompare(b));
+const pairs = [];
+for (let i = 0; i < players.length; i++) {
+  for (let j = i + 1; j < players.length; j++) {
+    const p1 = players[i], p2 = players[j];
+    const s1 = byPlayer[p1], s2 = byPlayer[p2];
+    const inter = [];
+    s1.forEach(x => { if (s2.has(x)) inter.push(x); });
+    if (inter.length > 0) {
+      pairs.push({ a: p1, b: p2, common: inter.sort(), count: inter.length });
+    }
+  }
+}
+pairs.sort((x, y) => y.count - x.count || (x.a + x.b).localeCompare(y.a + y.b));
+
+// Afinidad personal contra el jugador actual
+let personalRows = [];
+if (playerName && byPlayer[playerName]) {
+  const mine = byPlayer[playerName];
+  players.filter(p => p !== playerName).forEach(p => {
+    const inter = [];
+    byPlayer[p].forEach(x => { if (mine.has(x)) inter.push(x); });
+    if (inter.length > 0) {
+      personalRows.push({ player: p, count: inter.length, list: inter.sort() });
+    }
+  });
+  personalRows.sort((x, y) => y.count - x.count || x.player.localeCompare(y.player));
+}
+
+// Render afinidad global
+const gBody = document.querySelector('#affinityGlobal tbody');
+pairs.slice(0, 200).forEach(row => {
+  const cA = getPlayerColorUnique(row.a);
+  const cB = getPlayerColorUnique(row.b);
+  const tr = document.createElement('tr');
+  tr.innerHTML =
+    `<td><span style="font-weight:600;color:${cA}">${row.a}</span> &amp; ` +
+    `<span style="font-weight:600;color:${cB}">${row.b}</span></td>` +
+    `<td>${row.count}</td>` +
+    `<td class="cards-small">${row.common.join(", ")}</td>`;
+  gBody.appendChild(tr);
+});
+
+// Render afinidad personal
+const pBody = document.querySelector('#affinityPersonal tbody');
+if (personalRows.length) {
+  personalRows.slice(0, 200).forEach(r => {
+    const c = getPlayerColorUnique(r.player);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td style="font-weight:600; color:${c}">${r.player}</td><td>${r.count}</td><td class="cards-small">${r.list.join(", ")}</td>`;
+    pBody.appendChild(tr);
+  });
+} else {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td colspan="3"><span class="notice">Juega una partida para ver tu afinidad personal.</span></td>`;
+  pBody.appendChild(tr);
+}
+
+document.getElementById('affinityArea').style.display = "grid";
+
   }
   /* === Generador de kanji cayendo (reemplaza a los pétalos) === */
 function initKanjiRain(){
@@ -1028,6 +1078,7 @@ function initKanjiRain(){
 </script>
 </body>
 </html>
+
 
 
 
