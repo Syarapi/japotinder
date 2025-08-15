@@ -784,19 +784,27 @@ function startGameWithMode() {
   showNextCard(true);
 }
 
-  function goToStart() {
-  // Cierra todo lo demás
-  document.getElementById('stats-screen').style.display = 'none';
-  document.getElementById('results').style.display = 'none';
-  document.getElementById('mode-screen').style.display = 'none';
-  document.getElementById('game-screen').style.display = 'none';
+ function goToStart() {
+    // Mostrar solo la pantalla de inicio
+    document.getElementById("start-screen").style.display = "flex";
+    document.getElementById("game-screen").style.display = "none";
+    document.getElementById("stats-screen").style.display = "none";
 
-  // Vuelve al inicio
-  document.getElementById('start-screen').style.display = 'flex';
+    // Limpiar variables y campos
+    playerName = "";
+    document.getElementById("playerName").value = "";
 
-  // Limpia el gráfico si existía
-  destroyChart?.();
+    // Limpiar datos temporales de juego
+    currentCards = [];
+    currentIndex = 0;
+
+    // Si existe gráfico, destruirlo para evitar duplicados
+    if (typeof destroyChart === "function") {
+        destroyChart();
+    }
 }
+window.goToStart = goToStart;
+
 
 // 👇 expón la función al global para que funcione el onclick del HTML
 window.goToStart = goToStart;
@@ -1149,8 +1157,71 @@ function initKanjiRain(){
   initKanjiRain(); 
   document.getElementById("start-screen").style.display = "flex";
 </script>
+
+  <script>
+/* --- Funciones para manejar resultados --- */
+
+// Obtiene las tarjetas vistas por un jugador desde data.json
+async function getSeenCardsForPlayer(player) {
+    try {
+        const res = await fetch('results/data.json');
+        const data = await res.json();
+        return data[player] || {};
+    } catch (e) {
+        console.error('Error al leer data.json', e);
+        return {};
+    }
+}
+
+// Guarda un resultado de una tarjeta para un jugador
+async function saveResult(player, cardId, action) {
+    try {
+        await fetch('/api/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ player, cardId, action })
+        });
+    } catch (e) {
+        console.error('Error al guardar resultado', e);
+    }
+}
+
+// Función para mezclar aleatoriamente las tarjetas
+function shuffle(array) {
+    return array.sort(() => Math.random() - 0.5);
+}
+
+/* --- Funciones principales del juego --- */
+
+let currentPlayer = 'jugador1'; // Cambiar según tu lógica
+let cards = [...document.querySelectorAll('.card')];
+
+async function initGame() {
+    const seenCards = await getSeenCardsForPlayer(currentPlayer);
+
+    // Ocultar tarjetas ya vistas
+    cards.forEach(card => {
+        if (seenCards[card.dataset.id]) {
+            card.style.display = 'none';
+        }
+    });
+
+    cards = shuffle(cards); // Mezclar tarjetas visibles
+}
+
+// Ejemplo de acción al aceptar o rechazar
+function handleCardAction(card, action) {
+    card.style.display = 'none';
+    saveResult(currentPlayer, card.dataset.id, action);
+}
+
+// Inicializa el juego al cargar
+window.addEventListener('DOMContentLoaded', initGame);
+</script>
+  
 </body>
 </html>
+
 
 
 
