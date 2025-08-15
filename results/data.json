@@ -709,5 +709,36 @@
       "Disney Tokyo",
       "Kumachan Onsen Tokyo"
     ]
+  },
+  {
+    "player": "Lapala",
+    "date": "15/8/2025, 14:52:15",
+    "mode": "short",
+    "accepted": [
+      "Ginzan Onsen",
+      "Shinkansen Hello Kitty",
+      "Shibazakura park Hokkaido",
+      "Museo/cafe de los yokai",
+      "RJ Cafe Osaka",
+      "Musical Tokyo Revengers",
+      "Nabana no sato",
+      "Bandai Museum"
+    ],
+    "meh": [
+      "Gotokuji",
+      "Pokemon Cafe",
+      "Maid cafe",
+      "Shikisai no oka",
+      "Otaru"
+    ],
+    "rejected": [
+      "Disney Tokyo",
+      "Eventos Kisekoi/Sailor Moon",
+      "Kumachan Onsen Tokyo",
+      "Beppu",
+      "Enoshima",
+      "Nagano y monos de nieve",
+      "Kumamoto"
+    ]
   }
 ]
