@@ -669,6 +669,38 @@ strong {
     if (maybeArray && Array.isArray(maybeArray.games)) return maybeArray.games;
     return [];
   }
+  
+  // Tarjetas ya vistas por un jugador (toma la ÚLTIMA decisión por tarjeta)
+async function getSeenCardsForPlayer(name){
+  const seen = new Set();
+  try {
+    const res = await fetch(`${dataUrl}?t=${Date.now()}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const games = ensureArray(await res.json());
+
+    // deduplicar por última respuesta del jugador
+    const latest = new Map(); // card -> ts
+    games
+      .filter(g => g && g.player && g.player.trim().toLowerCase() === name.trim().toLowerCase())
+      .forEach(g => {
+        const ts = Date.parse(g.date || g.timestamp || "") || 0;
+        const add = (card) => {
+          const prev = latest.get(card);
+          if (!prev || ts >= prev) latest.set(card, ts);
+        };
+        (g.accepted||[]).forEach(add);
+        (g.meh||[]).forEach(add);
+        (g.rejected||[]).forEach(add);
+      });
+
+    latest.forEach((_ts, card)=>seen.add(card));
+  } catch(e){
+    // si falla la red, simplemente no filtramos
+    console.warn("No se pudo cargar partidas previas para filtrar:", e);
+  }
+  return seen;
+}
+
 
   /************ Flujo UI ************/
   document.getElementById("btnNameNext").addEventListener("click", () => {
@@ -687,15 +719,46 @@ strong {
     mode = "full"; mehLimit = 10; startGameWithMode();
   });
 
-  function startGameWithMode(){
-    data = shuffleArray(originalData);
+  function startGameWithMode() {
+    let safeOriginal = [...originalData];
     const SHORT_COUNT = 20; // ajusta aquí si quieres otro valor fijo
-    if (mode === "short") data = data.slice(0, Math.min(SHORT_COUNT, data.length));    index = 0; accepted = []; rejected = []; meh = [];
+
+    if (mode === "short") {
+        // 1️⃣ Historial de cartas jugadas por este jugador
+        const pastCards = new Set();
+        const safeGames = ensureArray(loadData("games"));
+        safeGames
+            .filter(g => g.player === playerName)
+            .forEach(g => {
+                [...g.accepted, ...g.meh, ...g.rejected].forEach(card => pastCards.add(card));
+            });
+
+        // 2️⃣ Filtrar cartas nuevas
+        let availableCards = safeOriginal.filter(c => !pastCards.has(c.name));
+
+        // 3️⃣ Si no hay suficientes nuevas, se mezclan todas
+        if (availableCards.length < SHORT_COUNT) {
+            availableCards = shuffleArray([...safeOriginal]);
+        } else {
+            availableCards = shuffleArray(availableCards);
+        }
+
+        data = availableCards.slice(0, Math.min(SHORT_COUNT, availableCards.length));
+    } else {
+        data = shuffleArray(safeOriginal);
+    }
+
+    index = 0;
+    accepted = [];
+    rejected = [];
+    meh = [];
+
     container.innerHTML = "";
     document.getElementById("mode-screen").style.display = "none";
     document.getElementById("game-screen").style.display = "flex";
     showNextCard(true);
-  }
+}
+
 
   function restartGame() {
     document.getElementById("results").style.display = "none";
@@ -1178,6 +1241,7 @@ function initKanjiRain(){
 </script>
 </body>
 </html>
+
 
 
 
