@@ -702,14 +702,18 @@ async function getSeenCardsForPlayer(name){
 }
 
 
-  /************ Flujo UI ************/
-  document.getElementById("btnNameNext").addEventListener("click", () => {
-    const nameInput = document.getElementById("username").value.trim();
-    if (!nameInput) { alert("Que me digas quién eres o no jugamos ù3ú"); return; }
-    playerName = nameInput;
-    document.getElementById("start-screen").style.display = "none";
-    document.getElementById("mode-screen").style.display = "flex";
-  });
+ /************ Flujo UI ************/
+document.getElementById("btnNameNext").addEventListener("click", () => {
+  const nameInput = document.getElementById("username").value.trim();
+  if (!nameInput) { 
+    alert("Que me digas quién eres o no jugamos ù3ú"); 
+    return; 
+  }
+  playerName = nameInput;
+  document.getElementById("start-screen").style.display = "none";
+  document.getElementById("mode-screen").style.display = "flex";
+});
+
 // Mitades clicables (modo)
 document.getElementById("halfShort").addEventListener("click", () => {
   mode = "short";
@@ -1119,3 +1123,4 @@ function initKanjiRain(){
 </script>
 </body>
 </html>
+
