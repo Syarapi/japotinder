@@ -32,41 +32,50 @@
 
 /* ===== Fondo con kanji aleatorios ===== */
 body {
-  margin: 0;
-  font-family: 'Segoe UI', sans-serif;
-  color: var(--ink);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background: var(--bg-light);
-  position: relative;
-  overflow-x: hidden;
-}
+    margin:0;
+    font-family:'Segoe UI',sans-serif;
+    color: var(--ink);
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    background: var(--bg-light);
+    position: relative;
+    overflow-x: hidden;
+  }
 
-/* Contenedor de kanji flotantes */
-#kanji-bg {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: -1;
-  overflow: hidden;
-}
+  /* Contenedor de kanji en el fondo */
+  #kanji-bg {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    overflow: hidden;
+  }
 
-.kanji {
-  position: absolute;
-  font-family: 'Yuji Syuku', serif;
-  color: var(--kanji-color);
-  opacity: 0.2;
-  user-select: none;
-  animation: floatKanji linear infinite;
-}
+  .kanji {
+    position: absolute;
+    font-family: 'Yuji Syuku', serif;
+    font-size: 24px;
+    color: rgba(211,140,177,0.6); /* color tipo pétalo */
+    user-select: none;
+    animation-name: fall;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+  }
 
-/* Animación vertical de los kanji */
-@keyframes floatKanji {
-  0% { transform: translateY(110vh); }
-  100% { transform: translateY(-20vh); }
-}
+  @keyframes fall {
+    0% {
+      top: -5%;
+      transform: rotate(0deg);
+      opacity: 0.8;
+    }
+    100% {
+      top: 100%;
+      transform: rotate(20deg);
+      opacity: 0;
+    }
+  }
 
   h1, h2, h3 { font-family: 'Yuji Syuku', serif; text-align: center; }
   h1 { color: var(--accent-1); text-shadow: 0 2px 0 #fff; margin: 10px 0 6px; }
@@ -933,4 +942,5 @@ body {
 
 </body>
 </html>
+
 
