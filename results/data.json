@@ -29,5 +29,35 @@
     "rejected": [
       "Nabana no sato"
     ]
+  },
+  {
+    "player": "Marivi",
+    "date": "15/8/2025, 18:33:03",
+    "mode": "short",
+    "accepted": [
+      "Shikisai no oka",
+      "Tanuki Dori",
+      "Nagano y monos de nieve",
+      "Hakone",
+      "Museo de Nintendo",
+      "Shiroi Koibito Park",
+      "Nikko",
+      "Doraemon time square",
+      "Beppu",
+      "Pokemon Cafe"
+    ],
+    "meh": [],
+    "rejected": [
+      "Tarde de recreativas",
+      "Ginzan Onsen",
+      "Dormir en Onyado Nono Kyoto",
+      "Shibazakura park Hokkaido",
+      "Ir a ver sumo",
+      "Kumamoto",
+      "Gotokuji",
+      "Shinkansen Hello Kitty",
+      "Museo/cafe de los yokai",
+      "Tienda de Chopper"
+    ]
   }
 ]
