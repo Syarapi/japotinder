@@ -580,33 +580,46 @@ strong {
 
   // Tema aleatorio (afecta fondos, bordes, acentos; NO los botones ni colores de series)
   function applyRandomTheme(){
-    const themes = [
-      { name:"sakura", light:"#fff7fb", mid:"#ffe3ef", dark:"#d38cb1", accent1:"#FF91C0", accent2:"#FF68A8", petal:[220,120,160] },
-      { name:"sky",    light:"#f2f9ff", mid:"#e0f1ff", dark:"#8dbfe6", accent1:"#a3c9ff", accent2:"#7fb2f0", petal:[120,160,220] },
-      { name:"lav",    light:"#faf5ff", mid:"#efe3ff", dark:"#b48ad6", accent1:"#d7a6f1", accent2:"#b48ad6", petal:[150,110,200] },
-      { name:"sun",    light:"#fff7cc", mid:"#ffe89a", dark:"#e0c050", accent1:"#f0d46a", accent2:"#e1b84f", petal:[220,190,80] },
-      { name:"mint",   light:"#e9fff8", mid:"#d1fff0", dark:"#68cba7", accent1:"#9fe6cc", accent2:"#68cba7", petal:[90,170,140] },
-      { name:"coral",  light:"#ffd8cc", mid:"#ffb3a1", dark:"#ff6f61", accent1:"#ff9e80", accent2:"#ff6f61", petal:[255,159,128] },
-      { name:"lilap",  light:"#f5f0ff", mid:"#e1d6f0", dark:"#9c86c3", accent1:"#b8a0d9", accent2:"#9c86c3", petal:[184,160,217] },
-      { name:"melo",   light:"#fff0e6", mid:"#ffd1b3", dark:"#ffb07b", accent1:"#ffc49b", accent2:"#ffb07b", petal:[255,196,155] },
-      { name:"aqua",   light:"#e6fbff", mid:"#b3edf5", dark:"#5ec2cc", accent1:"#8dd9e1", accent2:"#5ec2cc", petal:[141,217,225] },
-      { name:"mintp",  light:"#e8fff5", mid:"#c6f5e0", dark:"#76c9aa", accent1:"#99e0c4", accent2:"#76c9aa", petal:[153,224,196] },
-      { name:"turq",   light:"#e0f7f5", mid:"#b2ebe7", dark:"#006c62", accent1:"#00b8a9", accent2:"#008b7e", petal:[0,180,169] },
-      { name:"orange", light:"#fff1e6", mid:"#ffd1b3", dark:"#994d00", accent1:"#ff7a00", accent2:"#cc6300", petal:[255,122,0] },
-      { name:"pastelr",light:"#ffeceb", mid:"#ffb3b0", dark:"#b94a48", accent1:"#f28b82", accent2:"#e57373", petal:[242,139,130] }
-      { name:"rosep",  light:"#fff0f5", mid:"#ffd6e7", dark:"#e79aa8", accent1:"#f4b1c1", accent2:"#e79aa8", petal:[244,177,193] },
-      { name:"butter", light:"#fffbe6", mid:"#fff2b3", dark:"#e6d465", accent1:"#f0e07f", accent2:"#e6d465", petal:[240,224,127] },
-      { name:"lavp",   light:"#fdf5ff", mid:"#f5e1ff", dark:"#c89fd9", accent1:"#dcb6e7", accent2:"#c89fd9", petal:[220,182,231] }
-          ];
-    const pick = themes[Math.floor(Math.random()*themes.length)];
-    const root = document.documentElement.style;
-    root.setProperty('--bg-light', pick.light);
-    root.setProperty('--bg-mid', pick.mid);
-    root.setProperty('--bg-dark', pick.dark);
-    root.setProperty('--accent-1', pick.accent1);
-    root.setProperty('--accent-2', pick.accent2);
-    root.setProperty('--petal-rgba', `${pick.petal[0]},${pick.petal[1]},${pick.petal[2]}`);
-  }
+  const themes = [
+    { name:"sakura", light:"#fff7fb", mid:"#ffe3ef", dark:"#d38cb1", accent1:"#FF91C0", accent2:"#FF68A8", petal:[220,120,160] },
+    { name:"sky",    light:"#f2f9ff", mid:"#e0f1ff", dark:"#8dbfe6", accent1:"#a3c9ff", accent2:"#7fb2f0", petal:[120,160,220] },
+    { name:"lav",    light:"#faf5ff", mid:"#efe3ff", dark:"#b48ad6", accent1:"#d7a6f1", accent2:"#b48ad6", petal:[150,110,200] },
+    { name:"sun",    light:"#fff7cc", mid:"#ffe89a", dark:"#e0c050", accent1:"#f0d46a", accent2:"#e1b84f", petal:[220,190,80] },
+    { name:"mint",   light:"#e9fff8", mid:"#d1fff0", dark:"#68cba7", accent1:"#9fe6cc", accent2:"#68cba7", petal:[90,170,140] },
+
+    // tus nuevos
+    { name:"turq",   light:"#e0f7f5", mid:"#b2ebe7", dark:"#006c62", accent1:"#00b8a9", accent2:"#008b7e", petal:[0,180,169] },
+    { name:"orange", light:"#fff1e6", mid:"#ffd1b3", dark:"#994d00", accent1:"#ff7a00", accent2:"#cc6300", petal:[255,122,0] },
+    { name:"pastelr",light:"#ffeceb", mid:"#ffb3b0", dark:"#b94a48", accent1:"#f28b82", accent2:"#e57373", petal:[242,139,130] },
+    { name:"coral",  light:"#ffd8cc", mid:"#ffb3a1", dark:"#ff6f61", accent1:"#ff9e80", accent2:"#ff6f61", petal:[255,159,128] },
+    { name:"lilap",  light:"#f5f0ff", mid:"#e1d6f0", dark:"#9c86c3", accent1:"#b8a0d9", accent2:"#9c86c3", petal:[184,160,217] },
+    { name:"melo",   light:"#fff0e6", mid:"#ffd1b3", dark:"#ffb07b", accent1:"#ffc49b", accent2:"#ffb07b", petal:[255,196,155] },
+    { name:"aqua",   light:"#e6fbff", mid:"#b3edf5", dark:"#5ec2cc", accent1:"#8dd9e1", accent2:"#5ec2cc", petal:[141,217,225] },
+    { name:"mintp",  light:"#e8fff5", mid:"#c6f5e0", dark:"#76c9aa", accent1:"#99e0c4", accent2:"#76c9aa", petal:[153,224,196] },
+    { name:"rosep",  light:"#fff0f5", mid:"#ffd6e7", dark:"#e79aa8", accent1:"#f4b1c1", accent2:"#e79aa8", petal:[244,177,193] },
+    { name:"butter", light:"#fffbe6", mid:"#fff2b3", dark:"#e6d465", accent1:"#f0e07f", accent2:"#e6d465", petal:[240,224,127] },
+    { name:"lavp",   light:"#fdf5ff", mid:"#f5e1ff", dark:"#c89fd9", accent1:"#dcb6e7", accent2:"#c89fd9", petal:[220,182,231] }
+  ];
+
+  const pick = themes[Math.floor(Math.random()*themes.length)];
+  const root = document.documentElement.style;
+
+  root.setProperty('--bg-light', pick.light);
+  root.setProperty('--bg-mid', pick.mid);
+  root.setProperty('--bg-dark', pick.dark);
+  root.setProperty('--accent-1', pick.accent1);
+  root.setProperty('--accent-2', pick.accent2);
+
+  // 🛡️ Fallback si falta petal
+  const pet = Array.isArray(pick.petal) && pick.petal.length === 3
+    ? pick.petal
+    : [220,120,160]; // default "sakura"
+  root.setProperty('--petal-rgba', `${pet[0]},${pet[1]},${pet[2]}`);
+
+  // 🔁 tras cambiar de tema, repinta los kanji
+  if (typeof spawnKanji === 'function') spawnKanji();
+}
+
 
   function setPlayerInfo(dateTime){
     const spanColor = getPlayerColorUnique(playerName);
@@ -1006,6 +1019,7 @@ function initKanjiRain(){
 </script>
 </body>
 </html>
+
 
 
 
