@@ -784,6 +784,23 @@ function startGameWithMode() {
   showNextCard(true);
 }
 
+  function goToStart() {
+  // Cierra todo lo demás
+  document.getElementById('stats-screen').style.display = 'none';
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('mode-screen').style.display = 'none';
+  document.getElementById('game-screen').style.display = 'none';
+
+  // Vuelve al inicio
+  document.getElementById('start-screen').style.display = 'flex';
+
+  // Limpia el gráfico si existía
+  destroyChart?.();
+}
+
+// 👇 expón la función al global para que funcione el onclick del HTML
+window.goToStart = goToStart;
+
 
   /************ Tarjetas + Swipe ************/
   function createCard(item) {
@@ -1134,5 +1151,6 @@ function initKanjiRain(){
 </script>
 </body>
 </html>
+
 
 
