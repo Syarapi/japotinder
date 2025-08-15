@@ -233,7 +233,9 @@
   content: "";
   position: absolute;
   inset: 0;
+  pointer-events: none; /* <-- Esto deja pasar los clics */
 }
+
 
 .half .content {
   z-index: 1;
@@ -1222,6 +1224,7 @@ window.addEventListener('DOMContentLoaded', initGame);
   
 </body>
 </html>
+
 
 
 
