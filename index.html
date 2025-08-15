@@ -354,7 +354,9 @@ strong {
         <li><strong>Izquierda</strong> = <span style="color:var(--no); font-weight:600;">No (Pasando)</span></li>
         <li><strong>Derecha</strong> = <span style="color:var(--yes); font-weight:600;">Sí (Aquí sí)</span></li>
         <li><strong>Arriba</strong> = <span style="color:var(--meh); font-weight:600;">Me da igual</span></li>
-        <p>Si juegas más de una vez, pon <strong>el mismo nombre</strong>, así, si en modo corto se te repite una tarjeta, solo contará <strong>la última respuesta</strong>.</p>
+        <p>Si juegas más de una vez, pon <strong>el mismo nombre</strong>, así, si en modo corto se te repite una tarjeta, 
+          solo contará <strong>la última respuesta</strong>.</p>
+        <p>Se guarda un resultado por tarjeta, da igual cuántas veces juegues en el modo corto.</p>
       </ul>
     </div>
     <p>¿Quién eres? O no empezamos ò_ó</p>
@@ -823,92 +825,187 @@ strong {
   }
 
   /************ Estadísticas ************/
-  async function showStats() {
-    document.getElementById('start-screen').style.display = 'none';
-    document.getElementById('mode-screen').style.display = 'none';
-    document.getElementById('results').style.display = 'none';
-    document.getElementById('stats-screen').style.display = 'block';
+ async function showStats() {
+  // Mostrar contenedor stats y limpiar anteriores
+  document.getElementById('start-screen').style.display = 'none';
+  document.getElementById('mode-screen').style.display = 'none';
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('stats-screen').style.display = 'block';
 
-    // limpiar tablas
-    document.querySelector('#topCardsTable tbody').innerHTML = "";
-    document.querySelector('#affinityGlobal tbody').innerHTML = "";
-    document.querySelector('#affinityPersonal tbody').innerHTML = "";
-    document.getElementById('affinityArea').style.display = "none";
+  const topBody = document.querySelector('#topCardsTable tbody');
+  const gBody   = document.querySelector('#affinityGlobal tbody');
+  const pBody   = document.querySelector('#affinityPersonal tbody');
 
-    let games = [];
-    try {
-      const res = await fetch(`${dataUrl}?t=${Date.now()}`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const json = await res.json();
-      games = ensureArray(json);
-    } catch (err) {
-      alert("No se pudo cargar results/data.json: " + err.message);
-      destroyChart();
-      return;
-    }
+  topBody.innerHTML = "";
+  gBody.innerHTML   = "";
+  pBody.innerHTML   = "";
+  document.getElementById('affinityArea').style.display = "none";
 
-    if (!games.length) {
-      destroyChart();
-      return;
-    }
-
-    // Normalizar (IGNORAR modos de juego)
-  const safeGames = games
-  .filter(g => g && Array.isArray(g.accepted) && Array.isArray(g.rejected))
-  .map(g => ({
-    player: g.player || "¿anon?",
-    accepted: Array.isArray(g.accepted) ? g.accepted : [],
-    meh: Array.isArray(g.meh) ? g.meh : [],
-    rejected: Array.isArray(g.rejected) ? g.rejected : [],
-    ts: Date.parse(g.date || g.timestamp || "") || 0 // clave: fecha para elegir la última decisión
-  }));
-    
-
-// ===== Deduplicar: última decisión por jugador y tarjeta =====
-// latest[player][card] = { choice: 'yes'|'meh'|'no', ts: number }
-const latest = {};
-safeGames.forEach(g => {
-  const p = g.player;
-  latest[p] = latest[p] || {};
-  const apply = (card, choice) => {
-    const prev = latest[p][card];
-    if (!prev || g.ts >= prev.ts) {
-      latest[p][card] = { choice, ts: g.ts };
-    }
-  };
-  g.accepted.forEach(c => apply(c, 'yes'));
-  g.meh.forEach(c => apply(c, 'meh'));
-  g.rejected.forEach(c => apply(c, 'no'));
-});
-
-// ===== Conteos por tarjeta (1 voto máximo por jugador) =====
-const stats = {}; // { [card]: { yes:0, meh:0, no:0 } }
-for (const p in latest) {
-  const byCard = latest[p];
-  for (const card in byCard) {
-    const ch = byCard[card].choice;
-    if (!stats[card]) stats[card] = { yes:0, meh:0, no:0 };
-    stats[card][ch] += 1;
+  // Cargar datos
+  let games = [];
+  try {
+    const res = await fetch(`${dataUrl}?t=${Date.now()}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = await res.json();
+    games = ensureArray(json);
+  } catch (err) {
+    alert("No se pudo cargar results/data.json: " + err.message);
+    destroyChart();
+    return;
   }
+  if (!games.length) { destroyChart(); return; }
+
+  // Normalizar juego (arrays seguros y timestamp)
+  const safeGames = games
+    .filter(g => g && (Array.isArray(g.accepted) || Array.isArray(g.rejected) || Array.isArray(g.meh)))
+    .map(g => ({
+      player: (g.player || "¿anon?").trim(),
+      accepted: Array.isArray(g.accepted) ? g.accepted : [],
+      meh: Array.isArray(g.meh) ? g.meh : [],
+      rejected: Array.isArray(g.rejected) ? g.rejected : [],
+      ts: Date.parse(g.date || g.timestamp || "") || 0
+    }));
+
+  // ===== 1 voto máximo por jugador y tarjeta (última decisión) =====
+  // latest[player][card] = { choice:'yes'|'meh'|'no', ts:number }
+  const latest = {};
+  for (const g of safeGames) {
+    const p = g.player;
+    if (!latest[p]) latest[p] = {};
+    const up = (card, choice) => {
+      const prev = latest[p][card];
+      if (!prev || g.ts >= prev.ts) latest[p][card] = { choice, ts: g.ts };
+    };
+    g.accepted.forEach(c => up(c, 'yes'));
+    g.meh.forEach(c      => up(c, 'meh'));
+    g.rejected.forEach(c => up(c, 'no'));
+  }
+
+  // ===== Conteos por tarjeta =====
+  const stats = {}; // { card:{yes,meh,no} }
+  for (const p in latest) {
+    for (const card in latest[p]) {
+      const ch = latest[p][card].choice;
+      if (!stats[card]) stats[card] = { yes:0, meh:0, no:0 };
+      stats[card][ch] += 1;
+    }
+  }
+
+  // ===== Gráfico apilado =====
+  const labels  = Object.keys(stats).sort((a,b)=>a.localeCompare(b));
+  const yesData = labels.map(l => stats[l].yes);
+  const mehData = labels.map(l => stats[l].meh);
+  const noData  = labels.map(l => stats[l].no);
+
+  const canvas = document.getElementById('statsChart');
+  const desiredWidth = Math.max(labels.length * 42, 420);
+  canvas.width = desiredWidth;
+  canvas.height = 320;
+  const ctx = canvas.getContext('2d');
+
+  const css = getComputedStyle(document.documentElement);
+  const grad = (hex) => { const g = ctx.createLinearGradient(0,0,0,canvas.height); g.addColorStop(0,hex); g.addColorStop(1,hex); return g; };
+
+  destroyChart();
+  if (typeof Chart === 'function') {
+    statsChartInstance = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          { label: 'Aquí sí',     data: yesData, backgroundColor: grad(css.getPropertyValue('--yes').trim()), borderRadius: 8, stack: 'stack' },
+          { label: 'Me da igual', data: mehData, backgroundColor: grad(css.getPropertyValue('--meh').trim()), borderRadius: 8, stack: 'stack' },
+          { label: 'Pasando',     data: noData,  backgroundColor: grad(css.getPropertyValue('--no').trim()),  borderRadius: 8, stack: 'stack' }
+        ]
+      },
+      options: {
+        responsive: false, maintainAspectRatio: false,
+        scales: { x: { stacked: true, ticks: { maxRotation: 60, minRotation: 0 } }, y: { stacked: true, beginAtZero: true } },
+        plugins: {
+          legend: { labels: { color: '#333', boxWidth: 18, usePointStyle: true, pointStyle: 'rectRounded' } },
+          tooltip: { backgroundColor: 'rgba(255,255,255,.95)', titleColor: '#333', bodyColor: '#333', borderColor: '#ddd', borderWidth: 1 }
+        },
+        animation: { duration: 220 }
+      }
+    });
+  }
+
+  // ===== TOP tarjetas =====
+  const topCards = Object.entries(stats)
+    .sort((a,b) => b[1].yes - a[1].yes || a[0].localeCompare(b[0]));
+  for (const [name, v] of topCards) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${name}</td><td>${v.yes}</td><td>${v.meh}</td><td>${v.no}</td>`;
+    topBody.appendChild(tr);
+  }
+
+  // ===== Afinidad (SÍ) por jugador con última decisión =====
+  // byPlayer[player] = Set de tarjetas con 'yes' (último estado)
+  const byPlayer = {};
+  for (const p in latest) {
+    const set = new Set();
+    for (const card in latest[p]) {
+      if (latest[p][card].choice === 'yes') set.add(card);
+    }
+    if (set.size) byPlayer[p] = set;
+  }
+
+  const players = Object.keys(byPlayer).sort((a,b)=>a.localeCompare(b));
+
+  // Ranking global de parejas
+  const pairs = [];
+  for (let i=0;i<players.length;i++){
+    for (let j=i+1;j<players.length;j++){
+      const p1 = players[i], p2 = players[j];
+      const s1 = byPlayer[p1], s2 = byPlayer[p2];
+      const inter = [];
+      s1.forEach(x => { if (s2.has(x)) inter.push(x); });
+      if (inter.length) pairs.push({ a:p1, b:p2, common:inter.sort(), count:inter.length });
+    }
+  }
+  pairs.sort((x,y)=> y.count - x.count || (x.a+x.b).localeCompare(y.a+y.b));
+
+  // Render afinidad global
+  pairs.slice(0, 200).forEach(row=>{
+    const cA = getPlayerColorUnique(row.a);
+    const cB = getPlayerColorUnique(row.b);
+    const tr = document.createElement('tr');
+    tr.innerHTML =
+      `<td><span style="font-weight:600;color:${cA}">${row.a}</span> &amp; ` +
+      `<span style="font-weight:600;color:${cB}">${row.b}</span></td>` +
+      `<td>${row.count}</td>` +
+      `<td class="cards-small">${row.common.join(", ")}</td>`;
+    gBody.appendChild(tr);
+  });
+
+  // Afinidad personal (si hay jugador actual)
+  let personalRows = [];
+  if (playerName && byPlayer[playerName]) {
+    const mine = byPlayer[playerName];
+    players.filter(p=>p!==playerName).forEach(p=>{
+      const inter = [];
+      byPlayer[p].forEach(x=>{ if (mine.has(x)) inter.push(x); });
+      if (inter.length) personalRows.push({ player:p, count:inter.length, list:inter.sort() });
+    });
+    personalRows.sort((x,y)=> y.count - x.count || x.player.localeCompare(y.player));
+  }
+
+  if (personalRows.length){
+    personalRows.slice(0,200).forEach(r=>{
+      const c = getPlayerColorUnique(r.player);
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td style="font-weight:600; color:${c}">${r.player}</td><td>${r.count}</td><td class="cards-small">${r.list.join(", ")}</td>`;
+      pBody.appendChild(tr);
+    });
+  } else {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td colspan="3"><span class="notice">Juega una partida para ver tu afinidad personal.</span></td>`;
+    pBody.appendChild(tr);
+  }
+
+  // Mostrar bloque inferior
+  document.getElementById('affinityArea').style.display = "grid";
 }
-
-const labels = Object.keys(stats).sort((a,b)=>a.localeCompare(b));
-const yesData = labels.map(l => stats[l].yes);
-const mehData = labels.map(l => stats[l].meh);
-const noData  = labels.map(l => stats[l].no);
-
-// ===== Gráfico (igual que antes) =====
-const canvas = document.getElementById('statsChart');
-const desiredWidth = Math.max(labels.length * 42, 420);
-canvas.width = desiredWidth; canvas.height = 320;
-const ctx = canvas.getContext('2d');
-
-const css = getComputedStyle(document.documentElement);
-const grad = (hex) => {
-  const g = ctx.createLinearGradient(0, 0, 0, canvas.height);
-  g.addColorStop(0, hex); g.addColorStop(1, hex);
-  return g;
-};
 
 destroyChart();
 statsChartInstance = new Chart(ctx, {
@@ -1081,6 +1178,7 @@ function initKanjiRain(){
 </script>
 </body>
 </html>
+
 
 
 
