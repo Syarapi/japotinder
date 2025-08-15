@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8" />
@@ -38,37 +38,35 @@
     overflow-x: hidden;
   }
   body::before, body::after{
-  /* anulamos los fondos anteriores */
-  content: none !important;
-}
+    content: none !important;
+  }
 
-/* Cada carácter kanji "flotante" */
-.kanji-char{
-  position: fixed;
-  top: -12vh;                 /* empieza un poco por encima */
-  left: 0;
-  transform: translateX(var(--x, 0)) translateY(0) rotate(var(--r, 0deg));
-  font-family: 'Yuji Syuku', serif;
-  font-weight: 400;
-  line-height: 1;
-  pointer-events: none;
-  user-select: none;
-  z-index: -1;                /* igual que antes: detrás del contenido */
-  color: rgba(var(--petal-rgba), var(--opa, .25));  /* mismo color que los pétalos */
-  animation: fall-kanji var(--dur, 24s) linear infinite;
-  filter: blur(0.2px);
-}
+  /* Cada carácter kanji "flotante" */
+  .kanji-char{
+    position: fixed;
+    top: -12vh;
+    left: 0;
+    transform: translateX(var(--x, 0)) translateY(0) rotate(var(--r, 0deg));
+    font-family: 'Yuji Syuku', serif;
+    font-weight: 400;
+    line-height: 1;
+    pointer-events: none;
+    user-select: none;
+    z-index: -1;                /* detrás del contenido */
+    color: rgba(var(--petal-rgba), var(--opa, .25));
+    animation: fall-kanji var(--dur, 24s) linear infinite;
+    filter: blur(0.2px);
+  }
 
-/* Dos "capas" con las mismas duraciones que tenías: 24s y 32s */
-.kanji-layer-a { --dur: 24s; --opa:.25; }
-.kanji-layer-b { --dur: 32s; --opa:.6;  }
+  /* Dos capas: 24s y 32s */
+  .kanji-layer-a { --dur: 24s; --opa:.25; }
+  .kanji-layer-b { --dur: 32s; --opa:.6;  }
 
-/* Animación con ligera deriva horizontal y balanceo */
-@keyframes fall-kanji{
-  0%   { transform: translateX(calc(var(--x, 0) - 10px)) translateY(-12vh) rotate(calc(var(--r, 0deg) - 10deg)); }
-  50%  { transform: translateX(calc(var(--x, 0) + 10px)) translateY(55vh)  rotate(calc(var(--r, 0deg) + 10deg)); }
-  100% { transform: translateX(calc(var(--x, 0) - 6px))  translateY(135vh) rotate(calc(var(--r, 0deg) + 20deg)); }
-}
+  @keyframes fall-kanji{
+    0%   { transform: translateX(calc(var(--x, 0) - 10px)) translateY(-12vh) rotate(calc(var(--r, 0deg) - 10deg)); }
+    50%  { transform: translateX(calc(var(--x, 0) + 10px)) translateY(55vh)  rotate(calc(var(--r, 0deg) + 10deg)); }
+    100% { transform: translateX(calc(var(--x, 0) - 6px))  translateY(135vh) rotate(calc(var(--r, 0deg) + 20deg)); }
+  }
   h1, h2, h3 { font-family: 'Yuji Syuku', serif; text-align: center; }
   h1 { color: var(--accent-1); text-shadow: 0 2px 0 #fff; margin: 10px 0 6px; }
   h2 { color: var(--accent-2); margin: 6px 0 10px; }
@@ -81,79 +79,18 @@
     align-items: center;
     width: 100%;
   }
-  #start-screen {
-    display: flex; justify-content: center; gap: 15px; min-height: 100vh; padding: 16px 10px;
-  }
+  #start-screen { display: flex; justify-content: center; gap: 15px; min-height: 100vh; padding: 16px 10px; }
 
   /* Tarjetas */
-#card-container {
-  position: relative;
-  width: min(92%, 520px);  /* ocupa el 92% pero nunca más de 520px de ancho */
-  height: min(70vh, 720px); /* 70% de la altura visible, máx 720px */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-/* Imagen */
-.card {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  border-radius: 20px;
-  overflow: hidden;
-  border: 2px solid var(--accent-1);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-  will-change: transform;
-}
-
-/* Imagen cubre todo */
-.card img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  user-select: none;
-  -webkit-user-drag: none;
-}
-
-/* Pie en overlay */
-.card div {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: rgba(255, 255, 255, 0.85); /* blanco semitransparente */
-  color: var(--ink);
-  font-weight: 600;
-  font-size: clamp(14px, 2vw, 16px); /* tamaño de texto adaptativo */
-  padding: 8px 12px;
-  text-align: center;
-  backdrop-filter: blur(4px); /* da un efecto de vidrio */
-}
+  #card-container { position: relative; width: min(92%, 520px); height: min(70vh, 720px); display: flex; justify-content: center; align-items: center; }
+  .card { position: relative; width: 100%; height: 100%; border-radius: 20px; overflow: hidden; border: 2px solid var(--accent-1); box-shadow: 0 10px 25px rgba(0,0,0,0.15); will-change: transform; }
+  .card img { width: 100%; height: 100%; object-fit: cover; display: block; user-select: none; -webkit-user-drag: none; }
+  .card div { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(255, 255, 255, 0.85); color: var(--ink); font-weight: 600; font-size: clamp(14px, 2vw, 16px); padding: 8px 12px; text-align: center; backdrop-filter: blur(4px); }
 
   /* Botones */
-  #buttons {
-    margin-top: 10px;
-    display: flex;
-    gap: 12px;
-    z-index: 10;
-  }
-  .btn {
-    padding: 12px 18px;
-    font-size: 16px;
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: transform .15s ease, box-shadow .15s ease, opacity .2s ease;
-    box-shadow: 0 8px 18px rgba(0,0,0,.12);
-    color: white;
-  }
-  #btnNameNext,
-.stats-btn {
-  background: linear-gradient(180deg, var(--accent-1) 0%, var(--accent-2) 100%);
-  color: #fff;
-}
+  #buttons { margin-top: 10px; display: flex; gap: 12px; z-index: 10; }
+  .btn { padding: 12px 18px; font-size: 16px; border: none; border-radius: 12px; cursor: pointer; transition: transform .15s ease, box-shadow .15s ease, opacity .2s ease; box-shadow: 0 8px 18px rgba(0,0,0,.12); color: white; }
+  #btnNameNext, .stats-btn { background: linear-gradient(180deg, var(--accent-1) 0%, var(--accent-2) 100%); color: #fff; }
   .accept { background: linear-gradient(180deg, var(--yes) 0%, #5fb5ef 100%); }
   .meh    { background: linear-gradient(180deg, var(--meh) 0%, #7343d8 100%); }
   .reject { background: linear-gradient(180deg, var(--no) 0%, #ff5f93 100%); }
@@ -162,27 +99,9 @@
   .btn:active { transform: translateY(0); opacity:.95; }
 
   /* Tablas */
-  table {
-    border-collapse: collapse;
-    margin-top: 10px;
-    width: 100%;
-    background: #fff;
-    border-radius: 14px;
-    overflow: hidden;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-    border: 2px solid var(--accent-1);
-    table-layout: auto;
-  }
-  table th, table td {
-    padding: 8px 10px;
-    border-bottom: 1px solid #f0e7f8;
-    text-align: left;
-    word-break: break-word;
-  }
-  table th {
-    background: linear-gradient(180deg, var(--accent-2) 0%, var(--accent-1) 100%);
-    color: white; letter-spacing:.3px; font-size: 13px;
-  }
+  table { border-collapse: collapse; margin-top: 10px; width: 100%; background: #fff; border-radius: 14px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.12); border: 2px solid var(--accent-1); table-layout: auto; }
+  table th, table td { padding: 8px 10px; border-bottom: 1px solid #f0e7f8; text-align: left; word-break: break-word; }
+  table th { background: linear-gradient(180deg, var(--accent-2) 0%, var(--accent-1) 100%); color: white; letter-spacing:.3px; font-size: 13px; }
   table td { font-size: 13px; }
   table tr:nth-child(even) { background-color: #faf7ff; }
   table tr:hover { background-color: #f4ecff; transition: background .2s ease; }
@@ -190,155 +109,38 @@
   .cards-small { line-height: 1.4; }
 
   /* ===== Start screen: tutorial ===== */
-  .tutorial {
-    margin-top: 8px;
-    max-width: 640px;
-    background: var(--card-bg);
-    border: 2px solid var(--accent-1);
-    border-radius: 14px;
-    padding: 10px 12px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.12);
-    font-size: 14px;
-  }
+  .tutorial { margin-top: 8px; max-width: 640px; background: var(--card-bg); border: 2px solid var(--accent-1); border-radius: 14px; padding: 10px 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.12); font-size: 14px; }
   .tutorial p { margin: 6px 0; text-align: left; }
 
   /* ===== Mode split screen ===== */
-#mode-screen {
-  display: none;
-  align-items: stretch;
-  padding: 0;
-  min-height: 100vh;
-  width: 100%;
-}
-
-.mode-split {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  width: 100%;
-  min-height: 100vh;
-  position: relative;
-}
-
-.half {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  user-select: none;
-  padding: 20px 10px;
-}
-
-.half::after { /* área clicable completa */
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none; /* <-- Esto deja pasar los clics */
-}
-
-
-.half .content {
-  z-index: 1;
-  text-align: center;
-  max-width: 520px;
-  background: color-mix(in oklab, var(--card-bg) 75%, white 25%);
-  border: 2px solid var(--accent-1);
-  border-radius: 16px;
-  padding: 18px 16px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-}
-
-.half.left {
-  background: transparent; /* transparente */
-  border-right: 1px dashed color-mix(in oklab, var(--accent-2) 60%, white);
-}
-
-.half.right {
-  background: transparent; /* transparente base */
-}
-
-.half.right::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: color-mix(in srgb, var(--bg-dark) 70%, transparent); /* color del tema */
-  z-index: 0; /* detrás del contenido */
-}
-
-.half h2 { margin: 4px 0 8px; }
-.half p { margin: 0; font-size: 14px; opacity: .9; }
-
-.badge {
-  display: inline-block;
-  margin-top: 8px;
-  padding: 4px 8px;
-  border-radius: 999px;
-  font-weight: 600;
-  font-size: 12px;
-  color: #fff;
-  background: linear-gradient(180deg, var(--accent-1), var(--accent-2));
-}
-
+  #mode-screen { display: none; align-items: stretch; padding: 0; min-height: 100vh; width: 100%; }
+  .mode-split { display: grid; grid-template-columns: 1fr 1fr; width: 100%; min-height: 100vh; position: relative; }
+  .half { position: relative; display: flex; align-items: center; justify-content: center; cursor: pointer; user-select: none; padding: 20px 10px; }
+  .half::after { content: ""; position: absolute; inset: 0; pointer-events: none; }
+  .half .content { z-index: 1; text-align: center; max-width: 520px; background: color-mix(in oklab, var(--card-bg) 75%, white 25%); border: 2px solid var(--accent-1); border-radius: 16px; padding: 18px 16px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15); }
+  .half.left { background: transparent; border-right: 1px dashed color-mix(in oklab, var(--accent-2) 60%, white); }
+  .half.right { background: transparent; }
+  .half.right::before { content: ""; position: absolute; inset: 0; background: color-mix(in srgb, var(--bg-dark) 70%, transparent); z-index: 0; }
+  .half h2 { margin: 4px 0 8px; }
+  .half p { margin: 0; font-size: 14px; opacity: .9; }
+  .badge { display: inline-block; margin-top: 8px; padding: 4px 8px; border-radius: 999px; font-weight: 600; font-size: 12px; color: #fff; background: linear-gradient(180deg, var(--accent-1), var(--accent-2)); }
 
   /* ===== Layout estadísticas ===== */
-  #stats-screen {
-    min-height: 100vh;
-    padding: 6px 10px 10px;
-    box-sizing: border-box;
-    overflow-y: auto;
-  }
-  .stats-grid {
-    display:grid;
-    grid-template-columns: minmax(340px, 1fr) minmax(420px, 1.2fr);
-    gap: 12px;
-    align-items: start;
-  }
-  .chart-card, .top-card, .aff-card {
-    background: var(--card-bg);
-    border: 2px solid var(--accent-1);
-    border-radius: 16px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-    padding: 8px;
-    display:flex; flex-direction:column;
-  }
-  .chart-scroll {
-    overflow-y: auto;
-    max-height: 360px;
-    padding-bottom: 6px;
-  }
+  #stats-screen { min-height: 100vh; padding: 6px 10px 10px; box-sizing: border-box; overflow-y: auto; }
+  .stats-grid { display:grid; grid-template-columns: minmax(340px, 1fr) minmax(420px, 1.2fr); gap: 12px; align-items: start; }
+  .chart-card, .top-card, .aff-card { background: var(--card-bg); border: 2px solid var(--accent-1); border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); padding: 8px; display:flex; flex-direction:column; }
+  .chart-scroll { overflow-y: auto; max-height: 360px; padding-bottom: 6px; }
   .chart-container canvas { height: auto !important; max-width: 100%; }
-
-  /* Tablas TOP y Afinidad con LÍMITE (más corto que antes) */
   .top-scroll { overflow-y:auto; max-height: 220px; padding-bottom:6px; }
   .aff-scroll { overflow-y:auto; max-height: 220px; padding-bottom:6px; }
-
-  .affinity-wrap {
-    margin-top: 8px;
-    display:grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-  }
+  .affinity-wrap { margin-top: 8px; display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .aff-card td.cards-small { font-size: 12px; line-height: 1.25; }
 
   /* ===== Responsive ===== */
-  @media (max-width: 980px) {
-    body { overflow:auto; }
-    .stats-grid { grid-template-columns: 1fr; }
-    .affinity-wrap { grid-template-columns: 1fr; }
-  }
-  @media (max-width: 760px) {
-    .stats-grid, .affinity-wrap { grid-template-columns: 1fr !important; gap: 16px; }
-    table th, table td { font-size: 13px; padding: 6px 8px; }
-    .top-card table td, .aff-card table td { font-size: 12px; }
-    .chart-scroll { max-height: 240px; }
-    .top-scroll, .aff-scroll { max-height: 180px; }
-  }
+  @media (max-width: 980px) { body { overflow:auto; } .stats-grid { grid-template-columns: 1fr; } .affinity-wrap { grid-template-columns: 1fr; } }
+  @media (max-width: 760px) { .stats-grid, .affinity-wrap { grid-template-columns: 1fr !important; gap: 16px; } table th, table td { font-size: 13px; padding: 6px 8px; } .top-card table td, .aff-card table td { font-size: 12px; } .chart-scroll { max-height: 240px; } .top-scroll, .aff-scroll { max-height: 180px; } }
 
-  /* Color del texto <strong> combinado con el tema */
-strong {
-  color: rgba(var(--petal-rgba), 1); /* mismo color que kanji/pétalos */
-  font-weight: bold;
-}
+  strong { color: rgba(var(--petal-rgba), 1); font-weight: bold; }
 </style>
 </head>
 <body>
@@ -348,31 +150,23 @@ strong {
 <div id="start-screen">
   <div style="text-align:center">
     <h1>Japontinder</h1>
-    <div></div>
     <div class="tutorial">
       <h3 style="margin:2px 0 6px;">¿Cómo se juega?</h3>
       <p>Puedes jugar <strong>deslizando</strong> las tarjetas (<em>swipe</em>) o usando los <strong>botones</strong>:</p>
-      <ul style="margin:6px 0 0 18px; padding:0;">
+      <ul style="margin:6px 0 0 18px; padding:0; text-align:left;">
         <li><strong>Izquierda</strong> = <span style="color:var(--no); font-weight:600;">No (Pasando)</span></li>
         <li><strong>Derecha</strong> = <span style="color:var(--yes); font-weight:600;">Sí (Aquí sí)</span></li>
         <li><strong>Arriba</strong> = <span style="color:var(--meh); font-weight:600;">Me da igual</span></li>
-        <p>Si juegas más de una vez, pon <strong>el mismo nombre</strong>, así, si en modo corto se te repite una tarjeta, 
-          solo contará <strong>la última respuesta</strong>.</p>
-        <p>Se guarda un resultado por tarjeta, da igual cuántas veces juegues en el modo corto.</p>
       </ul>
+      <p>Si juegas más de una vez, pon <strong>el mismo nombre</strong>: si en modo corto se repite una tarjeta, solo contará <strong>la última respuesta</strong>.</p>
+      <p>Se guarda un resultado por tarjeta, da igual cuántas veces juegues en el modo corto.</p>
     </div>
     <p>¿Quién eres? O no empezamos ò_ó</p>
-<input type="text" id="username" placeholder="Tu nombre" />
-<div style="margin-top:10px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
-  <button class="btn btn-theme" id="btnNameNext">Siguiente</button>
-  <button class="btn stats-btn" onclick="showStats()">Ver estadísticas</button>
-</div>
-
-
-      
+    <input type="text" id="username" placeholder="Tu nombre" />
+    <div style="margin-top:10px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
+      <button class="btn btn-theme" id="btnNameNext">Siguiente</button>
+      <button class="btn stats-btn" id="btnSeeStats">Ver estadísticas</button>
     </div>
-
-  
   </div>
 </div>
 
@@ -397,21 +191,19 @@ strong {
 </div>
 
 <!-- Juego -->
- <p></p>
 <div id="game-screen" style="display:none; flex-direction: column; align-items: center;">
   <div id="card-container"></div>
   <div id="buttons">
-    <button class="btn reject" onclick="handleDecision(-1)">Pasando</button>
-    <button class="btn meh" onclick="handleDecision(0)">Me da igual</button>
-    <button class="btn accept" onclick="handleDecision(1)">Aquí sí</button>
+    <button class="btn reject" id="btnNo">Pasando</button>
+    <button class="btn meh" id="btnMeh">Me da igual</button>
+    <button class="btn accept" id="btnYes">Aquí sí</button>
   </div>
 </div>
 
-<!-- Resultados: SOLO tabla + botón a estadísticas -->
+<!-- Resultados -->
 <div id="results" style="display:none; align-items:center; padding:10px; width:100%; max-width:980px;">
   <h2>Resultados</h2>
   <p id="player-info" style="margin:4px 0 8px;"></p>
-
   <div class="results-table" style="width:100%;">
     <table>
       <thead>
@@ -421,14 +213,11 @@ strong {
           <th>Pasando</th>
         </tr>
       </thead>
-      <tbody id="results-body">
-        <!-- Se rellena dinámicamente -->
-      </tbody>
+      <tbody id="results-body"></tbody>
     </table>
   </div>
-
   <div style="margin-top:10px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
-    <button class="btn stats-btn" onclick="showStats()">Ver estadísticas</button>
+    <button class="btn stats-btn" id="btnStatsFromResults">Ver estadísticas</button>
   </div>
 </div>
 
@@ -437,15 +226,12 @@ strong {
   <div class="stats-title-wrap">
     <h2>Estadísticas globales</h2>
   </div>
-
-  <!-- Parte superior: gráfico izquierda, top tarjetas derecha -->
   <div class="stats-grid">
     <div class="chart-card">
       <div class="chart-scroll">
         <canvas id="statsChart"></canvas>
       </div>
     </div>
-
     <div class="top-card">
       <h3 style="margin:4px 0 6px;">TOP tarjetas con más "sí"</h3>
       <div class="top-scroll">
@@ -456,8 +242,6 @@ strong {
       </div>
     </div>
   </div>
-
-  <!-- Parte inferior: afinidades -->
   <div class="affinity-wrap" id="affinityArea" style="display:none;">
     <div class="aff-card">
       <h3 style="margin:4px 0 6px;">Ranking de afinidad (todos los jugadores)</h3>
@@ -478,9 +262,8 @@ strong {
       </div>
     </div>
   </div>
-
   <div style="margin-top:8px; display:flex; justify-content:center;">
-    <button class=".stats-btn" onclick="goToStart()">Volver</button>
+    <button class="btn stats-btn" id="btnBackStart">Volver</button>
   </div>
 </div>
 
@@ -534,7 +317,7 @@ strong {
     { name: "Ir a ver sumo", img: "img/sumo.jpg" },
     { name: "Ir a ver kabuki", img: "img/kabuki.jpg" },
     { name: "Ushiku Daibutsu", img: "img/ushiku.jpg" },
-    { name: "Tienda de Chopper", img: "img/mugiwara.jpg" },
+    { name: "Tienda de Chopper", img: "img/mugiwara.jpg" }
   ];
 
   /************ Estado ************/
@@ -548,17 +331,6 @@ strong {
   let mehLimit = 5;
   let statsChartInstance = null;
 
-  function destroyChart() {
-  try {
-    if (statsChartInstance && typeof statsChartInstance.destroy === 'function') {
-      statsChartInstance.destroy();
-    }
-  } catch (_) {
-    // silencioso
-  }
-  statsChartInstance = null;
-}
-
   const container = document.getElementById('card-container');
 
   /************ Utilidades ************/
@@ -566,110 +338,62 @@ strong {
 
   // Persistencia de colores únicos por jugador
   const LS_KEY = "japotinder_player_colors_v3";
-  function loadColorMap(){
-    try{ return JSON.parse(localStorage.getItem(LS_KEY)) || {}; }catch{ return {}; }
-  }
+  function loadColorMap(){ try{ return JSON.parse(localStorage.getItem(LS_KEY)) || {}; }catch{ return {}; } }
   function saveColorMap(map){ try{ localStorage.setItem(LS_KEY, JSON.stringify(map)); }catch{} }
 
-  // Pool de colores legibles (combinan con la paleta)
   const COLOR_POOL = [
-    "#2f7bdc", /* azul (reservado para Alba) */
-    "#8a5adf", /* morado 1 (reservado Alicia) */
-    "#b398d6", /* morado 2 (reservado Vaini) */
-    "#acd68a",
-    "#ff6fa1", /* rosa (reservado Sara) */
-    "#48d1cc",
-    "#ffd666", /* amarillo pastel legible */
-    "#56e0b5", /* verde menta */
-    "#68cba7",
-    "#ffd8a3",
-    "#ffccb1",
-    "#c1ff71"
+    "#2f7bdc","#8a5adf","#b398d6","#acd68a","#ff6fa1","#48d1cc","#ffd666","#56e0b5","#68cba7","#ffd8a3","#ffccb1","#c1ff71"
   ];
-
-  // Conjuntos reservados únicos
-  const RESERVED = {
-    "alba":   "#2f7bdc",
-    "sara":   "#ff6fa1",
-    "alicia": "#8a5adf",
-    "vaini":  "#b398d6"
-  };
-
-  // Genera colores HSL legibles (fallback si se agota pool)
-  function hslColor(i){
-    const hue = (i * 47) % 360;
-    return `hsl(${hue} 70% 55%)`;
-  }
-
-  // Asigna color único por nombre (persistente, sin colisiones con reservados ni entre sí)
+  const RESERVED = { "alba":"#2f7bdc", "sara":"#ff6fa1", "alicia":"#8a5adf", "vaini":"#b398d6" };
+  function hslColor(i){ const hue = (i * 47) % 360; return `hsl(${hue} 70% 55%)`; }
   function getPlayerColorUnique(name){
     const key = (name||"").trim().toLowerCase();
     let map = loadColorMap();
     if (map[key]) return map[key];
-
     if (RESERVED[key]) {
       const reservedColor = RESERVED[key];
       for (const n in map) if (map[n] === reservedColor) delete map[n];
       map[key] = reservedColor; saveColorMap(map); return reservedColor;
     }
-
-    const used = new Set(Object.values(map));
-    Object.values(RESERVED).forEach(c=>used.add(c));
-
-    for (const c of COLOR_POOL) {
-      if (!used.has(c)) {
-        map[key] = c; saveColorMap(map); return c;
-      }
-    }
-    let i = 0;
-    while(true){
-      const c = hslColor(i++);
-      if (!used.has(c)) { map[key] = c; saveColorMap(map); return c; }
-    }
+    const used = new Set(Object.values(map)); Object.values(RESERVED).forEach(c=>used.add(c));
+    for (const c of COLOR_POOL) if (!used.has(c)) { map[key]=c; saveColorMap(map); return c; }
+    let i=0; while(true){ const c=hslColor(i++); if(!used.has(c)){ map[key]=c; saveColorMap(map); return c; } }
   }
 
-  // Tema aleatorio (afecta fondos, bordes, acentos; NO los botones ni colores de series)
+  function destroyChart(){ try { if (statsChartInstance && typeof statsChartInstance.destroy === 'function') statsChartInstance.destroy(); } catch(_){} statsChartInstance=null; }
+
+  // Tema aleatorio
   function applyRandomTheme(){
-  const themes = [
-    { name:"sakura", light:"#fff7fb", mid:"#ffe3ef", dark:"#d38cb1", accent1:"#FF91C0", accent2:"#FF68A8", petal:[220,120,160] },
-    { name:"sky",    light:"#f2f9ff", mid:"#e0f1ff", dark:"#8dbfe6", accent1:"#a3c9ff", accent2:"#7fb2f0", petal:[120,160,220] },
-    { name:"lav",    light:"#faf5ff", mid:"#efe3ff", dark:"#b48ad6", accent1:"#d7a6f1", accent2:"#b48ad6", petal:[150,110,200] },
-    { name:"sun",    light:"#fff7cc", mid:"#ffe89a", dark:"#e0c050", accent1:"#f0d46a", accent2:"#e1b84f", petal:[220,190,80] },
-    { name:"mint",   light:"#e9fff8", mid:"#d1fff0", dark:"#68cba7", accent1:"#9fe6cc", accent2:"#68cba7", petal:[90,170,140] },
-
-    // tus nuevos
-    { name:"turq",   light:"#e0f7f5", mid:"#b2ebe7", dark:"#006c62", accent1:"#00b8a9", accent2:"#008b7e", petal:[0,180,169] },
-    { name:"orange", light:"#fff1e6", mid:"#ffd1b3", dark:"#994d00", accent1:"#ff7a00", accent2:"#cc6300", petal:[255,122,0] },
-    { name:"pastelr",light:"#ffeceb", mid:"#ffb3b0", dark:"#b94a48", accent1:"#f28b82", accent2:"#e57373", petal:[242,139,130] },
-    { name:"coral",  light:"#ffd8cc", mid:"#ffb3a1", dark:"#ff6f61", accent1:"#ff9e80", accent2:"#ff6f61", petal:[255,159,128] },
-    { name:"lilap",  light:"#f5f0ff", mid:"#e1d6f0", dark:"#9c86c3", accent1:"#b8a0d9", accent2:"#9c86c3", petal:[184,160,217] },
-    { name:"melo",   light:"#fff0e6", mid:"#ffd1b3", dark:"#ffb07b", accent1:"#ffc49b", accent2:"#ffb07b", petal:[255,196,155] },
-    { name:"aqua",   light:"#e6fbff", mid:"#b3edf5", dark:"#5ec2cc", accent1:"#8dd9e1", accent2:"#5ec2cc", petal:[141,217,225] },
-    { name:"mintp",  light:"#e8fff5", mid:"#c6f5e0", dark:"#76c9aa", accent1:"#99e0c4", accent2:"#76c9aa", petal:[153,224,196] },
-    { name:"rosep",  light:"#fff0f5", mid:"#ffd6e7", dark:"#e79aa8", accent1:"#f4b1c1", accent2:"#e79aa8", petal:[244,177,193] },
-    { name:"butter", light:"#fffbe6", mid:"#fff2b3", dark:"#e6d465", accent1:"#f0e07f", accent2:"#e6d465", petal:[240,224,127] },
-    { name:"lavp",   light:"#fdf5ff", mid:"#f5e1ff", dark:"#c89fd9", accent1:"#dcb6e7", accent2:"#c89fd9", petal:[220,182,231] }
-  ];
-
-  const pick = themes[Math.floor(Math.random()*themes.length)];
-  const root = document.documentElement.style;
-
-  root.setProperty('--bg-light', pick.light);
-  root.setProperty('--bg-mid', pick.mid);
-  root.setProperty('--bg-dark', pick.dark);
-  root.setProperty('--accent-1', pick.accent1);
-  root.setProperty('--accent-2', pick.accent2);
-
-  // 🛡️ Fallback si falta petal
-  const pet = Array.isArray(pick.petal) && pick.petal.length === 3
-    ? pick.petal
-    : [220,120,160]; // default "sakura"
-  root.setProperty('--petal-rgba', `${pet[0]},${pet[1]},${pet[2]}`);
-
-  // 🔁 tras cambiar de tema, repinta los kanji
-  if (typeof spawnKanji === 'function') spawnKanji();
-}
-
+    const themes = [
+      { name:"sakura", light:"#fff7fb", mid:"#ffe3ef", dark:"#d38cb1", accent1:"#FF91C0", accent2:"#FF68A8", petal:[220,120,160] },
+      { name:"sky",    light:"#f2f9ff", mid:"#e0f1ff", dark:"#8dbfe6", accent1:"#a3c9ff", accent2:"#7fb2f0", petal:[120,160,220] },
+      { name:"lav",    light:"#faf5ff", mid:"#efe3ff", dark:"#b48ad6", accent1:"#d7a6f1", accent2:"#b48ad6", petal:[150,110,200] },
+      { name:"sun",    light:"#fff7cc", mid:"#ffe89a", dark:"#e0c050", accent1:"#f0d46a", accent2:"#e1b84f", petal:[220,190,80] },
+      { name:"mint",   light:"#e9fff8", mid:"#d1fff0", dark:"#68cba7", accent1:"#9fe6cc", accent2:"#68cba7", petal:[90,170,140] },
+      { name:"turq",   light:"#e0f7f5", mid:"#b2ebe7", dark:"#006c62", accent1:"#00b8a9", accent2:"#008b7e", petal:[0,180,169] },
+      { name:"orange", light:"#fff1e6", mid:"#ffd1b3", dark:"#994d00", accent1:"#ff7a00", accent2:"#cc6300", petal:[255,122,0] },
+      { name:"pastelr",light:"#ffeceb", mid:"#ffb3b0", dark:"#b94a48", accent1:"#f28b82", accent2:"#e57373", petal:[242,139,130] },
+      { name:"coral",  light:"#ffd8cc", mid:"#ffb3a1", dark:"#ff6f61", accent1:"#ff9e80", accent2:"#ff6f61", petal:[255,159,128] },
+      { name:"lilap",  light:"#f5f0ff", mid:"#e1d6f0", dark:"#9c86c3", accent1:"#b8a0d9", accent2:"#9c86c3", petal:[184,160,217] },
+      { name:"melo",   light:"#fff0e6", mid:"#ffd1b3", dark:"#ffb07b", accent1:"#ffc49b", accent2:"#ffb07b", petal:[255,196,155] },
+      { name:"aqua",   light:"#e6fbff", mid:"#b3edf5", dark:"#5ec2cc", accent1:"#8dd9e1", accent2:"#5ec2cc", petal:[141,217,225] },
+      { name:"mintp",  light:"#e8fff5", mid:"#c6f5e0", dark:"#76c9aa", accent1:"#99e0c4", accent2:"#76c9aa", petal:[153,224,196] },
+      { name:"rosep",  light:"#fff0f5", mid:"#ffd6e7", dark:"#e79aa8", accent1:"#f4b1c1", accent2:"#e79aa8", petal:[244,177,193] },
+      { name:"butter", light:"#fffbe6", mid:"#fff2b3", dark:"#e6d465", accent1:"#f0e07f", accent2:"#e6d465", petal:[240,224,127] },
+      { name:"lavp",   light:"#fdf5ff", mid:"#f5e1ff", dark:"#c89fd9", accent1:"#dcb6e7", accent2:"#c89fd9", petal:[220,182,231] }
+    ];
+    const pick = themes[Math.floor(Math.random()*themes.length)];
+    const root = document.documentElement.style;
+    root.setProperty('--bg-light', pick.light);
+    root.setProperty('--bg-mid', pick.mid);
+    root.setProperty('--bg-dark', pick.dark);
+    root.setProperty('--accent-1', pick.accent1);
+    root.setProperty('--accent-2', pick.accent2);
+    const pet = Array.isArray(pick.petal) && pick.petal.length === 3 ? pick.petal : [220,120,160];
+    root.setProperty('--petal-rgba', `${pet[0]},${pet[1]},${pet[2]}`);
+    // Repintar kanji
+    spawnKanji();
+  }
 
   function setPlayerInfo(dateTime){
     const spanColor = getPlayerColorUnique(playerName);
@@ -677,128 +401,33 @@ strong {
     document.getElementById('player-info').innerHTML = html;
   }
 
-  // Lectura robusta de data.json
   function ensureArray(maybeArray) {
     if (Array.isArray(maybeArray)) return maybeArray;
     if (maybeArray && Array.isArray(maybeArray.games)) return maybeArray.games;
     return [];
   }
-  
+
   // Tarjetas ya vistas por un jugador (toma la ÚLTIMA decisión por tarjeta)
-async function getSeenCardsForPlayer(name){
-  const seen = new Set();
-  try {
-    const res = await fetch(`${dataUrl}?t=${Date.now()}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const games = ensureArray(await res.json());
-
-    // deduplicar por última respuesta del jugador
-    const latest = new Map(); // card -> ts
-    games
-      .filter(g => g && g.player && g.player.trim().toLowerCase() === name.trim().toLowerCase())
-      .forEach(g => {
-        const ts = Date.parse(g.date || g.timestamp || "") || 0;
-        const add = (card) => {
-          const prev = latest.get(card);
-          if (!prev || ts >= prev) latest.set(card, ts);
-        };
-        (g.accepted||[]).forEach(add);
-        (g.meh||[]).forEach(add);
-        (g.rejected||[]).forEach(add);
-      });
-
-    latest.forEach((_ts, card)=>seen.add(card));
-  } catch(e){
-    // si falla la red, simplemente no filtramos
-    console.warn("No se pudo cargar partidas previas para filtrar:", e);
+  async function getSeenCardsForPlayer(name){
+    const seen = new Set();
+    try {
+      const res = await fetch(`${dataUrl}?t=${Date.now()}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const games = ensureArray(await res.json());
+      const latest = new Map();
+      games
+        .filter(g => g && g.player && g.player.trim().toLowerCase() === name.trim().toLowerCase())
+        .forEach(g => {
+          const ts = Date.parse(g.date || g.timestamp || "") || 0;
+          const add = (card) => { const prev = latest.get(card); if (!prev || ts >= prev) latest.set(card, ts); };
+          (g.accepted||[]).forEach(add);
+          (g.meh||[]).forEach(add);
+          (g.rejected||[]).forEach(add);
+        });
+      latest.forEach((_ts, card)=>seen.add(card));
+    } catch(e){ console.warn("No se pudo cargar partidas previas para filtrar:", e); }
+    return seen;
   }
-  return seen;
-}
-
-
-/************ Flujo UI ************/
-
-// Paso 1: Pantalla de inicio -> Botón siguiente
-document.getElementById("btnNameNext").addEventListener("click", () => {
-  const nameInput = document.getElementById("username").value.trim();
-  if (!nameInput) {
-    alert("Que me digas quién eres o no jugamos ù3ú");
-    return;
-  }
-
-  playerName = nameInput;
-
-  // Mostrar elección de modo
-  document.getElementById("start-screen").style.display = "none";
-  document.getElementById("mode-screen").style.display = "flex";
-});
-
-// Paso 2: Pantalla de modo -> Mitad izquierda (corto)
-document.getElementById("halfShort").addEventListener("click", () => {
-  mode = "short";
-  mehLimit = 5;
-  startGameWithMode();
-});
-
-// Paso 3: Pantalla de modo -> Mitad derecha (completo)
-document.getElementById("halfFull").addEventListener("click", () => {
-  mode = "full";
-  mehLimit = 10;
-  startGameWithMode();
-});
-
-// Inicia el juego con el modo seleccionado
-function startGameWithMode() {
-  const SHORT_COUNT = 20;
-  let safeOriginal = [...originalData]; // copia de datos originales
-
-  if (mode === "short") {
-    // Historial de cartas jugadas por este jugador
-    const pastCards = new Set();
-    const safeGames = ensureArray(loadData("games"));
-
-    safeGames
-      .filter(g => g.player === playerName)
-      .forEach(g => {
-        [...(g.accepted || []), ...(g.meh || []), ...(g.rejected || [])]
-          .forEach(cardName => pastCards.add(cardName));
-      });
-
-    // Filtrar cartas no jugadas antes
-    let availableCards = safeOriginal.filter(c => !pastCards.has(c.name));
-
-    // Si hay pocas nuevas, usar todas mezcladas
-    if (availableCards.length < SHORT_COUNT) {
-      availableCards = shuffleArray([...safeOriginal]);
-    } else {
-      availableCards = shuffleArray(availableCards);
-    }
-
-    // Limitar a 20 cartas
-    data = availableCards.slice(0, SHORT_COUNT);
-
-  } else {
-    // Modo completo: todas las cartas mezcladas
-    data = shuffleArray(safeOriginal);
-  }
-
-  // Reset estado
-  index = 0;
-  accepted = [];
-  rejected = [];
-  meh = [];
-
-  container.innerHTML = "";
-  document.getElementById("mode-screen").style.display = "none";
-  document.getElementById("game-screen").style.display = "flex";
-  showNextCard(true);
-}
-
-// Paso 4: Al terminar el juego -> mostrar resultados
-function endGame() {
-  document.getElementById("game-screen").style.display = "none";
-  document.getElementById("results-screen").style.display = "flex";
-
 
   /************ Tarjetas + Swipe ************/
   function createCard(item) {
@@ -820,10 +449,8 @@ function endGame() {
     }
   }
 
-  // Swipe (izquierda=-1, derecha=1, arriba=0)
   function attachSwipe(el){
     let startX=0, startY=0, dx=0, dy=0, active=false;
-
     const onStart = (x,y) => { active=true; startX=x; startY=y; dx=0; dy=0; el.style.transition=""; };
     const onMove = (x,y) => {
       if(!active) return;
@@ -833,23 +460,18 @@ function endGame() {
       el.style.opacity = String(1 - Math.min(0.6, Math.abs(dx)/300 + Math.max(0, -dy)/300));
     };
     const onEnd = () => {
-      if(!active) return;
-      active=false;
+      if(!active) return; active=false;
       const THX = 80, THY = -80; // arriba es negativo
-      if (dx <= -THX) { commitDecision(-1, el); return; }   // izquierda -> no
-      if (dx >=  THX) { commitDecision( 1, el); return; }   // derecha  -> sí
-      if (dy <=  THY) { commitDecision( 0, el); return; }   // arriba   -> meh
+      if (dx <= -THX) { commitDecision(-1, el); return; }
+      if (dx >=  THX) { commitDecision( 1, el); return; }
+      if (dy <=  THY) { commitDecision( 0, el); return; }
       el.style.transition="transform .2s ease, opacity .2s ease";
       el.style.transform="translate(0,0) rotate(0)";
       el.style.opacity="1";
     };
-
-    // Touch
     el.addEventListener("touchstart", (e)=>onStart(e.touches[0].clientX, e.touches[0].clientY), {passive:true});
     el.addEventListener("touchmove",  (e)=>onMove(e.touches[0].clientX, e.touches[0].clientY), {passive:true});
     el.addEventListener("touchend",   onEnd);
-
-    // Mouse
     el.addEventListener("mousedown", (e)=>onStart(e.clientX, e.clientY));
     window.addEventListener("mousemove", (e)=>onMove(e.clientX, e.clientY));
     window.addEventListener("mouseup", onEnd);
@@ -882,7 +504,6 @@ function endGame() {
 
   /************ Resultados + Guardado ************/
   function buildResultsTableRows(a, m, r){
-    // Calcula máximo de filas para alinear columnas
     const maxRows = Math.max(a.length, m.length, r.length);
     const rows = [];
     for (let i=0;i<maxRows;i++){
@@ -902,321 +523,252 @@ function endGame() {
     document.getElementById('results').style.display = 'flex';
     const now = new Date(); const dateTime = now.toLocaleString();
     setPlayerInfo(dateTime);
-
-    // Rellenar tabla única
     const tbody = document.getElementById('results-body');
     tbody.innerHTML = buildResultsTableRows(accepted, meh, rejected);
-
     try {
       await fetch(saveEndpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ player: playerName, date: dateTime, mode, accepted, meh, rejected })
       });
-    } catch (e) {
-      console.warn("No se pudo guardar en la API:", e);
-    }
+    } catch (e) { console.warn("No se pudo guardar en la API:", e); }
   }
 
-/************ Estadísticas ************/
-async function showStats() {
-  // Mostrar contenedor stats y limpiar anteriores
-  document.getElementById('start-screen').style.display = 'none';
-  document.getElementById('mode-screen').style.display = 'none';
-  document.getElementById('results').style.display = 'none';
-  document.getElementById('stats-screen').style.display = 'block';
+  /************ Estadísticas ************/
+  async function showStats() {
+    document.getElementById('start-screen').style.display = 'none';
+    document.getElementById('mode-screen').style.display = 'none';
+    document.getElementById('results').style.display = 'none';
+    document.getElementById('stats-screen').style.display = 'block';
 
-  const topBody = document.querySelector('#topCardsTable tbody');
-  const gBody   = document.querySelector('#affinityGlobal tbody');
-  const pBody   = document.querySelector('#affinityPersonal tbody');
+    const topBody = document.querySelector('#topCardsTable tbody');
+    const gBody   = document.querySelector('#affinityGlobal tbody');
+    const pBody   = document.querySelector('#affinityPersonal tbody');
 
-  topBody.innerHTML = "";
-  gBody.innerHTML   = "";
-  pBody.innerHTML   = "";
-  document.getElementById('affinityArea').style.display = "none";
+    topBody.innerHTML = ""; gBody.innerHTML = ""; pBody.innerHTML = "";
+    document.getElementById('affinityArea').style.display = "none";
 
-  // Cargar datos
-  let games = [];
-  try {
-    const res = await fetch(`${dataUrl}?t=${Date.now()}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const json = await res.json();
-    games = ensureArray(json);
-  } catch (err) {
-    alert("No se pudo cargar results/data.json: " + err.message);
+    let games = [];
+    try {
+      const res = await fetch(`${dataUrl}?t=${Date.now()}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json();
+      games = ensureArray(json);
+    } catch (err) {
+      alert("No se pudo cargar results/data.json: " + err.message);
+      destroyChart();
+      return;
+    }
+    if (!games.length) { destroyChart(); return; }
+
+    const safeGames = games
+      .filter(g => g && (Array.isArray(g.accepted) || Array.isArray(g.rejected) || Array.isArray(g.meh)))
+      .map(g => ({
+        player: (g.player || "¿anon?").trim(),
+        accepted: Array.isArray(g.accepted) ? g.accepted : [],
+        meh: Array.isArray(g.meh) ? g.meh : [],
+        rejected: Array.isArray(g.rejected) ? g.rejected : [],
+        ts: Date.parse(g.date || g.timestamp || "") || 0
+      }));
+
+    const latest = {};
+    for (const g of safeGames) {
+      const p = g.player; if (!latest[p]) latest[p] = {};
+      const up = (card, choice) => { const prev = latest[p][card]; if (!prev || g.ts >= prev.ts) latest[p][card] = { choice, ts: g.ts }; };
+      g.accepted.forEach(c => up(c, 'yes'));
+      g.meh.forEach(c      => up(c, 'meh'));
+      g.rejected.forEach(c => up(c, 'no'));
+    }
+
+    const stats = {};
+    for (const p in latest) {
+      for (const card in latest[p]) {
+        const ch = latest[p][card].choice;
+        if (!stats[card]) stats[card] = { yes:0, meh:0, no:0 };
+        stats[card][ch] += 1;
+      }
+    }
+
+    const labels  = Object.keys(stats).sort((a,b)=>a.localeCompare(b));
+    const yesData = labels.map(l => stats[l].yes);
+    const mehData = labels.map(l => stats[l].meh);
+    const noData  = labels.map(l => stats[l].no);
+
+    const canvas = document.getElementById('statsChart');
+    const desiredWidth = Math.max(labels.length * 42, 420);
+    canvas.width = desiredWidth; canvas.height = 320;
+    const ctx = canvas.getContext('2d');
+
+    const css = getComputedStyle(document.documentElement);
+    const grad = (hex) => { const g = ctx.createLinearGradient(0,0,0,canvas.height); g.addColorStop(0,hex); g.addColorStop(1,hex); return g; };
+
     destroyChart();
-    return;
-  }
-  if (!games.length) { destroyChart(); return; }
-
-  // Normalizar juego
-  const safeGames = games
-    .filter(g => g && (Array.isArray(g.accepted) || Array.isArray(g.rejected) || Array.isArray(g.meh)))
-    .map(g => ({
-      player: (g.player || "¿anon?").trim(),
-      accepted: Array.isArray(g.accepted) ? g.accepted : [],
-      meh: Array.isArray(g.meh) ? g.meh : [],
-      rejected: Array.isArray(g.rejected) ? g.rejected : [],
-      ts: Date.parse(g.date || g.timestamp || "") || 0
-    }));
-
-  // 1 voto máximo por jugador y tarjeta
-  const latest = {};
-  for (const g of safeGames) {
-    const p = g.player;
-    if (!latest[p]) latest[p] = {};
-    const up = (card, choice) => {
-      const prev = latest[p][card];
-      if (!prev || g.ts >= prev.ts) latest[p][card] = { choice, ts: g.ts };
-    };
-    g.accepted.forEach(c => up(c, 'yes'));
-    g.meh.forEach(c      => up(c, 'meh'));
-    g.rejected.forEach(c => up(c, 'no'));
-  }
-
-  // Conteos por tarjeta
-  const stats = {};
-  for (const p in latest) {
-    for (const card in latest[p]) {
-      const ch = latest[p][card].choice;
-      if (!stats[card]) stats[card] = { yes:0, meh:0, no:0 };
-      stats[card][ch] += 1;
-    }
-  }
-
-  // Gráfico apilado
-  const labels  = Object.keys(stats).sort((a,b)=>a.localeCompare(b));
-  const yesData = labels.map(l => stats[l].yes);
-  const mehData = labels.map(l => stats[l].meh);
-  const noData  = labels.map(l => stats[l].no);
-
-  const canvas = document.getElementById('statsChart');
-  const desiredWidth = Math.max(labels.length * 42, 420);
-  canvas.width = desiredWidth;
-  canvas.height = 320;
-  const ctx = canvas.getContext('2d');
-
-  const css = getComputedStyle(document.documentElement);
-  const grad = (hex) => {
-    const g = ctx.createLinearGradient(0,0,0,canvas.height);
-    g.addColorStop(0,hex);
-    g.addColorStop(1,hex);
-    return g;
-  };
-
-  destroyChart();
-  if (typeof Chart === 'function') {
-    statsChartInstance = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [
+    if (typeof Chart === 'function') {
+      statsChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: { labels, datasets: [
           { label: 'Aquí sí',     data: yesData, backgroundColor: grad(css.getPropertyValue('--yes').trim()), borderRadius: 8, stack: 'stack' },
           { label: 'Me da igual', data: mehData, backgroundColor: grad(css.getPropertyValue('--meh').trim()), borderRadius: 8, stack: 'stack' },
           { label: 'Pasando',     data: noData,  backgroundColor: grad(css.getPropertyValue('--no').trim()),  borderRadius: 8, stack: 'stack' }
-        ]
-      },
-      options: {
-        responsive: false, maintainAspectRatio: false,
-        scales: { x: { stacked: true, ticks: { maxRotation: 60, minRotation: 0 } }, y: { stacked: true, beginAtZero: true } },
-        plugins: {
-          legend: { labels: { color: '#333', boxWidth: 18, usePointStyle: true, pointStyle: 'rectRounded' } },
-          tooltip: { backgroundColor: 'rgba(255,255,255,.95)', titleColor: '#333', bodyColor: '#333', borderColor: '#ddd', borderWidth: 1 }
-        },
-        animation: { duration: 220 }
+        ]},
+        options: {
+          responsive: false, maintainAspectRatio: false,
+          scales: { x: { stacked: true, ticks: { maxRotation: 60, minRotation: 0 } }, y: { stacked: true, beginAtZero: true } },
+          plugins: {
+            legend: { labels: { color: '#333', boxWidth: 18, usePointStyle: true, pointStyle: 'rectRounded' } },
+            tooltip: { backgroundColor: 'rgba(255,255,255,.95)', titleColor: '#333', bodyColor: '#333', borderColor: '#ddd', borderWidth: 1 }
+          },
+          animation: { duration: 220 }
+        }
+      });
+    }
+
+    const topBody = document.querySelector('#topCardsTable tbody');
+    const topCards = Object.entries(stats).sort((a,b) => b[1].yes - a[1].yes || a[0].localeCompare(b[0]));
+    for (const [name, v] of topCards) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${name}</td><td>${v.yes}</td><td>${v.meh}</td><td>${v.no}</td>`;
+      topBody.appendChild(tr);
+    }
+
+    const byPlayer = {};
+    for (const p in latest) {
+      const set = new Set();
+      for (const card in latest[p]) if (latest[p][card].choice === 'yes') set.add(card);
+      if (set.size) byPlayer[p] = set;
+    }
+
+    const players = Object.keys(byPlayer).sort((a,b)=>a.localeCompare(b));
+    const gBody   = document.querySelector('#affinityGlobal tbody');
+    const pBody   = document.querySelector('#affinityPersonal tbody');
+
+    const pairs = [];
+    for (let i=0;i<players.length;i++){
+      for (let j=i+1;j<players.length;j++){
+        const p1 = players[i], p2 = players[j];
+        const s1 = byPlayer[p1], s2 = byPlayer[p2];
+        const inter = []; s1.forEach(x => { if (s2.has(x)) inter.push(x); });
+        if (inter.length) pairs.push({ a:p1, b:p2, common:inter.sort(), count:inter.length });
       }
+    }
+    pairs.sort((x,y)=> y.count - x.count || (x.a+x.b).localeCompare(y.a+y.b));
+
+    pairs.slice(0, 200).forEach(row=>{
+      const cA = getPlayerColorUnique(row.a);
+      const cB = getPlayerColorUnique(row.b);
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td><span style="font-weight:600;color:${cA}">${row.a}</span> &amp; <span style="font-weight:600;color:${cB}">${row.b}</span></td><td>${row.count}</td><td class="cards-small">${row.common.join(", ")}</td>`;
+      gBody.appendChild(tr);
     });
-  }
 
-  // TOP tarjetas
-  const topCards = Object.entries(stats)
-    .sort((a,b) => b[1].yes - a[1].yes || a[0].localeCompare(b[0]));
-  for (const [name, v] of topCards) {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${name}</td><td>${v.yes}</td><td>${v.meh}</td><td>${v.no}</td>`;
-    topBody.appendChild(tr);
-  }
-
-  // Afinidad (SÍ) por jugador
-  const byPlayer = {};
-  for (const p in latest) {
-    const set = new Set();
-    for (const card in latest[p]) {
-      if (latest[p][card].choice === 'yes') set.add(card);
+    let personalRows = [];
+    if (playerName && byPlayer[playerName]) {
+      const mine = byPlayer[playerName];
+      players.filter(p=>p!==playerName).forEach(p=>{
+        const inter = []; byPlayer[p].forEach(x=>{ if (mine.has(x)) inter.push(x); });
+        if (inter.length) personalRows.push({ player:p, count:inter.length, list:inter.sort() });
+      });
+      personalRows.sort((x,y)=> y.count - x.count || x.player.localeCompare(y.player));
     }
-    if (set.size) byPlayer[p] = set;
-  }
 
-  const players = Object.keys(byPlayer).sort((a,b)=>a.localeCompare(b));
-
-  // Ranking global de parejas
-  const pairs = [];
-  for (let i=0;i<players.length;i++){
-    for (let j=i+1;j<players.length;j++){
-      const p1 = players[i], p2 = players[j];
-      const s1 = byPlayer[p1], s2 = byPlayer[p2];
-      const inter = [];
-      s1.forEach(x => { if (s2.has(x)) inter.push(x); });
-      if (inter.length) pairs.push({ a:p1, b:p2, common:inter.sort(), count:inter.length });
+    if (personalRows.length){
+      personalRows.slice(0,200).forEach(r=>{
+        const c = getPlayerColorUnique(r.player);
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td style=\"font-weight:600; color:${c}\">${r.player}</td><td>${r.count}</td><td class=\"cards-small\">${r.list.join(", ")}</td>`;
+        pBody.appendChild(tr);
+      });
+    } else {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td colspan=\"3\"><span class=\"notice\">Juega una partida para ver tu afinidad personal.</span></td>`;
+      pBody.appendChild(tr);
     }
-  }
-  pairs.sort((x,y)=> y.count - x.count || (x.a+x.b).localeCompare(y.a+y.b));
 
-  // Render afinidad global
-  pairs.slice(0, 200).forEach(row=>{
-    const cA = getPlayerColorUnique(row.a);
-    const cB = getPlayerColorUnique(row.b);
-    const tr = document.createElement('tr');
-    tr.innerHTML =
-      `<td><span style="font-weight:600;color:${cA}">${row.a}</span> &amp; ` +
-      `<span style="font-weight:600;color:${cB}">${row.b}</span></td>` +
-      `<td>${row.count}</td>` +
-      `<td class="cards-small">${row.common.join(", ")}</td>`;
-    gBody.appendChild(tr);
+    document.getElementById('affinityArea').style.display = "grid";
+  }
+
+  /* === Generador de kanji cayendo === */
+  function initKanjiRain(){
+    const KANJI = "日月火水木金土山川田人口女子学校先生時間東京日本大中小上下左右入口出口駅車電気食飲見行来会話読書映画音楽花愛友幸楽海空風雨雪猫犬鳥龍心星春夏秋冬夢道神寺社桜光美和新古旅食買飲遊語学写真";
+    const pick = () => KANJI[Math.floor(Math.random() * KANJI.length)];
+    const COUNT_A = 40; const COUNT_B = 40;
+    const makeChar = (layerClass) => {
+      const el = document.createElement('span');
+      el.className = `kanji-char ${layerClass}`;
+      el.textContent = pick();
+      const vw = Math.random() * 100;
+      const size = 14 + Math.random() * 18;
+      const rot = (Math.random() * 60 - 30) + "deg";
+      const delay = (-Math.random() * 32).toFixed(2) + "s";
+      const drift = (Math.random() * 60 - 30) + "px";
+      el.style.setProperty('--x', vw + 'vw');
+      el.style.setProperty('--r', rot);
+      el.style.fontSize = size + 'px';
+      el.style.animationDelay = delay;
+      el.style.transform = `translateX(${drift}) translateY(-12vh) rotate(${rot})`;
+      document.body.appendChild(el);
+    };
+    for (let i = 0; i < COUNT_A; i++) makeChar('kanji-layer-a');
+    for (let i = 0; i < COUNT_B; i++) makeChar('kanji-layer-b');
+  }
+  function spawnKanji(){
+    document.querySelectorAll('.kanji-char').forEach(n=>n.remove());
+    initKanjiRain();
+  }
+
+  /************ Flujo UI ************/
+  document.getElementById("btnNameNext").addEventListener("click", () => {
+    const nameInput = document.getElementById("username").value.trim();
+    if (!nameInput) { alert("Que me digas quién eres o no jugamos ù3ú"); return; }
+    playerName = nameInput;
+    document.getElementById("start-screen").style.display = "none";
+    document.getElementById("mode-screen").style.display = "flex";
+  });
+  document.getElementById("btnSeeStats").addEventListener("click", showStats);
+  document.getElementById("btnStatsFromResults").addEventListener("click", showStats);
+  document.getElementById("btnBackStart").addEventListener("click", ()=>{
+    // Volver a inicio
+    document.getElementById('stats-screen').style.display = 'none';
+    document.getElementById('start-screen').style.display = 'flex';
   });
 
-  // Afinidad personal
-  let personalRows = [];
-  if (playerName && byPlayer[playerName]) {
-    const mine = byPlayer[playerName];
-    players.filter(p=>p!==playerName).forEach(p=>{
-      const inter = [];
-      byPlayer[p].forEach(x=>{ if (mine.has(x)) inter.push(x); });
-      if (inter.length) personalRows.push({ player:p, count:inter.length, list:inter.sort() });
-    });
-    personalRows.sort((x,y)=> y.count - x.count || x.player.localeCompare(y.player));
+  document.getElementById("halfShort").addEventListener("click", async () => {
+    mode = "short"; mehLimit = 5; await startGameWithMode();
+  });
+  document.getElementById("halfFull").addEventListener("click", async () => {
+    mode = "full"; mehLimit = 10; await startGameWithMode();
+  });
+
+  document.getElementById('btnNo').addEventListener('click', ()=>handleDecision(-1));
+  document.getElementById('btnMeh').addEventListener('click', ()=>handleDecision(0));
+  document.getElementById('btnYes').addEventListener('click', ()=>handleDecision(1));
+
+  async function startGameWithMode() {
+    const SHORT_COUNT = 20;
+    let safeOriginal = [...originalData];
+
+    if (mode === "short") {
+      const pastCards = await getSeenCardsForPlayer(playerName); // Set con nombres
+      let availableCards = safeOriginal.filter(c => !pastCards.has(c.name));
+      if (availableCards.length < SHORT_COUNT) availableCards = shuffleArray([...safeOriginal]);
+      else availableCards = shuffleArray(availableCards);
+      data = availableCards.slice(0, SHORT_COUNT);
+    } else {
+      data = shuffleArray(safeOriginal);
+    }
+
+    index = 0; accepted = []; rejected = []; meh = [];
+    container.innerHTML = "";
+    document.getElementById("mode-screen").style.display = "none";
+    document.getElementById("game-screen").style.display = "flex";
+    showNextCard(true);
   }
 
-  if (personalRows.length){
-    personalRows.slice(0,200).forEach(r=>{
-      const c = getPlayerColorUnique(r.player);
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td style="font-weight:600; color:${c}">${r.player}</td><td>${r.count}</td><td class="cards-small">${r.list.join(", ")}</td>`;
-      pBody.appendChild(tr);
-    });
-  } else {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td colspan="3"><span class="notice">Juega una partida para ver tu afinidad personal.</span></td>`;
-    pBody.appendChild(tr);
-  }
-
-  // Mostrar bloque inferior
-  document.getElementById('affinityArea').style.display = "grid";
-}
-
-  /* === Generador de kanji cayendo (reemplaza a los pétalos) === */
-function initKanjiRain(){
-  // Conjunto de kanji para elegir al azar (puedes ampliar la lista)
-  const KANJI = "日月火水木金土山川田人口女子学校先生時間東京日本大中小上下左右入口出口駅車電気食飲見行来会話読書映画音楽花愛友幸楽海空風雨雪猫犬鳥龍心星春夏秋冬夢道神寺社桜光美和新古旅食買飲遊語学写真";
-  const pick = () => KANJI[Math.floor(Math.random() * KANJI.length)];
-
-  // Cantidad por capa (ajusta si quieres más/menos densidad)
-  const COUNT_A = 40; // capa rápida (24s)
-  const COUNT_B = 40; // capa lenta  (32s)
-
-  const makeChar = (layerClass) => {
-    const el = document.createElement('span');
-    el.className = `kanji-char ${layerClass}`;
-    el.textContent = pick();
-
-    // Aleatoriedad de posición/tamaño/rotación y fase
-    const vw = Math.random() * 100;                // posición horizontal
-    const size = 14 + Math.random() * 18;          // 14px ~ 32px
-    const rot = (Math.random() * 60 - 30) + "deg"; // -30deg ~ 30deg
-    const delay = (-Math.random() * 32).toFixed(2) + "s"; // arranque desfasado
-    const drift = (Math.random() * 60 - 30) + "px";       // leve deriva base
-
-    el.style.setProperty('--x', vw + 'vw');
-    el.style.setProperty('--r', rot);
-    el.style.fontSize = size + 'px';
-    el.style.animationDelay = delay;
-
-    // Pequeña variación extra entre caracteres
-    el.style.transform = `translateX(${drift}) translateY(-12vh) rotate(${rot})`;
-
-    document.body.appendChild(el);
-  };
-
-  for (let i = 0; i < COUNT_A; i++) makeChar('kanji-layer-a');
-  for (let i = 0; i < COUNT_B; i++) makeChar('kanji-layer-b');
-}
-
-
-  /************ Init ************/
+  /* === Init === */
   applyRandomTheme();
-  initKanjiRain(); 
+  initKanjiRain();
   document.getElementById("start-screen").style.display = "flex";
 </script>
 
-  <script>
-/* --- Funciones para manejar resultados --- */
-
-// Obtiene las tarjetas vistas por un jugador desde data.json
-async function getSeenCardsForPlayer(player) {
-    try {
-        const res = await fetch('results/data.json');
-        const data = await res.json();
-        return data[player] || {};
-    } catch (e) {
-        console.error('Error al leer data.json', e);
-        return {};
-    }
-}
-
-// Guarda un resultado de una tarjeta para un jugador
-async function saveResult(player, cardId, action) {
-    try {
-        await fetch('/api/save', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ player, cardId, action })
-        });
-    } catch (e) {
-        console.error('Error al guardar resultado', e);
-    }
-}
-
-// Función para mezclar aleatoriamente las tarjetas
-function shuffle(array) {
-    return array.sort(() => Math.random() - 0.5);
-}
-
-/* --- Funciones principales del juego --- */
-
-let currentPlayer = 'jugador1'; // Cambiar según tu lógica
-let cards = [...document.querySelectorAll('.card')];
-
-async function initGame() {
-    const seenCards = await getSeenCardsForPlayer(currentPlayer);
-
-    // Ocultar tarjetas ya vistas
-    cards.forEach(card => {
-        if (seenCards[card.dataset.id]) {
-            card.style.display = 'none';
-        }
-    });
-
-    cards = shuffle(cards); // Mezclar tarjetas visibles
-}
-
-// Ejemplo de acción al aceptar o rechazar
-function handleCardAction(card, action) {
-    card.style.display = 'none';
-    saveResult(currentPlayer, card.dataset.id, action);
-}
-
-// Inicializa el juego al cargar
-window.addEventListener('DOMContentLoaded', initGame);
-</script>
-  
 </body>
 </html>
-
-
-
-
-
-
-
-
-
