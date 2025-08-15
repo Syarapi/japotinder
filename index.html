@@ -12,9 +12,13 @@
     --meh:#8a5adf;
     --no:#ff7aa3;
     --ink:#333;
+
+    /* colores base del tema (se actualizan dinámicamente) */
     --bg-light:#fff7fb; --bg-mid:#ffe3ef; --bg-dark:#d38cb1;
     --card-bg:#ffffffee;
     --accent-1:#FF91C0; --accent-2:#FF68A8;
+    --title-main: var(--accent-1);
+    --strong-color: var(--accent-2);
     --petal-rgba: 255,182,193;
   }
 
@@ -40,9 +44,10 @@
     100%{transform: translateX(calc(var(--x,0) - 6px))  translateY(135vh) rotate(calc(var(--r,0deg) + 20deg));}
   }
 
-  h1, h2, h3 { font-family: 'Yuji Syuku', serif; text-align: center; }
-  h1 { color: var(--accent-1); text-shadow: 0 2px 0 #fff; margin: 10px 0 6px; }
-  h2 { color: var(--accent-2); margin: 6px 0 10px; }
+  h1, h2, h3 { font-family: 'Yuji Syuku', serif; text-align: center; color: var(--title-main); }
+  h1 { text-shadow: 0 2px 0 #fff; margin: 10px 0 6px; }
+  h2 { margin: 6px 0 10px; }
+  strong { color: var(--strong-color); }
 
   /* Pantallas */
   #start-screen, #mode-screen, #game-screen, #results, #stats-screen {
@@ -50,7 +55,7 @@
   }
   #start-screen { display:flex; justify-content:center; gap:15px; min-height:100vh; padding: 16px 10px; }
 
-  /* Tutorial (toggle) */
+  /* Tutorial (toggle / hover) */
   .tutorial {
     background: var(--card-bg);
     border: 2px solid var(--accent-1);
@@ -76,6 +81,12 @@
   }
   .tutorial ul { margin: 0; padding-left: 18px; }
   .tutorial li { margin: 6px 0; }
+
+  /* Sólo en dispositivos con hover (PC): ocultar botón y usar hover para abrir */
+  @media (hover: hover) and (pointer: fine){
+    #tutorialToggleBtn { display: none; }
+    .tutorial-header { cursor: default; }
+  }
 
   /* Tarjetas */
   #game-screen{ padding-top: 40px; } /* más aire arriba */
@@ -111,7 +122,7 @@
   .half.right::before{
     content:""; position:absolute; inset:0;
     background: var(--bg-dark);
-    opacity: .18; /* antes .07 */
+    opacity: .18;
     pointer-events: none; z-index: 0;
   }
   .half.right > .content { position: relative; z-index: 1; }
@@ -128,7 +139,7 @@
     <div style="text-align:center; width:100%; display:flex; flex-direction:column; align-items:center; gap:10px;">
       <h1>Japotinder</h1>
 
-      <!-- TUTORIAL (toggle) -->
+      <!-- TUTORIAL -->
       <div class="tutorial" id="tutorial">
         <div class="tutorial-header" id="tutorialHeader" role="button" tabindex="0" aria-expanded="true" aria-controls="tutorialBody">
           <h3 class="tutorial-title">Tutorial</h3>
@@ -381,6 +392,8 @@
     root.setProperty('--bg-dark', pick.dark);
     root.setProperty('--accent-1', pick.accent1);
     root.setProperty('--accent-2', pick.accent2);
+    root.setProperty('--title-main', pick.accent1);
+    root.setProperty('--strong-color', pick.accent2);
     const pet = Array.isArray(pick.petal) && pick.petal.length === 3 ? pick.petal : [220,120,160];
     root.setProperty('--petal-rgba', `${pet[0]},${pet[1]},${pet[2]}`);
     spawnKanji();
@@ -415,8 +428,9 @@
     document.getElementById('player-info').innerHTML = html;
   }
 
-  /************ Tutorial: toggle + persistencia ************/
+  /************ Tutorial: hover en PC / toggle en móvil ************/
   function initTutorialToggle(){
+    const box = document.getElementById('tutorial');
     const header = document.getElementById('tutorialHeader');
     const btn = document.getElementById('tutorialToggleBtn');
     const body = document.getElementById('tutorialBody');
@@ -424,22 +438,32 @@
     const setOpen = (open) => {
       body.style.display = open ? 'block' : 'none';
       header.setAttribute('aria-expanded', String(open));
-      btn.textContent = open ? 'Ocultar' : 'Mostrar';
+      if (btn) btn.textContent = open ? 'Ocultar' : 'Mostrar';
       try{ localStorage.setItem(TUTORIAL_LS, JSON.stringify(!!open)); }catch{}
     };
 
-    // Estado inicial desde LS (por defecto: abierto)
-    let open = true;
-    try {
-      const raw = localStorage.getItem(TUTORIAL_LS);
-      if (raw !== null) open = JSON.parse(raw) === true;
-    } catch(_) {}
-    setOpen(open);
+    const isDesktopHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
-    const toggle = () => setOpen(!(body.style.display !== 'none'));
-    header.addEventListener('click', toggle);
-    btn.addEventListener('click', (e)=>{ e.stopPropagation(); toggle(); });
-    header.addEventListener('keydown', (e)=>{ if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }});
+    if (isDesktopHover){
+      // PC: abrir al pasar el ratón, cerrar al salir. Por defecto cerrado.
+      setOpen(false);
+      box.addEventListener('mouseenter', ()=>setOpen(true));
+      box.addEventListener('mouseleave', ()=>setOpen(false));
+      // No añadimos eventos de click para evitar toggles accidentales en desktop.
+    } else {
+      // Móvil / sin hover: toggle clásico con persistencia (por defecto abierto)
+      let open = true;
+      try {
+        const raw = localStorage.getItem(TUTORIAL_LS);
+        if (raw !== null) open = JSON.parse(raw) === true;
+      } catch(_) {}
+      setOpen(open);
+
+      const toggle = () => setOpen(!(body.style.display !== 'none'));
+      header.addEventListener('click', toggle);
+      if (btn) btn.addEventListener('click', (e)=>{ e.stopPropagation(); toggle(); });
+      header.addEventListener('keydown', (e)=>{ if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }});
+    }
   }
 
   /************ Flujo UI ************/
@@ -632,8 +656,9 @@
     const noData  = labels.map(l => stats[l].no);
 
     const canvas = document.getElementById('statsChart');
-    // Mantengo el ancho por etiqueta para que quepan los nombres, pero estrecho las barras
-    const desiredWidth = Math.max(labels.length * 80, 640);
+    // Más ancho: espacio para la leyenda a la izquierda sin apretar barras
+    const legendBuffer = 180;
+    const desiredWidth = Math.max(labels.length * 80 + legendBuffer, 640);
     canvas.width = desiredWidth; canvas.height = 360;
     const ctx = canvas.getContext('2d');
 
@@ -654,6 +679,7 @@
         },
         options: {
           responsive: false, maintainAspectRatio: false,
+          layout: { padding: { left: 0, right: 10, top: 0, bottom: 0 } },
           scales: {
             x: {
               stacked: true,
@@ -662,7 +688,11 @@
             y: { stacked: true, beginAtZero: true }
           },
           plugins: {
-            legend: { labels: { color: '#333', boxWidth: 18, usePointStyle: true, pointStyle: 'rectRounded' } },
+            legend: {
+              position: 'left',
+              align: 'start',
+              labels: { color: '#333', boxWidth: 18, usePointStyle: true, pointStyle: 'rectRounded' }
+            },
             tooltip: { backgroundColor: 'rgba(255,255,255,.95)', titleColor: '#333', bodyColor: '#333', borderColor: '#ddd', borderWidth: 1 }
           },
           animation: { duration: 220 }
