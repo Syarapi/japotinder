@@ -31,29 +31,16 @@
 }
 
 /* ===== Fondo con kanji aleatorios ===== */
-body {
-    margin:0;
-    font-family:'Segoe UI',sans-serif;
-    color: var(--ink);
-    min-height:100vh;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    background: var(--bg-light);
-    position: relative;
-    overflow-x: hidden;
-  }
-
-  #kanji-bg {
+#kanji-bg {
   position: fixed;
   inset: 0;
-  z-index: 0;              /* ya no negativo */
+  z-index: 0;           /* visible sobre el fondo del <body> */
   pointer-events: none;
   overflow: hidden;
 }
 
-/* Asegura que TODO el contenido vaya por encima de la capa 0 */
-body > *:not(#kanji-bg) {
+/* Todo el contenido normal por encima de la capa 0 */
+body > div:not(#kanji-bg) {
   position: relative;
   z-index: 1;
 }
@@ -294,7 +281,9 @@ body > *:not(#kanji-bg) {
 </style>
 </head>
 <body>
-
+  
+<div id="kanji-bg"></div>
+  
 <!-- Pantalla de inicio -->
 <div id="start-screen">
   <div style="text-align:center">
@@ -912,7 +901,6 @@ body > *:not(#kanji-bg) {
   applyRandomTheme();
   document.getElementById("start-screen").style.display = "flex";
 </script>
-<div id="kanji-bg"></div>
 
 <script>
   const kanjis = ["花","桜","夢","風","月","光","心","雪","星","海"];
@@ -940,6 +928,7 @@ body > *:not(#kanji-bg) {
 
 </body>
 </html>
+
 
 
 
