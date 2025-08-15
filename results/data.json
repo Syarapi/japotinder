@@ -740,5 +740,37 @@
       "Nagano y monos de nieve",
       "Kumamoto"
     ]
+  },
+  {
+    "player": "Syara",
+    "date": "15/8/2025, 15:09:45",
+    "mode": "full",
+    "accepted": [
+      "Maid cafe",
+      "Pokemon Cafe",
+      "Shinkansen Hello Kitty",
+      "Disney Tokyo",
+      "RJ Cafe Osaka",
+      "Tarde de recreativas",
+      "Beppu",
+      "Bandai Museum",
+      "Kumamoto",
+      "Eventos Kisekoi/Sailor Moon"
+    ],
+    "meh": [
+      "Enoshima",
+      "Nabana no sato",
+      "Shibazakura park Hokkaido"
+    ],
+    "rejected": [
+      "Gotokuji",
+      "Otaru",
+      "Ginzan Onsen",
+      "Shikisai no oka",
+      "Kumachan Onsen Tokyo",
+      "Museo/cafe de los yokai",
+      "Nagano y monos de nieve",
+      "Musical Tokyo Revengers"
+    ]
   }
 ]
