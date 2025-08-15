@@ -8,212 +8,85 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
   :root{
-    /* Paleta fija para botones/series (NO aleatoria) */
-    --yes:#87cefa;          /* AZUL para "Aquí sí" */
-    --meh:#8a5adf;          /* MORADO para "Me da igual" */
-    --no:#ff7aa3;           /* ROSA para "Pasando" */
-
-    /* Variables de tema aleatorio */
+    --yes:#87cefa;
+    --meh:#8a5adf;
+    --no:#ff7aa3;
     --ink:#333;
-    --bg-light:#fff7fb;
-    --bg-mid:#ffe3ef;
-    --bg-dark:#d38cb1;
+    --bg-light:#fff7fb; --bg-mid:#ffe3ef; --bg-dark:#d38cb1;
     --card-bg:#ffffffee;
-    --accent-1:#FF91C0;
-    --accent-2:#FF68A8;
+    --accent-1:#FF91C0; --accent-2:#FF68A8;
     --petal-rgba: 255,182,193;
   }
 
-  /* ===== Fondo temático ===== */
   html, body { height: 100%; }
   body {
-    margin: 0;
-    font-family: 'Segoe UI', sans-serif;
-    color: var(--ink);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background: var(--bg-light);
-    position: relative; /* crea contexto para z-index */
-    overflow-x: hidden;
-  }
-  body::before, body::after{ content: none !important; }
-
-  /* Capa donde viven los kanji */
-  #kanji-layer{
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;           /* detrás del contenido */
-    overflow: hidden;
+    margin: 0; font-family: 'Segoe UI', sans-serif; color: var(--ink);
+    min-height: 100vh; display: flex; flex-direction: column; align-items: center;
+    background: var(--bg-light); position: relative; overflow-x: hidden;
   }
 
-  /* Cada carácter kanji "flotante" */
+  /* Capa de kanji (fondo animado) */
+  #kanji-layer{ position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
   .kanji-char{
-    position: absolute;
-    top: -12vh;
-    left: 0;
-    transform: translateX(var(--x, 0)) translateY(0) rotate(var(--r, 0deg));
-    font-family: 'Yuji Syuku', serif;
-    font-weight: 400;
-    line-height: 1;
-    user-select: none;
-    color: rgba(var(--petal-rgba), var(--opa, .25));
-    animation: fall-kanji var(--dur, 24s) linear infinite;
-    filter: blur(0.2px);
-    white-space: pre;
+    position: absolute; top: -12vh; transform: translateX(var(--x, 0)) translateY(0) rotate(var(--r, 0deg));
+    font-family: 'Yuji Syuku', serif; color: rgba(var(--petal-rgba), var(--opa, .25));
+    animation: fall-kanji var(--dur, 24s) linear infinite; user-select: none; white-space: pre; filter: blur(.2px);
   }
   .kanji-layer-a { --dur: 24s; --opa:.25; }
   .kanji-layer-b { --dur: 32s; --opa:.6;  }
-
   @keyframes fall-kanji{
-    0%   { transform: translateX(calc(var(--x, 0) - 10px)) translateY(-12vh) rotate(calc(var(--r, 0deg) - 10deg)); }
-    50%  { transform: translateX(calc(var(--x, 0) + 10px)) translateY(55vh)  rotate(calc(var(--r, 0deg) + 10deg)); }
-    100% { transform: translateX(calc(var(--x, 0) - 6px))  translateY(135vh) rotate(calc(var(--r, 0deg) + 20deg)); }
+    0%{transform: translateX(calc(var(--x,0) - 10px)) translateY(-12vh) rotate(calc(var(--r,0deg) - 10deg));}
+    50%{transform: translateX(calc(var(--x,0) + 10px)) translateY(55vh)  rotate(calc(var(--r,0deg) + 10deg));}
+    100%{transform: translateX(calc(var(--x,0) - 6px))  translateY(135vh) rotate(calc(var(--r,0deg) + 20deg));}
   }
 
   h1, h2, h3 { font-family: 'Yuji Syuku', serif; text-align: center; }
   h1 { color: var(--accent-1); text-shadow: 0 2px 0 #fff; margin: 10px 0 6px; }
   h2 { color: var(--accent-2); margin: 6px 0 10px; }
-  h3 { color: var(--accent-1); margin: 10px 0; }
 
   /* Pantallas */
   #start-screen, #mode-screen, #game-screen, #results, #stats-screen {
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    position: relative;
-    z-index: 1; /* por encima de los kanji */
+    display: none; flex-direction: column; align-items: center; width: 100%; position: relative; z-index: 1;
   }
-  #start-screen {
-    display: flex; justify-content: center; gap: 15px; min-height: 100vh; padding: 16px 10px;
-  }
+  #start-screen { display:flex; justify-content:center; gap:15px; min-height:100vh; padding: 16px 10px; }
 
   /* Tarjetas */
-  #card-container {
-    position: relative;
-    width: min(92%, 520px);
-    height: min(70vh, 720px);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
+  #card-container { position: relative; width: min(92%, 520px); height: min(70vh, 720px); display:flex; justify-content:center; align-items:center; }
   .card {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    border-radius: 20px;
-    overflow: hidden;
-    border: 2px solid var(--accent-1);
-    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-    will-change: transform;
-    background: #fff;
+    position: relative; width: 100%; height: 100%; border-radius: 20px; overflow: hidden;
+    border: 2px solid var(--accent-1); box-shadow: 0 10px 25px rgba(0,0,0,0.15); background:#fff;
   }
   .card img { width: 100%; height: 100%; object-fit: cover; display: block; user-select: none; -webkit-user-drag: none; }
-  .card div {
-    position: absolute; bottom: 0; left: 0; right: 0;
-    background: rgba(255, 255, 255, 0.85);
-    color: var(--ink); font-weight: 600; font-size: clamp(14px, 2vw, 16px);
-    padding: 8px 12px; text-align: center; backdrop-filter: blur(4px);
-  }
+  .card div { position: absolute; bottom:0; left:0; right:0; background: rgba(255,255,255,.85); color:var(--ink);
+    font-weight:600; font-size: clamp(14px, 2vw, 16px); padding: 8px 12px; text-align:center; backdrop-filter: blur(4px); }
 
   /* Botones */
-  #buttons {
-    margin-top: 10px; display: flex; gap: 12px; z-index: 10;
-  }
-  .btn {
-    padding: 12px 18px; font-size: 16px; border: none; border-radius: 12px; cursor: pointer;
-    transition: transform .15s ease, box-shadow .15s ease, opacity .2s ease;
-    box-shadow: 0 8px 18px rgba(0,0,0,.12); color: white;
-  }
-  #btnNameNext, .stats-btn { background: linear-gradient(180deg, var(--accent-1) 0%, var(--accent-2) 100%); color: #fff; }
-  .accept { background: linear-gradient(180deg, var(--yes) 0%, #5fb5ef 100%); }
-  .meh    { background: linear-gradient(180deg, var(--meh) 0%, #7343d8 100%); }
-  .reject { background: linear-gradient(180deg, var(--no) 0%, #ff5f93 100%); }
+  #buttons { margin-top:10px; display:flex; gap:12px; z-index:10; }
+  .btn { padding: 12px 18px; font-size: 16px; border: none; border-radius: 12px; cursor: pointer;
+         transition: transform .15s ease, box-shadow .15s ease, opacity .2s ease; box-shadow: 0 8px 18px rgba(0,0,0,.12); color: white; }
+  #btnNameNext, .stats-btn { background: linear-gradient(180deg, var(--accent-1), var(--accent-2)); }
+  .accept { background: linear-gradient(180deg, var(--yes), #5fb5ef); }
+  .meh    { background: linear-gradient(180deg, var(--meh), #7343d8); }
+  .reject { background: linear-gradient(180deg, var(--no), #ff5f93); }
   .btn:hover { transform: translateY(-1px); box-shadow: 0 10px 20px rgba(0,0,0,.16); }
-  .btn:active { transform: translateY(0); opacity:.95; }
+  .btn:active{ transform: translateY(0); opacity:.95; }
 
-  /* Tablas */
-  table {
-    border-collapse: collapse; margin-top: 10px; width: 100%; background: #fff;
-    border-radius: 14px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-    border: 2px solid var(--accent-1); table-layout: auto;
-  }
-  table th, table td { padding: 8px 10px; border-bottom: 1px solid #f0e7f8; text-align: left; word-break: break-word; }
-  table th { background: linear-gradient(180deg, var(--accent-2) 0%, var(--accent-1) 100%); color: white; letter-spacing:.3px; font-size: 13px; }
-  table td { font-size: 13px; }
-  table tr:nth-child(even) { background-color: #faf7ff; }
-  table tr:hover { background-color: #f4ecff; transition: background .2s ease; }
-  .cards-small { line-height: 1.4; }
-
-  /* Start screen: tutorial */
-  .tutorial {
-    margin-top: 8px; max-width: 640px; background: var(--card-bg);
-    border: 2px solid var(--accent-1); border-radius: 14px; padding: 10px 12px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.12); font-size: 14px;
-  }
-  .tutorial p { margin: 6px 0; text-align: left; }
-
-  /* Mode split screen */
-  #mode-screen { display: none; align-items: stretch; padding: 0; min-height: 100vh; width: 100%; }
-  .mode-split { display: grid; grid-template-columns: 1fr 1fr; width: 100%; min-height: 100vh; position: relative; }
-  .half { position: relative; display: flex; align-items: center; justify-content: center; cursor: pointer; user-select: none; padding: 20px 10px; }
-  .half::after { content: ""; position: absolute; inset: 0; pointer-events: none; }
-  .half .content {
-    z-index: 1; text-align: center; max-width: 520px; background: color-mix(in oklab, var(--card-bg) 75%, white 25%);
-    border: 2px solid var(--accent-1); border-radius: 16px; padding: 18px 16px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-  }
-  .half.left  { background: transparent; border-right: 1px dashed color-mix(in oklab, var(--accent-2) 60%, white); }
-  .half.right { background: transparent; }
-  .half.right::before { content: ""; position: absolute; inset: 0; background: color-mix(in srgb, var(--bg-dark) 70%, transparent); z-index: 0; }
-  .half h2 { margin: 4px 0 8px; }
-  .half p { margin: 0; font-size: 14px; opacity: .9; }
-  .badge { display: inline-block; margin-top: 8px; padding: 4px 8px; border-radius: 999px; font-weight: 600; font-size: 12px; color: #fff; background: linear-gradient(180deg, var(--accent-1), var(--accent-2)); }
-
-  /* Stats */
-  #stats-screen { min-height: 100vh; padding: 6px 10px 10px; box-sizing: border-box; overflow-y: auto; }
-  .stats-grid { display:grid; grid-template-columns: minmax(340px, 1fr) minmax(420px, 1.2fr); gap: 12px; align-items: start; }
-  .chart-card, .top-card, .aff-card { background: var(--card-bg); border: 2px solid var(--accent-1); border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); padding: 8px; display:flex; flex-direction:column; }
-  .chart-scroll { overflow-y: auto; max-height: 360px; padding-bottom: 6px; }
-  .chart-container canvas { height: auto !important; max-width: 100%; }
-  .top-scroll { overflow-y:auto; max-height: 220px; padding-bottom:6px; }
-  .aff-scroll { overflow-y:auto; max-height: 220px; padding-bottom:6px; }
-
-  @media (max-width: 980px) {
-    body { overflow:auto; }
-    .stats-grid { grid-template-columns: 1fr; }
-  }
-  @media (max-width: 760px) {
-    .stats-grid { grid-template-columns: 1fr !important; gap: 16px; }
-    table th, table td { font-size: 13px; padding: 6px 8px; }
-    .chart-scroll { max-height: 240px; }
-    .top-scroll, .aff-scroll { max-height: 180px; }
-  }
-
-  strong { color: rgba(var(--petal-rgba), 1); font-weight: bold; }
+  /* Tablas y stats */
+  table { border-collapse: collapse; margin-top: 10px; width: 100%; background: #fff;
+    border-radius: 14px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.12); border: 2px solid var(--accent-1); }
+  th, td { padding: 8px 10px; border-bottom: 1px solid #f0e7f8; text-align: left; word-break: break-word; font-size: 13px; }
+  th { background: linear-gradient(180deg, var(--accent-2), var(--accent-1)); color: #fff; letter-spacing:.3px; }
+  tr:nth-child(even) { background-color: #faf7ff; }
 </style>
 </head>
 <body>
-  <!-- capa de fondo para los kanji -->
   <div id="kanji-layer" aria-hidden="true"></div>
 
-  <!-- Pantalla de inicio -->
+  <!-- Inicio -->
   <div id="start-screen">
     <div style="text-align:center">
       <h1>Japontinder</h1>
-      <div class="tutorial">
-        <h3 style="margin:2px 0 6px;">¿Cómo se juega?</h3>
-        <p>Puedes jugar <strong>deslizando</strong> o usando los <strong>botones</strong>:</p>
-        <ul style="margin:6px 0 0 18px; padding:0;">
-          <li><strong>Izquierda</strong> = <span style="color:var(--no); font-weight:600;">No (Pasando)</span></li>
-          <li><strong>Derecha</strong> = <span style="color:var(--yes); font-weight:600;">Sí (Aquí sí)</span></li>
-          <li><strong>Arriba</strong> = <span style="color:var(--meh); font-weight:600;">Me da igual</span></li>
-        </ul>
-        <p>Si juegas más de una vez, pon <strong>el mismo nombre</strong>; si se repite una tarjeta, cuenta <strong>la última respuesta</strong>.</p>
-      </div>
-      <p>¿Quién eres? O no empezamos ò_ó</p>
+      <p>¿Quién eres?</p>
       <input type="text" id="username" placeholder="Tu nombre" />
       <div style="margin-top:10px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
         <button class="btn" id="btnNameNext">Siguiente</button>
@@ -222,32 +95,30 @@
     </div>
   </div>
 
-  <!-- Elección de modo -->
-  <div id="mode-screen">
-    <div class="mode-split">
-      <div class="half left" id="halfShort">
-        <div class="content">
+  <!-- Modo -->
+  <div id="mode-screen" style="display:none; min-height: 100vh;">
+    <div class="mode-split" style="display:grid; grid-template-columns:1fr 1fr; width:100%; min-height:100vh;">
+      <div class="half left" id="halfShort" style="display:flex; align-items:center; justify-content:center; cursor:pointer; padding:20px;">
+        <div class="content" style="text-align:center; max-width:520px; background: var(--card-bg); border:2px solid var(--accent-1); border-radius:16px; padding:18px;">
           <h2>Modo corto</h2>
-          <p>20 tarjetas <strong>aleatorias</strong>. “Me da igual” <strong>5 veces</strong>.</p>
-          <span class="badge">Toca o haz clic para jugar</span>
+          <p>20 tarjetas aleatorias. “Me da igual” 5 veces.</p>
         </div>
       </div>
-      <div class="half right" id="halfFull">
-        <div class="content">
+      <div class="half right" id="halfFull" style="display:flex; align-items:center; justify-content:center; cursor:pointer; padding:20px;">
+        <div class="content" style="text-align:center; max-width:520px; background: var(--card-bg); border:2px solid var(--accent-1); border-radius:16px; padding:18px;">
           <h2>Modo completo</h2>
-          <p>Todas las tarjetas en orden aleatorio. “Me da igual” <strong>10 veces</strong>.</p>
-          <span class="badge">Toca o haz clic para jugar</span>
+          <p>Todas las tarjetas. “Me da igual” 10 veces.</p>
         </div>
       </div>
     </div>
   </div>
 
   <!-- Juego -->
-  <div id="game-screen" style="display:none; flex-direction: column; align-items: center;">
+  <div id="game-screen" style="display:none; flex-direction:column; align-items:center;">
     <div id="card-container"></div>
     <div id="buttons">
       <button class="btn reject" onclick="handleDecision(-1)">Pasando</button>
-      <button class="btn meh" onclick="handleDecision(0)">Me da igual</button>
+      <button class="btn meh"    onclick="handleDecision(0)">Me da igual</button>
       <button class="btn accept" onclick="handleDecision(1)">Aquí sí</button>
     </div>
   </div>
@@ -258,9 +129,7 @@
     <p id="player-info" style="margin:4px 0 8px;"></p>
     <div class="results-table" style="width:100%;">
       <table>
-        <thead>
-          <tr><th>Aquí sí</th><th>Me da igual</th><th>Pasando</th></tr>
-        </thead>
+        <thead><tr><th>Aquí sí</th><th>Me da igual</th><th>Pasando</th></tr></thead>
         <tbody id="results-body"></tbody>
       </table>
     </div>
@@ -270,14 +139,18 @@
     </div>
   </div>
 
-  <!-- Estadísticas -->
-  <div id="stats-screen" style="display:none;">
-    <div class="stats-title-wrap"><h2>Estadísticas globales</h2></div>
-    <div class="stats-grid">
-      <div class="chart-card"><div class="chart-scroll"><canvas id="statsChart"></canvas></div></div>
-      <div class="top-card">
+  <!-- Stats -->
+  <div id="stats-screen" style="display:none; min-height:100vh; padding: 6px 10px 10px; box-sizing: border-box; overflow-y:auto;">
+    <h2>Estadísticas globales</h2>
+    <div class="stats-grid" style="display:grid; grid-template-columns: minmax(340px, 1fr) minmax(420px, 1.2fr); gap:12px;">
+      <div class="chart-card" style="background:var(--card-bg); border:2px solid var(--accent-1); border-radius:16px; padding:8px;">
+        <div class="chart-scroll" style="overflow-y:auto; max-height:360px; padding-bottom:6px;">
+          <canvas id="statsChart"></canvas>
+        </div>
+      </div>
+      <div class="top-card" style="background:var(--card-bg); border:2px solid var(--accent-1); border-radius:16px; padding:8px;">
         <h3 style="margin:4px 0 6px;">TOP tarjetas con más "sí"</h3>
-        <div class="top-scroll">
+        <div class="top-scroll" style="overflow-y:auto; max-height:220px; padding-bottom:6px;">
           <table id="topCardsTable">
             <thead><tr><th>Tarjeta</th><th>Sí</th><th>Meh</th><th>No</th></tr></thead>
             <tbody></tbody>
@@ -286,19 +159,19 @@
       </div>
     </div>
 
-    <div class="affinity-wrap" id="affinityArea" style="display:none;">
-      <div class="aff-card">
-        <h3 style="margin:4px 0 6px;">Ranking de afinidad (todos los jugadores)</h3>
-        <div class="aff-scroll">
+    <div id="affinityArea" style="display:none; margin-top:12px; gap:12px; grid-template-columns:1fr 1fr;">
+      <div class="aff-card" style="background:var(--card-bg); border:2px solid var(--accent-1); border-radius:16px; padding:8px;">
+        <h3 style="margin:4px 0 6px;">Ranking de afinidad (todos)</h3>
+        <div class="aff-scroll" style="overflow-y:auto; max-height:220px; padding-bottom:6px;">
           <table id="affinityGlobal">
             <thead><tr><th>Pareja</th><th>#</th><th>Tarjetas en común (SÍ)</th></tr></thead>
             <tbody></tbody>
           </table>
         </div>
       </div>
-      <div class="aff-card">
+      <div class="aff-card" style="background:var(--card-bg); border:2px solid var(--accent-1); border-radius:16px; padding:8px;">
         <h3 style="margin:4px 0 6px;">Jugadores más afines contigo</h3>
-        <div class="aff-scroll">
+        <div class="aff-scroll" style="overflow-y:auto; max-height:220px; padding-bottom:6px;">
           <table id="affinityPersonal">
             <thead><tr><th>Jugador</th><th>#</th><th>Tarjetas en común (SÍ)</th></tr></thead>
             <tbody></tbody>
@@ -367,7 +240,7 @@
 
   /************ Estado ************/
   let playerName = "";
-  let mode = "short"; // "short" | "full"
+  let mode = "short";
   let data = [];
   let accepted = [];
   let rejected = [];
@@ -375,13 +248,11 @@
   let index = 0;
   let mehLimit = 5;
   let statsChartInstance = null;
-
   const container = document.getElementById('card-container');
 
   /************ Utilidades ************/
   const shuffleArray = (array) => array.slice().sort(() => Math.random() - 0.5);
 
-  // Persistencia de colores únicos por jugador
   const LS_KEY = "japotinder_player_colors_v3";
   function loadColorMap(){ try{ return JSON.parse(localStorage.getItem(LS_KEY)) || {}; }catch{ return {}; } }
   function saveColorMap(map){ try{ localStorage.setItem(LS_KEY, JSON.stringify(map)); }catch{} }
@@ -410,7 +281,6 @@
     return [];
   }
 
-  // Cargar partidas previas para filtrar (última decisión por tarjeta)
   async function getSeenCardsForPlayer(name){
     const seen = new Set();
     try {
@@ -435,19 +305,14 @@
     return seen;
   }
 
-  // ===== Tema aleatorio + kanji =====
+  /* ===== Tema + Kanji ===== */
   function applyRandomTheme(){
     const themes = [
       { light:"#fff7fb", mid:"#ffe3ef", dark:"#d38cb1", accent1:"#FF91C0", accent2:"#FF68A8", petal:[220,120,160] },
       { light:"#f2f9ff", mid:"#e0f1ff", dark:"#8dbfe6", accent1:"#a3c9ff", accent2:"#7fb2f0", petal:[120,160,220] },
       { light:"#faf5ff", mid:"#efe3ff", dark:"#b48ad6", accent1:"#d7a6f1", accent2:"#b48ad6", petal:[150,110,200] },
-      { light:"#fff7cc", mid:"#ffe89a", dark:"#e0c050", accent1:"#f0d46a", accent2:"#e1b84f", petal:[220,190,80] },
       { light:"#e9fff8", mid:"#d1fff0", dark:"#68cba7", accent1:"#9fe6cc", accent2:"#68cba7", petal:[90,170,140] },
-      { light:"#e0f7f5", mid:"#b2ebe7", dark:"#006c62", accent1:"#00b8a9", accent2:"#008b7e", petal:[0,180,169] },
-      { light:"#fff1e6", mid:"#ffd1b3", dark:"#994d00", accent1:"#ff7a00", accent2:"#cc6300", petal:[255,122,0] },
       { light:"#ffeceb", mid:"#ffb3b0", dark:"#b94a48", accent1:"#f28b82", accent2:"#e57373", petal:[242,139,130] },
-      { light:"#ffd8cc", mid:"#ffb3a1", dark:"#ff6f61", accent1:"#ff9e80", accent2:"#ff6f61", petal:[255,159,128] },
-      { light:"#f5f0ff", mid:"#e1d6f0", dark:"#9c86c3", accent1:"#b8a0d9", accent2:"#9c86c3", petal:[184,160,217] },
     ];
     const pick = themes[Math.floor(Math.random()*themes.length)];
     const root = document.documentElement.style;
@@ -458,14 +323,13 @@
     root.setProperty('--accent-2', pick.accent2);
     const pet = Array.isArray(pick.petal) && pick.petal.length === 3 ? pick.petal : [220,120,160];
     root.setProperty('--petal-rgba', `${pet[0]},${pet[1]},${pet[2]}`);
-    // repinta kanji con el nuevo tema
     spawnKanji();
   }
 
   const KANJI = "日月火水木金土山川田人口女子学校先生時間東京日本大中小上下左右入口出口駅車電気食飲見行来会話読書映画音楽花愛友幸楽海空風雨雪猫犬鳥龍心星春夏秋冬夢道神寺社桜光美和新古旅食買飲遊語学写真";
   function spawnKanji(){
     const layer = document.getElementById('kanji-layer');
-    layer.innerHTML = ""; // limpiar
+    layer.innerHTML = "";
     const pick = () => KANJI[Math.floor(Math.random() * KANJI.length)];
     const makeChar = (layerClass) => {
       const el = document.createElement('span');
@@ -555,8 +419,7 @@
       el.style.opacity = String(1 - Math.min(0.6, Math.abs(dx)/300 + Math.max(0, -dy)/300));
     };
     const onEnd = () => {
-      if(!active) return;
-      active=false;
+      if(!active) return; active=false;
       const THX = 80, THY = -80;
       if (dx <= -THX) { commitDecision(-1); return; }
       if (dx >=  THX) { commitDecision( 1); return; }
@@ -582,20 +445,16 @@
       if (meh.length >= mehLimit) {
         alert("Por favor, mójate un poco más…");
         el.style.transition="transform .2s ease, opacity .2s ease";
-        el.style.transform="translate(0,0) rotate(0)";
-        el.style.opacity="1";
+        el.style.transform="translate(0,0) rotate(0)"; el.style.opacity="1";
         return;
       }
       meh.push(name);
     }
-    index++;
-    container.innerHTML = "";
-    showNextCard();
+    index++; container.innerHTML = ""; showNextCard();
   }
 
-  // Botones
   function handleDecision(direction){ commitDecision(direction); }
-  window.handleDecision = handleDecision; // asegura alcance global para onclick
+  window.handleDecision = handleDecision;
 
   /************ Resultados + guardado ************/
   function buildResultsTableRows(a, m, r){
@@ -615,8 +474,7 @@
     document.getElementById('results-body').innerHTML = buildResultsTableRows(accepted, meh, rejected);
     try {
       await fetch(saveEndpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ player: playerName, date: dateTime, mode, accepted, meh, rejected })
       });
     } catch (e) { console.warn("No se pudo guardar en la API:", e); }
@@ -624,25 +482,25 @@
 
   /************ Estadísticas ************/
   async function showStats() {
-    // Ocultar resto
+    // Ocultar vistas
     document.getElementById('start-screen').style.display = 'none';
     document.getElementById('mode-screen').style.display = 'none';
     document.getElementById('game-screen').style.display = 'none';
     document.getElementById('results').style.display = 'none';
     document.getElementById('stats-screen').style.display = 'block';
 
-    const topBody = document.querySelector('#topCardsTable tbody');
-    const gBody   = document.querySelector('#affinityGlobal tbody');
-    const pBody   = document.querySelector('#affinityPersonal tbody');
-    topBody.innerHTML = ""; gBody.innerHTML = ""; pBody.innerHTML = "";
+    // 🔧 NOMBRES ÚNICOS (arregla la redeclaración)
+    const topBodyEl = document.querySelector('#topCardsTable tbody');
+    const affGlobalBodyEl   = document.querySelector('#affinityGlobal tbody');
+    const affPersonalBodyEl = document.querySelector('#affinityPersonal tbody');
+    topBodyEl.innerHTML = ""; affGlobalBodyEl.innerHTML = ""; affPersonalBodyEl.innerHTML = "";
     document.getElementById('affinityArea').style.display = "none";
 
     let games = [];
     try {
       const res = await fetch(`${dataUrl}?t=${Date.now()}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const json = await res.json();
-      games = ensureArray(json);
+      games = ensureArray(await res.json());
     } catch (err) {
       alert("No se pudo cargar results/data.json: " + err.message);
       destroyChart();
@@ -724,7 +582,7 @@
     for (const [name, v] of topCards) {
       const tr = document.createElement('tr');
       tr.innerHTML = `<td>${name}</td><td>${v.yes}</td><td>${v.meh}</td><td>${v.no}</td>`;
-      topBody.appendChild(tr);
+      topBodyEl.appendChild(tr);
     }
 
     // Afinidades
@@ -747,7 +605,6 @@
     }
     pairs.sort((x,y)=> y.count - x.count || (x.a+x.b).localeCompare(y.a+y.b));
 
-    const gBody = document.querySelector('#affinityGlobal tbody');
     pairs.slice(0, 200).forEach(row=>{
       const cA = getPlayerColorUnique(row.a);
       const cB = getPlayerColorUnique(row.b);
@@ -757,10 +614,9 @@
         `<span style="font-weight:600;color:${cB}">${row.b}</span></td>` +
         `<td>${row.count}</td>` +
         `<td class="cards-small">${row.common.join(", ")}</td>`;
-      gBody.appendChild(tr);
+      affGlobalBodyEl.appendChild(tr);
     });
 
-    const pBody = document.querySelector('#affinityPersonal tbody');
     let personalRows = [];
     if (playerName && byPlayer[playerName]) {
       const mine = byPlayer[playerName];
@@ -775,12 +631,12 @@
         const c = getPlayerColorUnique(r.player);
         const tr = document.createElement('tr');
         tr.innerHTML = `<td style="font-weight:600; color:${c}">${r.player}</td><td>${r.count}</td><td class="cards-small">${r.list.join(", ")}</td>`;
-        pBody.appendChild(tr);
+        affPersonalBodyEl.appendChild(tr);
       });
     } else {
       const tr = document.createElement('tr');
       tr.innerHTML = `<td colspan="3"><span class="notice">Juega una partida para ver tu afinidad personal.</span></td>`;
-      pBody.appendChild(tr);
+      affPersonalBodyEl.appendChild(tr);
     }
     document.getElementById('affinityArea').style.display = "grid";
   }
@@ -797,10 +653,8 @@
   window.goToStart = goToStart;
 
   /************ Init ************/
-  applyRandomTheme();     // cambia tema y genera kanji
+  applyRandomTheme();
   document.getElementById("start-screen").style.display = "flex";
 </script>
-
-<!-- IMPORTANTE: elimina cualquier segundo <script> antiguo que duplique funciones -->
 </body>
 </html>
