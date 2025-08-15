@@ -222,5 +222,36 @@
       "Dormir en Onyado Nono Kyoto",
       "Ushiku Daibutsu"
     ]
+  },
+  {
+    "player": "Sara",
+    "date": "15/8/2025, 21:48:39",
+    "mode": "short",
+    "accepted": [
+      "Doraemon time square",
+      "Tarde de recreativas",
+      "Maid cafe",
+      "Shinkansen Hello Kitty",
+      "Museo/cafe de los yokai",
+      "Music box Museum",
+      "Tienda de Chopper"
+    ],
+    "meh": [
+      "Otaru",
+      "Coleccionar Manhole cards",
+      "Kumachan Onsen Tokyo",
+      "Kumamoto",
+      "Hakone"
+    ],
+    "rejected": [
+      "Dormir en Henn na hotel",
+      "Shikisai no oka",
+      "Nikko",
+      "Ushiku Daibutsu",
+      "Pokemon Cafe",
+      "Ir a ver sumo",
+      "Probar los simulacros de terremotos",
+      "Katsuouji y postal de Darumas"
+    ]
   }
 ]
