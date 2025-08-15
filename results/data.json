@@ -1,1 +1,33 @@
-[]
+[
+  {
+    "player": "Sara",
+    "date": "15/8/2025, 18:32:27",
+    "mode": "short",
+    "accepted": [
+      "Katsuouji y postal de Darumas",
+      "Shiroi Koibito Park",
+      "Entrar a Sekaido o Itoya (90 pisos de material de arte)",
+      "Comer en Tofuro Ginza",
+      "2D Café Tokyo",
+      "Museo/cafe de los yokai",
+      "Shikisai no oka",
+      "Pokemon Cafe",
+      "Ushiku Daibutsu",
+      "Ir a ver kabuki",
+      "Museo de Nintendo",
+      "Coleccionar Manhole cards",
+      "Musical Tokyo Revengers",
+      "Beppu",
+      "Doraemon time square",
+      "Gotokuji"
+    ],
+    "meh": [
+      "Dormir en Onyado Nono Kyoto",
+      "RJ Cafe Osaka",
+      "Dormir en Ryokan Ookawaso"
+    ],
+    "rejected": [
+      "Nabana no sato"
+    ]
+  }
+]
