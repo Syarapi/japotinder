@@ -50,6 +50,25 @@
   }
   #start-screen { display:flex; justify-content:center; gap:15px; min-height:100vh; padding: 16px 10px; }
 
+  /* Tutorial */
+  .tutorial {
+    background: var(--card-bg);
+    border: 2px solid var(--accent-1);
+    border-radius: 14px;
+    padding: 10px 12px;
+    width: min(92vw, 520px);
+    box-shadow: 0 8px 18px rgba(0,0,0,.08);
+    text-align: left;
+    font-size: 14px;
+  }
+  .tutorial h3 {
+    margin: 2px 0 8px;
+    color: var(--accent-2);
+    text-align: center;
+  }
+  .tutorial ul { margin: 0; padding-left: 18px; }
+  .tutorial li { margin: 6px 0; }
+
   /* Tarjetas */
   #card-container { position: relative; width: min(92%, 520px); height: min(70vh, 720px); display:flex; justify-content:center; align-items:center; }
   .card {
@@ -64,7 +83,7 @@
   #buttons { margin-top:10px; display:flex; gap:12px; z-index:10; }
   .btn { padding: 12px 18px; font-size: 16px; border: none; border-radius: 12px; cursor: pointer;
          transition: transform .15s ease, box-shadow .15s ease, opacity .2s ease; box-shadow: 0 8px 18px rgba(0,0,0,.12); color: white; }
-  #btnNameNext, .stats-btn { background: linear-gradient(180deg, var(--accent-1), var(--accent-2)); }
+  #btnNameNext, .stats-btn, .btn-primary { background: linear-gradient(180deg, var(--accent-1), var(--accent-2)); }
   .accept { background: linear-gradient(180deg, var(--yes), #5fb5ef); }
   .meh    { background: linear-gradient(180deg, var(--meh), #7343d8); }
   .reject { background: linear-gradient(180deg, var(--no), #ff5f93); }
@@ -77,6 +96,20 @@
   th, td { padding: 8px 10px; border-bottom: 1px solid #f0e7f8; text-align: left; word-break: break-word; font-size: 13px; }
   th { background: linear-gradient(180deg, var(--accent-2), var(--accent-1)); color: #fff; letter-spacing:.3px; }
   tr:nth-child(even) { background-color: #faf7ff; }
+
+  /* Modo: right tint */
+  .half.right { position: relative; }
+  .half.right::before{
+    content:""; position:absolute; inset:0;
+    background: var(--bg-dark);
+    opacity: .07; /* leve tinte más oscuro */
+    pointer-events: none; z-index: 0;
+  }
+  .half.right > .content { position: relative; z-index: 1; }
+
+  /* Contenedor scroll del gráfico: permitir X-scroll */
+  .chart-scroll { overflow-x: auto; overflow-y: hidden; }
+
 </style>
 </head>
 <body>
@@ -84,12 +117,25 @@
 
   <!-- Inicio -->
   <div id="start-screen">
-    <div style="text-align:center">
+    <div style="text-align:center; width:100%; display:flex; flex-direction:column; align-items:center; gap:10px;">
       <h1>Japontinder</h1>
+
+      <!-- TUTORIAL -->
+      <div class="tutorial">
+        <h3>Tutorial</h3>
+        <ul>
+          <li><strong>Swipe derecha</strong> → “Aquí sí”.</li>
+          <li><strong>Swipe izquierda</strong> → “Pasando”.</li>
+          <li><strong>Swipe hacia arriba</strong> → “Me da igual”.</li>
+          <li>Si prefieres, usa los <strong>botones</strong> bajo la tarjeta: <em>Aquí sí / Me da igual / Pasando</em>.</li>
+          <li>En <em>Modo corto</em> tienes <strong>5</strong> “Me da igual”; en <em>Modo completo</em>, <strong>10</strong>.</li>
+        </ul>
+      </div>
+
       <p>¿Quién eres?</p>
       <input type="text" id="username" placeholder="Tu nombre" />
       <div style="margin-top:10px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
-        <button class="btn" id="btnNameNext">Siguiente</button>
+        <button class="btn btn-primary" id="btnNameNext">Siguiente</button>
         <button class="btn stats-btn" onclick="showStats()">Ver estadísticas</button>
       </div>
     </div>
@@ -135,7 +181,7 @@
     </div>
     <div style="margin-top:10px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
       <button class="btn stats-btn" onclick="showStats()">Ver estadísticas</button>
-      <button class="btn" onclick="goToStart()">Volver</button>
+      <button class="btn stats-btn" onclick="goToStart()">Volver</button>
     </div>
   </div>
 
@@ -144,7 +190,7 @@
     <h2>Estadísticas globales</h2>
     <div class="stats-grid" style="display:grid; grid-template-columns: minmax(340px, 1fr) minmax(420px, 1.2fr); gap:12px;">
       <div class="chart-card" style="background:var(--card-bg); border:2px solid var(--accent-1); border-radius:16px; padding:8px;">
-        <div class="chart-scroll" style="overflow-y:auto; max-height:360px; padding-bottom:6px;">
+        <div class="chart-scroll" style="max-height:360px; padding-bottom:6px;">
           <canvas id="statsChart"></canvas>
         </div>
       </div>
@@ -181,7 +227,7 @@
     </div>
 
     <div style="margin-top:8px; display:flex; justify-content:center;">
-      <button class="btn" onclick="goToStart()">Volver</button>
+      <button class="btn stats-btn" onclick="goToStart()">Volver</button>
     </div>
   </div>
 
@@ -489,7 +535,7 @@
     document.getElementById('results').style.display = 'none';
     document.getElementById('stats-screen').style.display = 'block';
 
-    // 🔧 NOMBRES ÚNICOS (arregla la redeclaración)
+    // 🔧 NOMBRES ÚNICOS
     const topBodyEl = document.querySelector('#topCardsTable tbody');
     const affGlobalBodyEl   = document.querySelector('#affinityGlobal tbody');
     const affPersonalBodyEl = document.querySelector('#affinityPersonal tbody');
@@ -546,8 +592,9 @@
     const noData  = labels.map(l => stats[l].no);
 
     const canvas = document.getElementById('statsChart');
-    const desiredWidth = Math.max(labels.length * 42, 420);
-    canvas.width = desiredWidth; canvas.height = 320;
+    // Más ancho por etiqueta y scroll horizontal
+    const desiredWidth = Math.max(labels.length * 80, 640);
+    canvas.width = desiredWidth; canvas.height = 360;
     const ctx = canvas.getContext('2d');
 
     const css = getComputedStyle(document.documentElement);
@@ -567,7 +614,17 @@
         },
         options: {
           responsive: false, maintainAspectRatio: false,
-          scales: { x: { stacked: true, ticks: { maxRotation: 60, minRotation: 0 } }, y: { stacked: true, beginAtZero: true } },
+          scales: {
+            x: {
+              stacked: true,
+              ticks: {
+                autoSkip: false,        // ✅ mostrar todas las etiquetas
+                maxRotation: 70,
+                minRotation: 45
+              }
+            },
+            y: { stacked: true, beginAtZero: true }
+          },
           plugins: {
             legend: { labels: { color: '#333', boxWidth: 18, usePointStyle: true, pointStyle: 'rectRounded' } },
             tooltip: { backgroundColor: 'rgba(255,255,255,.95)', titleColor: '#333', bodyColor: '#333', borderColor: '#ddd', borderWidth: 1 }
