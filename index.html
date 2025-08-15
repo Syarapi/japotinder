@@ -710,64 +710,65 @@ async function getSeenCardsForPlayer(name){
     document.getElementById("start-screen").style.display = "none";
     document.getElementById("mode-screen").style.display = "flex";
   });
+// Mitades clicables (modo)
+document.getElementById("halfShort").addEventListener("click", () => {
+  mode = "short";
+  mehLimit = 5;
+  startGameWithMode();
+});
 
-  // Mitades clicables (modo)
-  document.getElementById("halfShort").addEventListener("click", () => {
-    mode = "short"; mehLimit = 5; startGameWithMode();
-  });
-  document.getElementById("halfFull").addEventListener("click", () => {
-    mode = "full"; mehLimit = 10; startGameWithMode();
-  });
+document.getElementById("halfFull").addEventListener("click", () => {
+  mode = "full";
+  mehLimit = 10;
+  startGameWithMode();
+});
 
-  function startGameWithMode() {
-    let safeOriginal = [...originalData];
-    const SHORT_COUNT = 20; // ajusta aquí si quieres otro valor fijo
+function startGameWithMode() {
+  const SHORT_COUNT = 20;
+  let safeOriginal = [...originalData]; // copia de datos
 
-    if (mode === "short") {
-        // 1️⃣ Historial de cartas jugadas por este jugador
-        const pastCards = new Set();
-        const safeGames = ensureArray(loadData("games"));
-        safeGames
-            .filter(g => g.player === playerName)
-            .forEach(g => {
-                [...g.accepted, ...g.meh, ...g.rejected].forEach(card => pastCards.add(card));
-            });
+  if (mode === "short") {
+    // Historial de cartas jugadas por este jugador
+    const pastCards = new Set();
+    const safeGames = ensureArray(loadData("games"));
 
-        // 2️⃣ Filtrar cartas nuevas
-        let availableCards = safeOriginal.filter(c => !pastCards.has(c.name));
+    safeGames
+      .filter(g => g.player === playerName)
+      .forEach(g => {
+        [...(g.accepted || []), ...(g.meh || []), ...(g.rejected || [])]
+          .forEach(cardName => pastCards.add(cardName));
+      });
 
-        // 3️⃣ Si no hay suficientes nuevas, se mezclan todas
-        if (availableCards.length < SHORT_COUNT) {
-            availableCards = shuffleArray([...safeOriginal]);
-        } else {
-            availableCards = shuffleArray(availableCards);
-        }
+    // Filtrar cartas nuevas (comparando por nombre)
+    let availableCards = safeOriginal.filter(c => !pastCards.has(c.name));
 
-        data = availableCards.slice(0, Math.min(SHORT_COUNT, availableCards.length));
+    // Si hay pocas nuevas, usar todas
+    if (availableCards.length < SHORT_COUNT) {
+      availableCards = shuffleArray([...safeOriginal]);
     } else {
-        data = shuffleArray(safeOriginal);
+      availableCards = shuffleArray(availableCards);
     }
 
-    index = 0;
-    accepted = [];
-    rejected = [];
-    meh = [];
+    // Limitar a 20
+    data = availableCards.slice(0, SHORT_COUNT);
 
-    container.innerHTML = "";
-    document.getElementById("mode-screen").style.display = "none";
-    document.getElementById("game-screen").style.display = "flex";
-    showNextCard(true);
+  } else {
+    // Modo completo
+    data = shuffleArray(safeOriginal);
+  }
+
+  // Reset estado
+  index = 0;
+  accepted = [];
+  rejected = [];
+  meh = [];
+
+  container.innerHTML = "";
+  document.getElementById("mode-screen").style.display = "none";
+  document.getElementById("game-screen").style.display = "flex";
+  showNextCard(true);
 }
 
-
-  function restartGame() {
-    document.getElementById("results").style.display = "none";
-    document.getElementById("start-screen").style.display = "flex";
-  }
-  function goToStart() {
-    document.getElementById("stats-screen").style.display = "none";
-    document.getElementById("start-screen").style.display = "flex";
-  }
 
   /************ Tarjetas + Swipe ************/
   function createCard(item) {
@@ -1118,21 +1119,3 @@ function initKanjiRain(){
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
