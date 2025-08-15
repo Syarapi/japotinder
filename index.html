@@ -50,26 +50,35 @@
   }
   #start-screen { display:flex; justify-content:center; gap:15px; min-height:100vh; padding: 16px 10px; }
 
-  /* Tutorial */
+  /* Tutorial (toggle) */
   .tutorial {
     background: var(--card-bg);
     border: 2px solid var(--accent-1);
     border-radius: 14px;
-    padding: 10px 12px;
     width: min(92vw, 520px);
     box-shadow: 0 8px 18px rgba(0,0,0,.08);
-    text-align: left;
-    font-size: 14px;
+    overflow: hidden;
   }
-  .tutorial h3 {
-    margin: 2px 0 8px;
-    color: var(--accent-2);
-    text-align: center;
+  .tutorial-header{
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 10px 12px; cursor: pointer; user-select: none;
+    background: linear-gradient(180deg, var(--accent-2), var(--accent-1));
+    color: #fff;
+  }
+  .tutorial-title { margin: 0; font-size: 18px; width: 100%; text-align: center; }
+  .tutorial-toggle {
+    border: none; background: rgba(255,255,255,.2);
+    padding: 6px 10px; border-radius: 10px; color: #fff; cursor: pointer;
+    font-weight: 600;
+  }
+  .tutorial-body {
+    padding: 10px 12px; text-align: left; font-size: 14px; background: var(--card-bg);
   }
   .tutorial ul { margin: 0; padding-left: 18px; }
   .tutorial li { margin: 6px 0; }
 
   /* Tarjetas */
+  #game-screen{ padding-top: 28px; } /* ↙️ más aire arriba */
   #card-container { position: relative; width: min(92%, 520px); height: min(70vh, 720px); display:flex; justify-content:center; align-items:center; }
   .card {
     position: relative; width: 100%; height: 100%; border-radius: 20px; overflow: hidden;
@@ -102,14 +111,13 @@
   .half.right::before{
     content:""; position:absolute; inset:0;
     background: var(--bg-dark);
-    opacity: .07; /* leve tinte más oscuro */
+    opacity: .07;
     pointer-events: none; z-index: 0;
   }
   .half.right > .content { position: relative; z-index: 1; }
 
-  /* Contenedor scroll del gráfico: permitir X-scroll */
+  /* Contenedor scroll del gráfico */
   .chart-scroll { overflow-x: auto; overflow-y: hidden; }
-
 </style>
 </head>
 <body>
@@ -120,16 +128,21 @@
     <div style="text-align:center; width:100%; display:flex; flex-direction:column; align-items:center; gap:10px;">
       <h1>Japontinder</h1>
 
-      <!-- TUTORIAL -->
-      <div class="tutorial">
-        <h3>Tutorial</h3>
-        <ul>
-          <li><strong>Swipe derecha</strong> → “Aquí sí”.</li>
-          <li><strong>Swipe izquierda</strong> → “Pasando”.</li>
-          <li><strong>Swipe hacia arriba</strong> → “Me da igual”.</li>
-          <li>Si prefieres, usa los <strong>botones</strong> bajo la tarjeta: <em>Aquí sí / Me da igual / Pasando</em>.</li>
-          <li>En <em>Modo corto</em> tienes <strong>5</strong> “Me da igual”; en <em>Modo completo</em>, <strong>10</strong>.</li>
-        </ul>
+      <!-- TUTORIAL (toggle) -->
+      <div class="tutorial" id="tutorial">
+        <div class="tutorial-header" id="tutorialHeader" role="button" tabindex="0" aria-expanded="true" aria-controls="tutorialBody">
+          <h3 class="tutorial-title">Tutorial</h3>
+          <button class="tutorial-toggle" id="tutorialToggleBtn" type="button">Ocultar</button>
+        </div>
+        <div class="tutorial-body" id="tutorialBody">
+          <ul>
+            <li><strong>Swipe derecha</strong> → “Aquí sí”.</li>
+            <li><strong>Swipe izquierda</strong> → “Pasando”.</li>
+            <li><strong>Swipe hacia arriba</strong> → “Me da igual”.</li>
+            <li>Si prefieres, usa los <strong>botones</strong> bajo la tarjeta: <em>Aquí sí / Me da igual / Pasando</em>.</li>
+            <li>En <em>Modo corto</em> tienes <strong>5</strong> “Me da igual”; en <em>Modo completo</em>, <strong>10</strong>.</li>
+          </ul>
+        </div>
       </div>
 
       <p>¿Quién eres?</p>
@@ -235,6 +248,7 @@
   /************ Config ************/
   const saveEndpoint = "/api/save";
   const dataUrl = "https://raw.githubusercontent.com/Syarapi/japotinder/main/results/data.json";
+  const TUTORIAL_LS = "japotinder_tutorial_open_v1";
 
   /************ Datos base ************/
   const originalData = [
@@ -401,6 +415,33 @@
     document.getElementById('player-info').innerHTML = html;
   }
 
+  /************ Tutorial: toggle + persistencia ************/
+  function initTutorialToggle(){
+    const header = document.getElementById('tutorialHeader');
+    const btn = document.getElementById('tutorialToggleBtn');
+    const body = document.getElementById('tutorialBody');
+
+    const setOpen = (open) => {
+      body.style.display = open ? 'block' : 'none';
+      header.setAttribute('aria-expanded', String(open));
+      btn.textContent = open ? 'Ocultar' : 'Mostrar';
+      try{ localStorage.setItem(TUTORIAL_LS, JSON.stringify(!!open)); }catch{}
+    };
+
+    // Estado inicial desde LS (por defecto: abierto)
+    let open = true;
+    try {
+      const raw = localStorage.getItem(TUTORIAL_LS);
+      if (raw !== null) open = JSON.parse(raw) === true;
+    } catch(_) {}
+    setOpen(open);
+
+    const toggle = () => setOpen(!(body.style.display !== 'none'));
+    header.addEventListener('click', toggle);
+    btn.addEventListener('click', (e)=>{ e.stopPropagation(); toggle(); });
+    header.addEventListener('keydown', (e)=>{ if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }});
+  }
+
   /************ Flujo UI ************/
   document.getElementById("btnNameNext").addEventListener("click", () => {
     const nameInput = document.getElementById("username").value.trim();
@@ -535,7 +576,6 @@
     document.getElementById('results').style.display = 'none';
     document.getElementById('stats-screen').style.display = 'block';
 
-    // 🔧 NOMBRES ÚNICOS
     const topBodyEl = document.querySelector('#topCardsTable tbody');
     const affGlobalBodyEl   = document.querySelector('#affinityGlobal tbody');
     const affPersonalBodyEl = document.querySelector('#affinityPersonal tbody');
@@ -592,7 +632,7 @@
     const noData  = labels.map(l => stats[l].no);
 
     const canvas = document.getElementById('statsChart');
-    // Más ancho por etiqueta y scroll horizontal
+    // Mantengo el ancho por etiqueta para que quepan los nombres, pero estrecho las barras
     const desiredWidth = Math.max(labels.length * 80, 640);
     canvas.width = desiredWidth; canvas.height = 360;
     const ctx = canvas.getContext('2d');
@@ -607,9 +647,9 @@
         data: {
           labels,
           datasets: [
-            { label: 'Aquí sí',     data: yesData, backgroundColor: grad(css.getPropertyValue('--yes').trim()), borderRadius: 8, stack: 'stack' },
-            { label: 'Me da igual', data: mehData, backgroundColor: grad(css.getPropertyValue('--meh').trim()), borderRadius: 8, stack: 'stack' },
-            { label: 'Pasando',     data: noData,  backgroundColor: grad(css.getPropertyValue('--no').trim()),  borderRadius: 8, stack: 'stack' }
+            { label: 'Aquí sí',     data: yesData, backgroundColor: grad(css.getPropertyValue('--yes').trim()), borderRadius: 8, stack: 'stack', barPercentage: 0.9, maxBarThickness: 42 },
+            { label: 'Me da igual', data: mehData, backgroundColor: grad(css.getPropertyValue('--meh').trim()), borderRadius: 8, stack: 'stack', barPercentage: 0.9, maxBarThickness: 42 },
+            { label: 'Pasando',     data: noData,  backgroundColor: grad(css.getPropertyValue('--no').trim()),  borderRadius: 8, stack: 'stack', barPercentage: 0.9, maxBarThickness: 42 }
           ]
         },
         options: {
@@ -617,11 +657,8 @@
           scales: {
             x: {
               stacked: true,
-              ticks: {
-                autoSkip: false,        // ✅ mostrar todas las etiquetas
-                maxRotation: 70,
-                minRotation: 45
-              }
+              ticks: { autoSkip: false, maxRotation: 70, minRotation: 45 },
+              categoryPercentage: 0.4 /* ← barras ~mitad de anchas (antes ~0.8) */
             },
             y: { stacked: true, beginAtZero: true }
           },
@@ -635,6 +672,7 @@
     }
 
     // TOP tarjetas
+    const topBodyEl = document.querySelector('#topCardsTable tbody');
     const topCards = Object.entries(stats).sort((a,b) => b[1].yes - a[1].yes || a[0].localeCompare(b[0]));
     for (const [name, v] of topCards) {
       const tr = document.createElement('tr');
@@ -643,6 +681,8 @@
     }
 
     // Afinidades
+    const affGlobalBodyEl   = document.querySelector('#affinityGlobal tbody');
+    const affPersonalBodyEl = document.querySelector('#affinityPersonal tbody');
     const byPlayer = {};
     for (const p in latest) {
       const set = new Set();
@@ -711,6 +751,7 @@
 
   /************ Init ************/
   applyRandomTheme();
+  initTutorialToggle();
   document.getElementById("start-screen").style.display = "flex";
 </script>
 </body>
