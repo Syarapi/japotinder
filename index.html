@@ -620,191 +620,199 @@
   }
 
   /************ Estadísticas (con inyección de la partida actual) ************/
-  async function showStats() {
-    document.getElementById('start-screen').style.display = 'none';
-    document.getElementById('mode-screen').style.display = 'none';
-    document.getElementById('game-screen').style.display = 'none';
-    document.getElementById('results').style.display = 'none';
-    document.getElementById('stats-screen').style.display = 'block';
+  <script>
+async function showStats() {
+  // Mostrar pantalla y limpiar
+  document.getElementById('start-screen').style.display = 'none';
+  document.getElementById('mode-screen').style.display = 'none';
+  document.getElementById('game-screen').style.display = 'none';
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('stats-screen').style.display = 'block';
 
-    const topBodyEl = document.querySelector('#topCardsTable tbody');
-    const affGlobalBodyEl   = document.querySelector('#affinityGlobal tbody');
-    const affPersonalBodyEl = document.querySelector('#affinityPersonal tbody');
-    topBodyEl.innerHTML = ""; affGlobalBodyEl.innerHTML = ""; affPersonalBodyEl.innerHTML = "";
-    document.getElementById('affinityArea').style.display = "none";
+  const topBodyEl        = document.querySelector('#topCardsTable tbody');
+  const affGlobalBodyEl  = document.querySelector('#affinityGlobal tbody');
+  const affPersonalBodyEl= document.querySelector('#affinityPersonal tbody');
 
-    let games = [];
-    try {
-      const res = await fetch(`${dataUrl}?t=${Date.now()}`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      games = ensureArray(await res.json());
-    } catch (err) {
-      alert("No se pudo cargar results/data.json: " + err.message);
-      destroyChart();
-      return;
-    }
+  topBodyEl.innerHTML = "";
+  affGlobalBodyEl.innerHTML = "";
+  affPersonalBodyEl.innerHTML = "";
+  document.getElementById('affinityArea').style.display = "none";
 
-    // 👉 Inyectar partida actual para que aparezca al instante en las estadísticas
-    if (playerName && (accepted.length || meh.length || rejected.length)) {
-      games = games.slice(); // copia
-      games.push({
-        player: playerName,
-        date: new Date().toISOString(),
-        mode,
-        accepted: [...accepted],
-        meh: [...meh],
-        rejected: [...rejected]
-      });
-    }
-    if (!games.length) { destroyChart(); return; }
-
-    const safeGames = games
-      .filter(g => g && (Array.isArray(g.accepted) || Array.isArray(g.rejected) || Array.isArray(g.meh)))
-      .map(g => ({
-        player: (g.player || "¿anon?").trim(),
-        accepted: Array.isArray(g.accepted) ? g.accepted : [],
-        meh: Array.isArray(g.meh) ? g.meh : [],
-        rejected: Array.isArray(g.rejected) ? g.rejected : [],
-        ts: Date.parse(g.date || g.timestamp || "") || 0
-      }));
-
-    const latest = {};
-    for (const g of safeGames) {
-      const p = g.player;
-      if (!latest[p]) latest[p] = {};
-      const up = (card, choice) => {
-        const prev = latest[p][card];
-        if (!prev || g.ts >= prev.ts) latest[p][card] = { choice, ts: g.ts };
-      };
-      g.accepted.forEach(c => up(c, 'yes'));
-      g.meh.forEach(c      => up(c, 'meh'));
-      g.rejected.forEach(c => up(c, 'no'));
-    }
-
-    const stats = {};
-    for (const p in latest) {
-      for (const card in latest[p]) {
-        const ch = latest[p][card].choice;
-        if (!stats[card]) stats[card] = { yes:0, meh:0, no:0 };
-        stats[card][ch] += 1;
-      }
-    }
-
-    const labels  = Object.keys(stats).sort((a,b)=>a.localeCompare(b));
-    const yesData = labels.map(l => stats[l].yes);
-    const mehData = labels.map(l => stats[l].meh);
-    const noData  = labels.map(l => stats[l].no);
-
-    const canvas = document.getElementById('statsChart');
-    const legendBuffer = 180;
-    const desiredWidth = Math.max(labels.length * 80 + legendBuffer, 640);
-    canvas.width = desiredWidth; canvas.height = 360;
-    const ctx = canvas.getContext('2d');
-
-    const css = getComputedStyle(document.documentElement);
-    const grad = (hex) => { const g = ctx.createLinearGradient(0,0,0,canvas.height); g.addColorStop(0,hex); g.addColorStop(1,hex); return g; };
-
+  // Cargar datos
+  let games = [];
+  try {
+    const res = await fetch(`https://raw.githubusercontent.com/Syarapi/japotinder/main/results/data.json?t=${Date.now()}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = await res.json();
+    games = Array.isArray(json) ? json : Array.isArray(json.games) ? json.games : [];
+  } catch (err) {
+    alert("No se pudo cargar results/data.json: " + err.message);
     destroyChart();
-    if (typeof Chart === 'function') {
-      statsChartInstance = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels,
-          datasets: [
-            { label: 'Aquí sí',     data: yesData, backgroundColor: grad(css.getPropertyValue('--yes').trim()), borderRadius: 8, stack: 'stack', barPercentage: 0.9, categoryPercentage: 0.5, maxBarThickness: 42 },
-            { label: 'Me da igual', data: mehData, backgroundColor: grad(css.getPropertyValue('--meh').trim()), borderRadius: 8, stack: 'stack', barPercentage: 0.9, categoryPercentage: 0.5, maxBarThickness: 42 },
-            { label: 'Pasando',     data: noData,  backgroundColor: grad(css.getPropertyValue('--no').trim()),  borderRadius: 8, stack: 'stack', barPercentage: 0.9, categoryPercentage: 0.5, maxBarThickness: 42 }
-          ]
-        },
-        options: {
-          responsive: false, maintainAspectRatio: false,
-          layout: { padding: { left: 0, right: 10, top: 0, bottom: 0 } },
-          scales: {
-            x: {
-              stacked: true,
-              ticks: { autoSkip: false, maxRotation: 70, minRotation: 45 }
-            },
-            y: { stacked: true, beginAtZero: true }
-          },
-          plugins: {
-            legend: {
-              position: 'left',
-              align: 'start',
-              labels: { color: '#333', boxWidth: 18, usePointStyle: true, pointStyle: 'rectRounded' }
-            },
-            tooltip: { backgroundColor: 'rgba(255,255,255,.95)', titleColor: '#333', bodyColor: '#333', borderColor: '#ddd', borderWidth: 1 }
-          },
-          animation: { duration: 220 }
-        }
-      });
-    }
-
-    // TOP tarjetas
-    const topBody = document.querySelector('#topCardsTable tbody');
-    const topCards = Object.entries(stats).sort((a,b) => b[1].yes - a[1].yes || a[0].localeCompare(b[0]));
-    for (const [name, v] of topCards) {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${name}</td><td>${v.yes}</td><td>${v.meh}</td><td>${v.no}</td>`;
-      topBody.appendChild(tr);
-    }
-
-    // Afinidades
-    const byPlayer = {};
-    for (const p in latest) {
-      const set = new Set();
-      for (const card in latest[p]) if (latest[p][card].choice === 'yes') set.add(card);
-      if (set.size) byPlayer[p] = set;
-    }
-    const players = Object.keys(byPlayer).sort((a,b)=>a.localeCompare(b));
-
-    const affGlobalBodyEl   = document.querySelector('#affinityGlobal tbody');
-    const affPersonalBodyEl = document.querySelector('#affinityPersonal tbody');
-    const pairs = [];
-    for (let i=0;i<players.length;i++){
-      for (let j=i+1;j<players.length;j++){
-        const p1 = players[i], p2 = players[j];
-        const s1 = byPlayer[p1], s2 = byPlayer[p2];
-        const inter = []; s1.forEach(x => { if (s2.has(x)) inter.push(x); });
-        if (inter.length) pairs.push({ a:p1, b:p2, common:inter.sort(), count:inter.length });
-      }
-    }
-    pairs.sort((x,y)=> y.count - x.count || (x.a+x.b).localeCompare(y.a+y.b));
-    pairs.slice(0, 200).forEach(row=>{
-      const cA = getPlayerColorUnique(row.a);
-      const cB = getPlayerColorUnique(row.b);
-      const tr = document.createElement('tr');
-      tr.innerHTML =
-        `<td><span style="font-weight:600;color:${cA}">${row.a}</span> &amp; ` +
-        `<span style="font-weight:600;color:${cB}">${row.b}</span></td>` +
-        `<td>${row.count}</td>` +
-        `<td class="cards-small">${row.common.join(", ")}</td>`;
-      affGlobalBodyEl.appendChild(tr);
-    });
-
-    let personalRows = [];
-    if (playerName && byPlayer[playerName]) {
-      const mine = byPlayer[playerName];
-      players.filter(p=>p!==playerName).forEach(p=>{
-        const inter = []; byPlayer[p].forEach(x=>{ if (mine.has(x)) inter.push(x); });
-        if (inter.length) personalRows.push({ player:p, count:inter.length, list:inter.sort() });
-      });
-      personalRows.sort((x,y)=> y.count - x.count || x.player.localeCompare(y.player));
-    }
-    if (personalRows.length){
-      personalRows.slice(0,200).forEach(r=>{
-        const c = getPlayerColorUnique(r.player);
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td style="font-weight:600; color:${c}">${r.player}</td><td>${r.count}</td><td class="cards-small">${r.list.join(", ")}</td>`;
-        affPersonalBodyEl.appendChild(tr);
-      });
-    } else {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td colspan="3"><span class="notice">Juega una partida para ver tu afinidad personal.</span></td>`;
-      affPersonalBodyEl.appendChild(tr);
-    }
-    document.getElementById('affinityArea').style.display = "grid";
+    return;
   }
-  window.showStats = showStats;
+
+  // Inyectar la partida actual para que ya aparezca en stats
+  if (playerName && (accepted.length || meh.length || rejected.length)) {
+    games = games.slice();
+    games.push({
+      player: playerName,
+      date: new Date().toISOString(),
+      mode,
+      accepted: [...accepted],
+      meh: [...meh],
+      rejected: [...rejected]
+    });
+  }
+  if (!games.length) { destroyChart(); return; }
+
+  // Normalizar partidas y quedarnos con la respuesta más reciente por jugador/tarjeta
+  const safeGames = games
+    .filter(g => g && (Array.isArray(g.accepted) || Array.isArray(g.rejected) || Array.isArray(g.meh)))
+    .map(g => ({
+      player: (g.player || "¿anon?").trim(),
+      accepted: Array.isArray(g.accepted) ? g.accepted : [],
+      meh: Array.isArray(g.meh) ? g.meh : [],
+      rejected: Array.isArray(g.rejected) ? g.rejected : [],
+      ts: Date.parse(g.date || g.timestamp || "") || 0
+    }));
+
+  const latest = {};
+  for (const g of safeGames) {
+    const p = g.player;
+    if (!latest[p]) latest[p] = {};
+    const up = (card, choice) => {
+      const prev = latest[p][card];
+      if (!prev || g.ts >= prev.ts) latest[p][card] = { choice, ts: g.ts };
+    };
+    g.accepted.forEach(c => up(c, 'yes'));
+    g.meh.forEach(c      => up(c, 'meh'));
+    g.rejected.forEach(c => up(c, 'no'));
+  }
+
+  // Contadores por tarjeta
+  const stats = {};
+  for (const p in latest) {
+    for (const card in latest[p]) {
+      const ch = latest[p][card].choice;
+      if (!stats[card]) stats[card] = { yes:0, meh:0, no:0 };
+      stats[card][ch] += 1;
+    }
+  }
+
+  // Datos para Chart.js
+  const labels  = Object.keys(stats).sort((a,b)=>a.localeCompare(b));
+  const yesData = labels.map(l => stats[l].yes);
+  const mehData = labels.map(l => stats[l].meh);
+  const noData  = labels.map(l => stats[l].no);
+
+  // Canvas más ancho para que entren todos los nombres
+  const canvas = document.getElementById('statsChart');
+  const legendBuffer = 180;
+  const desiredWidth = Math.max(labels.length * 80 + legendBuffer, 640);
+  canvas.width = desiredWidth; 
+  canvas.height = 360;
+  const ctx = canvas.getContext('2d');
+
+  // Colores desde CSS
+  const css = getComputedStyle(document.documentElement);
+  const grad = (hex) => { const g = ctx.createLinearGradient(0,0,0,canvas.height); g.addColorStop(0,hex); g.addColorStop(1,hex); return g; };
+
+  // (Re)crear gráfico
+  destroyChart();
+  if (typeof Chart === 'function') {
+    statsChartInstance = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          { label: 'Aquí sí',     data: yesData, backgroundColor: grad(css.getPropertyValue('--yes').trim()), borderRadius: 8, stack: 'stack', barPercentage: 0.9, categoryPercentage: 0.5, maxBarThickness: 42 },
+          { label: 'Me da igual', data: mehData, backgroundColor: grad(css.getPropertyValue('--meh').trim()), borderRadius: 8, stack: 'stack', barPercentage: 0.9, categoryPercentage: 0.5, maxBarThickness: 42 },
+          { label: 'Pasando',     data: noData,  backgroundColor: grad(css.getPropertyValue('--no').trim()),  borderRadius: 8, stack: 'stack', barPercentage: 0.9, categoryPercentage: 0.5, maxBarThickness: 42 }
+        ]
+      },
+      options: {
+        responsive: false,
+        maintainAspectRatio: false,
+        scales: {
+          x: { stacked: true, ticks: { autoSkip: false, maxRotation: 70, minRotation: 45 } },
+          y: { stacked: true, beginAtZero: true }
+        },
+        plugins: {
+          legend: {
+            position: 'left',
+            align: 'start',
+            labels: { color: '#333', boxWidth: 18, usePointStyle: true, pointStyle: 'rectRounded' }
+          },
+          tooltip: { backgroundColor: 'rgba(255,255,255,.95)', titleColor: '#333', bodyColor: '#333', borderColor: '#ddd', borderWidth: 1 }
+        },
+        animation: { duration: 220 }
+      }
+    });
+  }
+
+  // Top tarjetas
+  const topCards = Object.entries(stats).sort((a,b) => b[1].yes - a[1].yes || a[0].localeCompare(b[0]));
+  for (const [name, v] of topCards) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${name}</td><td>${v.yes}</td><td>${v.meh}</td><td>${v.no}</td>`;
+    topBodyEl.appendChild(tr);
+  }
+
+  // Afinidades
+  const byPlayer = {};
+  for (const p in latest) {
+    const set = new Set();
+    for (const card in latest[p]) if (latest[p][card].choice === 'yes') set.add(card);
+    if (set.size) byPlayer[p] = set;
+  }
+  const players = Object.keys(byPlayer).sort((a,b)=>a.localeCompare(b));
+
+  const pairs = [];
+  for (let i=0;i<players.length;i++){
+    for (let j=i+1;j<players.length;j++){
+      const p1 = players[i], p2 = players[j];
+      const s1 = byPlayer[p1], s2 = byPlayer[p2];
+      const inter = []; s1.forEach(x => { if (s2.has(x)) inter.push(x); });
+      if (inter.length) pairs.push({ a:p1, b:p2, common:inter.sort(), count:inter.length });
+    }
+  }
+  pairs.sort((x,y)=> y.count - x.count || (x.a+x.b).localeCompare(y.a+y.b));
+  pairs.slice(0, 200).forEach(row=>{
+    const cA = getPlayerColorUnique(row.a);
+    const cB = getPlayerColorUnique(row.b);
+    const tr = document.createElement('tr');
+    tr.innerHTML =
+      `<td><span style="font-weight:600;color:${cA}">${row.a}</span> &amp; ` +
+      `<span style="font-weight:600;color:${cB}">${row.b}</span></td>` +
+      `<td>${row.count}</td>` +
+      `<td class="cards-small">${row.common.join(", ")}</td>`;
+    affGlobalBodyEl.appendChild(tr);
+  });
+
+  let personalRows = [];
+  if (playerName && byPlayer[playerName]) {
+    const mine = byPlayer[playerName];
+    players.filter(p=>p!==playerName).forEach(p=>{
+      const inter = []; byPlayer[p].forEach(x=>{ if (mine.has(x)) inter.push(x); });
+      if (inter.length) personalRows.push({ player:p, count:inter.length, list:inter.sort() });
+    });
+    personalRows.sort((x,y)=> y.count - x.count || x.player.localeCompare(y.player));
+  }
+  if (personalRows.length){
+    personalRows.slice(0,200).forEach(r=>{
+      const c = getPlayerColorUnique(r.player);
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td style="font-weight:600; color:${c}">${r.player}</td><td>${r.count}</td><td class="cards-small">${r.list.join(", ")}</td>`;
+      affPersonalBodyEl.appendChild(tr);
+    });
+  } else {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td colspan="3"><span class="notice">Juega una partida para ver tu afinidad personal.</span></td>`;
+    affPersonalBodyEl.appendChild(tr);
+  }
+  document.getElementById('affinityArea').style.display = "grid";
+}
+
 
   function goToStart(){
     destroyChart();
@@ -823,3 +831,4 @@
 </script>
 </body>
 </html>
+
