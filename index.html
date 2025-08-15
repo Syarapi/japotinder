@@ -86,17 +86,16 @@
   }
 
   /* Tarjetas */
- #card-container {
+#card-container {
   position: relative;
-  width: 92%;
-  max-width: 520px;
-  height: 720px; /* 10% más alto que antes */
+  width: min(92%, 520px);  /* ocupa el 92% pero nunca más de 520px de ancho */
+  height: min(70vh, 720px); /* 70% de la altura visible, máx 720px */
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-/* Tarjeta */
+/* Imagen */
 .card {
   position: relative;
   width: 100%;
@@ -996,6 +995,7 @@ function initKanjiRain(){
 </script>
 </body>
 </html>
+
 
 
 
