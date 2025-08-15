@@ -904,43 +904,32 @@ body {
   applyRandomTheme();
   document.getElementById("start-screen").style.display = "flex";
 </script>
-  <script>
-  const kanjis = ['日','月','火','水','木','金','土','山','川','花','鳥','風','雨','雪'];
-  const bgColors = ['#fff7fb','#ffe3ef','#d38cb1','#d7a6f1','#b48ad6'];
+<div id="kanji-bg"></div>
 
-  function random(min,max){ return Math.random()*(max-min)+min; }
+<script>
+  const kanjis = ["花","桜","夢","風","月","光","心","雪","星","海"];
+  const container = document.getElementById("kanji-bg");
 
-  function darkenColor(col, amt){
-    const c = col.substring(1);
-    const r = parseInt(c.substring(0,2),16)*(1-amt);
-    const g = parseInt(c.substring(2,4),16)*(1-amt);
-    const b = parseInt(c.substring(4,6),16)*(1-amt);
-    return `rgb(${Math.floor(r)},${Math.floor(g)},${Math.floor(b)})`;
+  function createKanji() {
+    const span = document.createElement("span");
+    span.className = "kanji";
+    span.textContent = kanjis[Math.floor(Math.random()*kanjis.length)];
+    span.style.left = Math.random()*100 + "vw";
+    span.style.fontSize = 16 + Math.random()*24 + "px";
+    span.style.animationDuration = 5 + Math.random()*10 + "s"; // velocidad de caída
+    span.style.transform = `rotate(${Math.random()*30-15}deg)`;
+    container.appendChild(span);
+
+    // eliminar kanji cuando termina la animación
+    span.addEventListener('animationend', () => span.remove());
   }
 
-  function createKanji(){
-    const span = document.createElement('span');
-    const kanji = kanjis[Math.floor(Math.random()*kanjis.length)];
-    span.textContent = kanji;
-
-    span.style.left = random(0, window.innerWidth-30)+'px';
-    span.style.fontSize = random(16,32)+'px';
-    const bg = bgColors[Math.floor(Math.random()*bgColors.length)];
-    span.style.color = darkenColor(bg,0.3);
-
-    span.style.animationDuration = random(8,20)+'s';
-    span.style.animationDelay = random(0,5)+'s';
-
-    span.classList.add('kanji');
-    document.body.appendChild(span);
-
-    setTimeout(()=> span.remove(), parseFloat(span.style.animationDuration)*1000 + parseFloat(span.style.animationDelay)*1000);
-  }
-
+  // crear kanji cada 300ms
   setInterval(createKanji, 300);
 </script>
 
 </body>
 </html>
+
 
 
