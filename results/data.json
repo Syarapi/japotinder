@@ -253,5 +253,35 @@
       "Probar los simulacros de terremotos",
       "Katsuouji y postal de Darumas"
     ]
+  },
+  {
+    "player": "Sara",
+    "date": "15/8/2025, 22:00:14",
+    "mode": "short",
+    "accepted": [],
+    "meh": [
+      "Beppu",
+      "Entrar a Sekaido o Itoya (90 pisos de material de arte)",
+      "Coleccionar Manhole cards",
+      "Disney Tokyo",
+      "Tanuki Dori"
+    ],
+    "rejected": [
+      "Musical Tokyo Revengers",
+      "Kumachan Onsen Tokyo",
+      "Gotokuji",
+      "Shiroi Koibito Park",
+      "Music box Museum",
+      "Bandai Museum",
+      "Eventos de mangas específicos",
+      "Shibazakura park Hokkaido",
+      "Nabana no sato",
+      "Ushiku Daibutsu",
+      "Museo de Nintendo",
+      "Hakone",
+      "Nagano y monos de nieve",
+      "Ir a ver kabuki",
+      "Otaru"
+    ]
   }
 ]
