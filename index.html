@@ -44,7 +44,6 @@ body {
     overflow-x: hidden;
   }
 
-  /* Contenedor de kanji en el fondo */
   #kanji-bg {
     position: fixed;
     inset: 0;
@@ -56,8 +55,8 @@ body {
   .kanji {
     position: absolute;
     font-family: 'Yuji Syuku', serif;
-    font-size: 24px;
-    color: rgba(211,140,177,0.6); /* color tipo pétalo */
+    font-size: 20px;
+    color: rgba(211,140,177,0.6);
     user-select: none;
     animation-name: fall;
     animation-timing-function: linear;
@@ -69,6 +68,9 @@ body {
       top: -5%;
       transform: rotate(0deg);
       opacity: 0.8;
+    }
+    50% {
+      transform: rotate(10deg);
     }
     100% {
       top: 100%;
@@ -915,21 +917,24 @@ body {
     span.className = "kanji";
     span.textContent = kanjis[Math.floor(Math.random()*kanjis.length)];
     span.style.left = Math.random()*100 + "vw";
-    span.style.fontSize = 16 + Math.random()*24 + "px";
-    span.style.animationDuration = 5 + Math.random()*10 + "s"; // velocidad de caída
-    span.style.transform = `rotate(${Math.random()*30-15}deg)`;
+    span.style.fontSize = 16 + Math.random()*20 + "px";
+
+    // caída lenta y variada
+    const duration = 10 + Math.random()*15; // de 10 a 25s
+    span.style.animationDuration = duration + "s";
+    span.style.transform = `rotate(${Math.random()*40-20}deg)`; // rotación aleatoria inicial
     container.appendChild(span);
 
-    // eliminar kanji cuando termina la animación
     span.addEventListener('animationend', () => span.remove());
   }
 
-  // crear kanji cada 300ms
-  setInterval(createKanji, 300);
+  // crear kanji cada 600ms para un efecto más ligero
+  setInterval(createKanji, 600);
 </script>
 
 </body>
 </html>
+
 
 
 
