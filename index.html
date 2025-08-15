@@ -188,39 +188,80 @@
   .tutorial p { margin: 6px 0; text-align: left; }
 
   /* ===== Mode split screen ===== */
-  #mode-screen {
-    display:none; align-items:stretch; padding:0; min-height:100vh; width:100%;
-  }
-  .mode-split {
-    display:grid; grid-template-columns: 1fr 1fr; width:100%; min-height:100vh; position:relative;
-  }
-  .half {
-    position:relative; display:flex; align-items:center; justify-content:center; cursor:pointer; user-select:none;
-    padding: 20px 10px;
-  }
-  .half::after{ /* área clicable completa */
-    content:""; position:absolute; inset:0;
-  }
-  .half .content {
-    z-index:1; text-align:center; max-width: 520px;
-    background: color-mix(in oklab, var(--card-bg) 75%, white 25%);
-    border: 2px solid var(--accent-1);
-    border-radius: 16px; padding: 18px 16px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-  }
-  .half.left {
-    background: linear-gradient(180deg, var(--bg-mid) 0%, var(--bg-light) 100%);
-    border-right: 1px dashed color-mix(in oklab, var(--accent-2) 60%, white);
-  }
-  .half.right {
-    background: linear-gradient(180deg, var(--bg-dark) 0%, var(--bg-mid) 100%);
-  }
-  .half h2 { margin: 4px 0 8px; }
-  .half p { margin: 0; font-size: 14px; opacity:.9; }
-  .badge {
-    display:inline-block; margin-top:8px; padding:4px 8px; border-radius:999px; font-weight:600; font-size:12px; color:#fff;
-    background: linear-gradient(180deg, var(--accent-1), var(--accent-2));
-  }
+#mode-screen {
+  display: none;
+  align-items: stretch;
+  padding: 0;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.mode-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: 100%;
+  min-height: 100vh;
+  position: relative;
+}
+
+.half {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+  padding: 20px 10px;
+}
+
+.half::after { /* área clicable completa */
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.half .content {
+  z-index: 1;
+  text-align: center;
+  max-width: 520px;
+  background: color-mix(in oklab, var(--card-bg) 75%, white 25%);
+  border: 2px solid var(--accent-1);
+  border-radius: 16px;
+  padding: 18px 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.half.left {
+  background: transparent; /* transparente */
+  border-right: 1px dashed color-mix(in oklab, var(--accent-2) 60%, white);
+}
+
+.half.right {
+  background: transparent; /* transparente base */
+}
+
+.half.right::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--bg-dark) 70%, transparent); /* color del tema */
+  z-index: 0; /* detrás del contenido */
+}
+
+.half h2 { margin: 4px 0 8px; }
+.half p { margin: 0; font-size: 14px; opacity: .9; }
+
+.badge {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 12px;
+  color: #fff;
+  background: linear-gradient(180deg, var(--accent-1), var(--accent-2));
+}
+
 
   /* ===== Layout estadísticas ===== */
   #stats-screen {
@@ -275,6 +316,12 @@
     .chart-scroll { max-height: 240px; }
     .top-scroll, .aff-scroll { max-height: 180px; }
   }
+
+  /* Color del texto <strong> combinado con el tema */
+strong {
+  color: rgba(var(--petal-rgba), 1); /* mismo color que kanji/pétalos */
+  font-weight: bold;
+}
 </style>
 </head>
 <body>
@@ -283,13 +330,7 @@
 <div id="start-screen">
   <div style="text-align:center">
     <h1>Japontinder</h1>
-    <p>¿Quién eres? O no empezamos ò_ó</p>
-    <input type="text" id="username" placeholder="Tu nombre" />
-    <div style="margin-top:10px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
-      <button class="btn accept" id="btnNameNext">Siguiente</button>
-      <button class="btn stats-btn" onclick="showStats()">Ver estadísticas</button>
-    </div>
-
+    <div></div>
     <div class="tutorial">
       <h3 style="margin:2px 0 6px;">¿Cómo se juega?</h3>
       <p>Puedes jugar <strong>deslizando</strong> las tarjetas (<em>swipe</em>) o usando los <strong>botones</strong>:</p>
@@ -299,6 +340,14 @@
         <li><strong>Arriba</strong> = <span style="color:var(--meh); font-weight:600;">Me da igual</span></li>
       </ul>
     </div>
+    <p>¿Quién eres? O no empezamos ò_ó</p>
+    <input type="text" id="username" placeholder="Tu nombre" />
+    <div style="margin-top:10px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
+      <button class="btn accept" id="btnNameNext">Siguiente</button>
+      <button class="btn stats-btn" onclick="showStats()">Ver estadísticas</button>
+    </div>
+
+  
   </div>
 </div>
 
@@ -936,4 +985,5 @@ function initKanjiRain(){
 </script>
 </body>
 </html>
+
 
