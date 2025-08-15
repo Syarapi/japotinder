@@ -8,6 +8,16 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
   :root{
+
+    /* Fondo base y tipografía */
+html, body { height: 100%; }
+body{
+  margin: 0;
+  background: linear-gradient(180deg, var(--bg-light) 0%, var(--bg-mid) 100%);
+  color: var(--ink);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", sans-serif;
+}
+
     /* Paleta fija para botones/series */
   --yes: #87cefa;    /* AZUL para "Aquí sí" */
   --meh: #8a5adf;    /* MORADO para "Me da igual" */
@@ -904,7 +914,7 @@ body > div:not(#kanji-bg) {
 
 <script>
   const kanjis = ["花","桜","夢","風","月","光","心","雪","星","海"];
-  const container = document.getElementById("kanji-bg");
+const kanjiLayer = document.getElementById("kanji-bg");
 
   function createKanji() {
     const span = document.createElement("span");
@@ -928,6 +938,7 @@ body > div:not(#kanji-bg) {
 
 </body>
 </html>
+
 
 
 
