@@ -38,25 +38,37 @@
     overflow-x: hidden;
   }
   body::before, body::after{
-    content:"";
-    position: fixed;
-    inset: 0;
-    pointer-events:none;
-    background-image:
-      radial-gradient(14px 9px at 10px 10px, rgba(var(--petal-rgba),0.25) 40%, transparent 41%),
-      radial-gradient(12px 8px at 40% 30%, rgba(var(--petal-rgba),0.18) 40%, transparent 41%),
-      radial-gradient(10px 7px at 70% 60%, rgba(var(--petal-rgba),0.15) 40%, transparent 41%),
-      radial-gradient(12px 8px at 85% 20%, rgba(var(--petal-rgba),0.18) 40%, transparent 41%);
-    animation: petals 24s linear infinite;
-    filter: blur(0.2px);
-    z-index: -1;
-  }
-  body::after{ animation-duration: 32s; opacity: .6; }
-  @keyframes petals {
-    0% { background-position: 0 -10vh, 20vw -20vh, 60vw -15vh, 85vw -25vh; }
-    100% { background-position: 0 120vh, 20vw 130vh, 60vw 125vh, 85vw 135vh; }
-  }
+  /* anulamos los fondos anteriores */
+  content: none !important;
+}
 
+/* Cada carácter kanji "flotante" */
+.kanji-char{
+  position: fixed;
+  top: -12vh;                 /* empieza un poco por encima */
+  left: 0;
+  transform: translateX(var(--x, 0)) translateY(0) rotate(var(--r, 0deg));
+  font-family: 'Yuji Syuku', serif;
+  font-weight: 400;
+  line-height: 1;
+  pointer-events: none;
+  user-select: none;
+  z-index: -1;                /* igual que antes: detrás del contenido */
+  color: rgba(var(--petal-rgba), var(--opa, .25));  /* mismo color que los pétalos */
+  animation: fall-kanji var(--dur, 24s) linear infinite;
+  filter: blur(0.2px);
+}
+
+/* Dos "capas" con las mismas duraciones que tenías: 24s y 32s */
+.kanji-layer-a { --dur: 24s; --opa:.25; }
+.kanji-layer-b { --dur: 32s; --opa:.6;  }
+
+/* Animación con ligera deriva horizontal y balanceo */
+@keyframes fall-kanji{
+  0%   { transform: translateX(calc(var(--x, 0) - 10px)) translateY(-12vh) rotate(calc(var(--r, 0deg) - 10deg)); }
+  50%  { transform: translateX(calc(var(--x, 0) + 10px)) translateY(55vh)  rotate(calc(var(--r, 0deg) + 10deg)); }
+  100% { transform: translateX(calc(var(--x, 0) - 6px))  translateY(135vh) rotate(calc(var(--r, 0deg) + 20deg)); }
+}
   h1, h2, h3 { font-family: 'Yuji Syuku', serif; text-align: center; }
   h1 { color: var(--accent-1); text-shadow: 0 2px 0 #fff; margin: 10px 0 6px; }
   h2 { color: var(--accent-2); margin: 6px 0 10px; }
@@ -879,10 +891,49 @@
   function destroyChart() {
     if (statsChartInstance) { statsChartInstance.destroy(); statsChartInstance = null; }
   }
+  /* === Generador de kanji cayendo (reemplaza a los pétalos) === */
+function initKanjiRain(){
+  // Conjunto de kanji para elegir al azar (puedes ampliar la lista)
+  const KANJI = "日月火水木金土山川田人口女子学校先生時間東京日本大中小上下左右入口出口駅車電気食飲見行来会話読書映画音楽花愛友幸楽海空風雨雪猫犬鳥龍心星春夏秋冬夢道神寺社桜光美和新古旅食買飲遊語学写真";
+  const pick = () => KANJI[Math.floor(Math.random() * KANJI.length)];
+
+  // Cantidad por capa (ajusta si quieres más/menos densidad)
+  const COUNT_A = 40; // capa rápida (24s)
+  const COUNT_B = 40; // capa lenta  (32s)
+
+  const makeChar = (layerClass) => {
+    const el = document.createElement('span');
+    el.className = `kanji-char ${layerClass}`;
+    el.textContent = pick();
+
+    // Aleatoriedad de posición/tamaño/rotación y fase
+    const vw = Math.random() * 100;                // posición horizontal
+    const size = 14 + Math.random() * 18;          // 14px ~ 32px
+    const rot = (Math.random() * 60 - 30) + "deg"; // -30deg ~ 30deg
+    const delay = (-Math.random() * 32).toFixed(2) + "s"; // arranque desfasado
+    const drift = (Math.random() * 60 - 30) + "px";       // leve deriva base
+
+    el.style.setProperty('--x', vw + 'vw');
+    el.style.setProperty('--r', rot);
+    el.style.fontSize = size + 'px';
+    el.style.animationDelay = delay;
+
+    // Pequeña variación extra entre caracteres
+    el.style.transform = `translateX(${drift}) translateY(-12vh) rotate(${rot})`;
+
+    document.body.appendChild(el);
+  };
+
+  for (let i = 0; i < COUNT_A; i++) makeChar('kanji-layer-a');
+  for (let i = 0; i < COUNT_B; i++) makeChar('kanji-layer-b');
+}
+
 
   /************ Init ************/
   applyRandomTheme();
+  initKanjiRain(); 
   document.getElementById("start-screen").style.display = "flex";
 </script>
 </body>
 </html>
+
