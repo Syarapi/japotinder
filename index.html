@@ -45,12 +45,18 @@ body {
   }
 
   #kanji-bg {
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-    overflow: hidden;
-  }
+  position: fixed;
+  inset: 0;
+  z-index: 0;              /* ya no negativo */
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* Asegura que TODO el contenido vaya por encima de la capa 0 */
+body > *:not(#kanji-bg) {
+  position: relative;
+  z-index: 1;
+}
 
   .kanji {
     position: absolute;
@@ -934,6 +940,7 @@ body {
 
 </body>
 </html>
+
 
 
 
