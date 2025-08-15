@@ -662,8 +662,8 @@ strong {
 
   function startGameWithMode(){
     data = shuffleArray(originalData);
-    if (mode === "short") data = data.slice(0, 20); // 20 aleatorias
-    index = 0; accepted = []; rejected = []; meh = [];
+    const SHORT_COUNT = 20; // ajusta aquí si quieres otro valor fijo
+    if (mode === "short") data = data.slice(0, Math.min(SHORT_COUNT, data.length));    index = 0; accepted = []; rejected = []; meh = [];
     container.innerHTML = "";
     document.getElementById("mode-screen").style.display = "none";
     document.getElementById("game-screen").style.display = "flex";
@@ -1028,6 +1028,7 @@ function initKanjiRain(){
 </script>
 </body>
 </html>
+
 
 
 
