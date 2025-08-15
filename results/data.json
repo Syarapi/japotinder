@@ -60,5 +60,36 @@
       "RJ Cafe Osaka",
       "Ginzan Onsen"
     ]
+  },
+  {
+    "player": "dgsdgs",
+    "date": "15/8/2025, 22:19:59",
+    "mode": "short",
+    "accepted": [
+      "Tanuki Dori",
+      "Hakone",
+      "Musical Tokyo Revengers",
+      "Music box Museum",
+      "Coleccionar Manhole cards",
+      "Dormir en Henn na hotel",
+      "Shikisai no oka",
+      "Gotokuji"
+    ],
+    "meh": [
+      "Katsuouji y postal de Darumas",
+      "Beppu",
+      "Eventos de mangas específicos"
+    ],
+    "rejected": [
+      "Tarde de recreativas",
+      "Ir a ver sumo",
+      "Probar los simulacros de terremotos",
+      "Otaru",
+      "Doraemon time square",
+      "Shibazakura park Hokkaido",
+      "Oarai Isosaki shrine",
+      "Dormir en Onyado Nono Kyoto",
+      "Museo de Nintendo"
+    ]
   }
 ]
