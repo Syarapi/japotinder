@@ -1,1 +1,33 @@
-[]
+[
+  {
+    "player": "Sara",
+    "date": "15/8/2025, 22:17:05",
+    "mode": "short",
+    "accepted": [
+      "Shikisai no oka",
+      "Entrar a Sekaido o Itoya (90 pisos de material de arte)",
+      "Nagano y monos de nieve",
+      "Katsuouji y postal de Darumas",
+      "Nikko",
+      "Otaru",
+      "Tanuki Dori"
+    ],
+    "meh": [
+      "Coleccionar Manhole cards",
+      "Ushiku Daibutsu",
+      "Shibazakura park Hokkaido",
+      "Museo de Nintendo",
+      "Kumamoto"
+    ],
+    "rejected": [
+      "Tarde de recreativas",
+      "Musical Tokyo Revengers",
+      "Nabana no sato",
+      "Hakone",
+      "Dormir en Henn na hotel",
+      "Beppu",
+      "Comer en Tofuro Ginza",
+      "Dormir en Toggle (cada habitación es de un único color completa)"
+    ]
+  }
+]
