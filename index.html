@@ -8,54 +8,65 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
   :root{
-    /* Paleta fija para botones/series (NO aleatoria) */
-    --yes:#87cefa;          /* AZUL para "Aquí sí" */
-    --meh:#8a5adf;          /* MORADO para "Me da igual" */
-    --no:#ff7aa3;           /* ROSA para "Pasando" */
+    /* Paleta fija para botones/series */
+  --yes: #87cefa;    /* AZUL para "Aquí sí" */
+  --meh: #8a5adf;    /* MORADO para "Me da igual" */
+  --no: #ff7aa3;     /* ROSA para "Pasando" */
 
-    /* Variables de tema aleatorio */
-    --ink:#333;
-    --bg-light:#fff7fb;
-    --bg-mid:#ffe3ef;
-    --bg-dark:#d38cb1;
-    --card-bg:#ffffffee;
-    --accent-1:#d7a6f1;
-    --accent-2:#b48ad6;
-    --petal-rgba: 255,182,193;
-  }
+  /* Variables de tema aleatorio */
+  --ink: #333;
+  --bg-light: #fff7fb;
+  --bg-mid: #ffe3ef;
+  --bg-dark: #d38cb1;
+  --card-bg: #ffffffee;
+  --accent-1: #d7a6f1;
+  --accent-2: #b48ad6;
 
-  /* ===== Fondo temático ===== */
-  body {
-    margin: 0;
-    font-family: 'Segoe UI', sans-serif;
-    color: var(--ink);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background: var(--bg-light);
-    position: relative;
-    overflow-x: hidden;
-  }
-  body::before, body::after{
-    content:"";
-    position: fixed;
-    inset: 0;
-    pointer-events:none;
-    background-image:
-      radial-gradient(14px 9px at 10px 10px, rgba(var(--petal-rgba),0.25) 40%, transparent 41%),
-      radial-gradient(12px 8px at 40% 30%, rgba(var(--petal-rgba),0.18) 40%, transparent 41%),
-      radial-gradient(10px 7px at 70% 60%, rgba(var(--petal-rgba),0.15) 40%, transparent 41%),
-      radial-gradient(12px 8px at 85% 20%, rgba(var(--petal-rgba),0.18) 40%, transparent 41%);
-    animation: petals 24s linear infinite;
-    filter: blur(0.2px);
-    z-index: -1;
-  }
-  body::after{ animation-duration: 32s; opacity: .6; }
-  @keyframes petals {
-    0% { background-position: 0 -10vh, 20vw -20vh, 60vw -15vh, 85vw -25vh; }
-    100% { background-position: 0 120vh, 20vw 130vh, 60vw 125vh, 85vw 135vh; }
-  }
+  /* Kanji flotante */
+  --kanji-color: #b38cb1; /* más oscuro que el fondo */
+  --kanji-size-min: 12px;
+  --kanji-size-max: 32px;
+  --kanji-opacity-min: 0.15;
+  --kanji-opacity-max: 0.35;
+}
+
+/* ===== Fondo con kanji aleatorios ===== */
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  color: var(--ink);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--bg-light);
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Contenedor de kanji flotantes */
+#kanji-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  overflow: hidden;
+}
+
+.kanji {
+  position: absolute;
+  font-family: 'Yuji Syuku', serif;
+  color: var(--kanji-color);
+  opacity: 0.2;
+  user-select: none;
+  animation: floatKanji linear infinite;
+}
+
+/* Animación vertical de los kanji */
+@keyframes floatKanji {
+  0% { transform: translateY(110vh); }
+  100% { transform: translateY(-20vh); }
+}
 
   h1, h2, h3 { font-family: 'Yuji Syuku', serif; text-align: center; }
   h1 { color: var(--accent-1); text-shadow: 0 2px 0 #fff; margin: 10px 0 6px; }
@@ -884,5 +895,42 @@
   applyRandomTheme();
   document.getElementById("start-screen").style.display = "flex";
 </script>
+  <script>
+  const kanjis = ['日','月','火','水','木','金','土','山','川','花','鳥','風','雨','雪'];
+  const bgColors = ['#fff7fb','#ffe3ef','#d38cb1','#d7a6f1','#b48ad6'];
+
+  function random(min,max){ return Math.random()*(max-min)+min; }
+
+  function darkenColor(col, amt){
+    const c = col.substring(1);
+    const r = parseInt(c.substring(0,2),16)*(1-amt);
+    const g = parseInt(c.substring(2,4),16)*(1-amt);
+    const b = parseInt(c.substring(4,6),16)*(1-amt);
+    return `rgb(${Math.floor(r)},${Math.floor(g)},${Math.floor(b)})`;
+  }
+
+  function createKanji(){
+    const span = document.createElement('span');
+    const kanji = kanjis[Math.floor(Math.random()*kanjis.length)];
+    span.textContent = kanji;
+
+    span.style.left = random(0, window.innerWidth-30)+'px';
+    span.style.fontSize = random(16,32)+'px';
+    const bg = bgColors[Math.floor(Math.random()*bgColors.length)];
+    span.style.color = darkenColor(bg,0.3);
+
+    span.style.animationDuration = random(8,20)+'s';
+    span.style.animationDelay = random(0,5)+'s';
+
+    span.classList.add('kanji');
+    document.body.appendChild(span);
+
+    setTimeout(()=> span.remove(), parseFloat(span.style.animationDuration)*1000 + parseFloat(span.style.animationDelay)*1000);
+  }
+
+  setInterval(createKanji, 300);
+</script>
+
 </body>
 </html>
+
