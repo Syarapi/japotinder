@@ -545,6 +545,17 @@ strong {
   let mehLimit = 5;
   let statsChartInstance = null;
 
+  function destroyChart() {
+  try {
+    if (statsChartInstance && typeof statsChartInstance.destroy === 'function') {
+      statsChartInstance.destroy();
+    }
+  } catch (_) {
+    // silencioso
+  }
+  statsChartInstance = null;
+}
+
   const container = document.getElementById('card-container');
 
   /************ Utilidades ************/
@@ -1123,4 +1134,5 @@ function initKanjiRain(){
 </script>
 </body>
 </html>
+
 
