@@ -372,9 +372,7 @@
 
   function destroyChart(){
     try { if (statsChartInstance && typeof statsChartInstance.destroy === 'function') statsChartInstance.destroy(); }
-    catch(_){}
-    statsChartInstance = null;
-  }
+    catch(_){}}
 
   function ensureArray(maybeArray) {
     if (Array.isArray(maybeArray)) return maybeArray;
@@ -620,8 +618,7 @@
   }
 
   /************ Estadísticas (con inyección de la partida actual) ************/
-  <script>
-async function showStats() {
+  async function showStats() {
   // Mostrar pantalla y limpiar
   document.getElementById('start-screen').style.display = 'none';
   document.getElementById('mode-screen').style.display = 'none';
@@ -831,4 +828,3 @@ async function showStats() {
 </script>
 </body>
 </html>
-
