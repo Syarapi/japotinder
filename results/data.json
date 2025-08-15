@@ -91,5 +91,36 @@
       "Dormir en Onyado Nono Kyoto",
       "Museo de Nintendo"
     ]
+  },
+  {
+    "player": "csfs",
+    "date": "15/8/2025, 22:24:35",
+    "mode": "short",
+    "accepted": [
+      "Coleccionar Manhole cards",
+      "Nikko",
+      "Ir a ver kabuki",
+      "Shinkansen Hello Kitty",
+      "Oarai Isosaki shrine"
+    ],
+    "meh": [
+      "Entrar a Sekaido o Itoya (90 pisos de material de arte)",
+      "Hakone",
+      "Disney Tokyo",
+      "Pokemon Cafe",
+      "Shikisai no oka"
+    ],
+    "rejected": [
+      "Enoshima",
+      "Aitama Daibutsu (Buddha y moais)",
+      "Ir a ver sumo",
+      "Katsuouji y postal de Darumas",
+      "Otaru",
+      "Musical Tokyo Revengers",
+      "Kumachan Onsen Tokyo",
+      "Dormir en Henn na hotel",
+      "Bandai Museum",
+      "2D Café Tokyo"
+    ]
   }
 ]
