@@ -716,34 +716,41 @@ async function getSeenCardsForPlayer(name){
 }
 
 
- /************ Flujo UI ************/
+/************ Flujo UI ************/
+
+// Paso 1: Pantalla de inicio -> Botón siguiente
 document.getElementById("btnNameNext").addEventListener("click", () => {
   const nameInput = document.getElementById("username").value.trim();
-  if (!nameInput) { 
-    alert("Que me digas quién eres o no jugamos ù3ú"); 
-    return; 
+  if (!nameInput) {
+    alert("Que me digas quién eres o no jugamos ù3ú");
+    return;
   }
+
   playerName = nameInput;
+
+  // Mostrar elección de modo
   document.getElementById("start-screen").style.display = "none";
   document.getElementById("mode-screen").style.display = "flex";
 });
 
-// Mitades clicables (modo)
+// Paso 2: Pantalla de modo -> Mitad izquierda (corto)
 document.getElementById("halfShort").addEventListener("click", () => {
   mode = "short";
   mehLimit = 5;
   startGameWithMode();
 });
 
+// Paso 3: Pantalla de modo -> Mitad derecha (completo)
 document.getElementById("halfFull").addEventListener("click", () => {
   mode = "full";
   mehLimit = 10;
   startGameWithMode();
 });
 
+// Inicia el juego con el modo seleccionado
 function startGameWithMode() {
   const SHORT_COUNT = 20;
-  let safeOriginal = [...originalData]; // copia de datos
+  let safeOriginal = [...originalData]; // copia de datos originales
 
   if (mode === "short") {
     // Historial de cartas jugadas por este jugador
@@ -757,21 +764,21 @@ function startGameWithMode() {
           .forEach(cardName => pastCards.add(cardName));
       });
 
-    // Filtrar cartas nuevas (comparando por nombre)
+    // Filtrar cartas no jugadas antes
     let availableCards = safeOriginal.filter(c => !pastCards.has(c.name));
 
-    // Si hay pocas nuevas, usar todas
+    // Si hay pocas nuevas, usar todas mezcladas
     if (availableCards.length < SHORT_COUNT) {
       availableCards = shuffleArray([...safeOriginal]);
     } else {
       availableCards = shuffleArray(availableCards);
     }
 
-    // Limitar a 20
+    // Limitar a 20 cartas
     data = availableCards.slice(0, SHORT_COUNT);
 
   } else {
-    // Modo completo
+    // Modo completo: todas las cartas mezcladas
     data = shuffleArray(safeOriginal);
   }
 
@@ -787,30 +794,10 @@ function startGameWithMode() {
   showNextCard(true);
 }
 
- function goToStart() {
-    // Mostrar solo la pantalla de inicio
-    document.getElementById("start-screen").style.display = "flex";
-    document.getElementById("game-screen").style.display = "none";
-    document.getElementById("stats-screen").style.display = "none";
-
-    // Limpiar variables y campos
-    playerName = "";
-    document.getElementById("playerName").value = "";
-
-    // Limpiar datos temporales de juego
-    currentCards = [];
-    currentIndex = 0;
-
-    // Si existe gráfico, destruirlo para evitar duplicados
-    if (typeof destroyChart === "function") {
-        destroyChart();
-    }
-}
-window.goToStart = goToStart;
-
-
-// 👇 expón la función al global para que funcione el onclick del HTML
-window.goToStart = goToStart;
+// Paso 4: Al terminar el juego -> mostrar resultados
+function endGame() {
+  document.getElementById("game-screen").style.display = "none";
+  document.getElementById("results-screen").style.display = "flex";
 
 
   /************ Tarjetas + Swipe ************/
@@ -1224,6 +1211,7 @@ window.addEventListener('DOMContentLoaded', initGame);
   
 </body>
 </html>
+
 
 
 
