@@ -340,6 +340,7 @@ strong {
 </style>
 </head>
 <body>
+<div id="kanji-layer" aria-hidden="true"></div>
 
 <!-- Pantalla de inicio -->
 <div id="start-screen">
@@ -353,6 +354,7 @@ strong {
         <li><strong>Izquierda</strong> = <span style="color:var(--no); font-weight:600;">No (Pasando)</span></li>
         <li><strong>Derecha</strong> = <span style="color:var(--yes); font-weight:600;">Sí (Aquí sí)</span></li>
         <li><strong>Arriba</strong> = <span style="color:var(--meh); font-weight:600;">Me da igual</span></li>
+        <p>Si juegas más de una vez, pon <strong>el mismo nombre</strong>, así, si en modo corto se te repite una tarjeta, solo contará <strong>la última respuesta</strong>.</p>
       </ul>
     </div>
     <p>¿Quién eres? O no empezamos ò_ó</p>
@@ -507,7 +509,7 @@ strong {
     { name: "Bandai Museum", img: "img/bandai.jpg" },
     { name: "Tanuki Dori", img: "img/tanuki.jpg" },
     { name: "Coleccionar Manhole cards", img: "img/manhole.jpg" },
-    { name: "Entrar a Sekaido o Itoya (90 pisos de material de arte), img: "img/sekaido.jpg" },
+    { name: "Entrar a Sekaido o Itoya (90 pisos de material de arte)", img: "img/sekaido.jpg" },
     { name: "Doraemon time square", img: "img/doraemon.jpg" },
     { name: "Shiroi Koibito Park", img: "img/shiroi-koibito.jpg" },
     { name: "2D Café Tokyo", img: "img/2dcafe.jpg" },
@@ -527,6 +529,7 @@ strong {
     { name: "Ir a ver sumo", img: "img/sumo.jpg" },
     { name: "Ir a ver kabuki", img: "img/kabuki.jpg" },
     { name: "Ushiku Daibutsu", img: "img/ushiku.jpg" },
+    { name: "Tienda de Chopper", img: "img/mugiwara.jpg" },
   ];
 
   /************ Estado ************/
@@ -1078,6 +1081,7 @@ function initKanjiRain(){
 </script>
 </body>
 </html>
+
 
 
 
