@@ -1,811 +1,931 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
+<meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Japotinder</title>
 <link href="https://fonts.googleapis.com/css2?family=Yuji+Syuku&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-  :root{
-    --yes:#87cefa;
-    --meh:#8a5adf;
-    --no:#ff7aa3;
-    --ink:#333;
+:root{
+  --yes:#87cefa;
+  --meh:#8a5adf;
+  --no:#ff7aa3;
+  --ink:#333;
+  --bg-light:#fff7fb;
+  --bg-mid:#ffe3ef;
+  --bg-dark:#d38cb1;
+  --card-bg:#ffffffee;
+  --accent-1:#FF91C0;
+  --accent-2:#FF68A8;
+  --title-main: var(--accent-1);
+  --strong-color: var(--accent-2);
+  --petal-rgba: 255,182,193;
+  /* Mapas */
+  --map-stroke:#a66fb0;
+  --map-fill:#fff;
+  --map-yes: color-mix(in oklab, var(--yes) 88%, white);
+  --map-meh: color-mix(in oklab, var(--meh) 88%, white);
+  --map-no:  color-mix(in oklab, var(--no)  88%, white);
+  --map-yes-strong: color-mix(in oklab, var(--yes) 70%, #fff 30%);
+  --map-shadow: 0 6px 18px rgba(0,0,0,.12);
+}
 
-    --bg-light:#fff7fb; --bg-mid:#ffe3ef; --bg-dark:#d38cb1;
-    --card-bg:#ffffffee;
-    --accent-1:#FF91C0; --accent-2:#FF68A8;
-    --title-main: var(--accent-1);
-    --strong-color: var(--accent-2);
-    --petal-rgba: 255,182,193;
+html, body { height: 100%; }
+body{
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  color: var(--ink);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--bg-light);
+  position: relative;
+  overflow-x: hidden;
+}
 
-    /* Colores para mapas */
-    --map-stroke:#a66fb0;
-    --map-fill:#fff;
-    --map-yes: color-mix(in oklab, var(--yes) 88%, white);
-    --map-meh: color-mix(in oklab, var(--meh) 88%, white);
-    --map-no:  color-mix(in oklab, var(--no) 88%, white);
-    --map-yes-strong: color-mix(in oklab, var(--yes) 70%, #fff 30%);
-    --map-shadow: 0 6px 18px rgba(0,0,0,.12);
-  }
+/* Kanji */
+#kanji-layer{
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.kanji-char{
+  position: absolute;
+  top: -12vh;
+  transform: translateX(var(--x, 0)) translateY(0) rotate(var(--r, 0deg));
+  font-family: 'Yuji Syuku', serif;
+  color: rgba(var(--petal-rgba), var(--opa, .25));
+  animation: fall-kanji var(--dur, 24s) linear infinite;
+  user-select: none;
+  white-space: pre;
+  filter: blur(.2px);
+}
+.kanji-layer-a { --dur: 24s; --opa:.25; }
+.kanji-layer-b { --dur: 32s; --opa:.6; }
+@keyframes fall-kanji{
+  0%  {transform: translateX(calc(var(--x,0) - 10px)) translateY(-12vh) rotate(calc(var(--r,0deg) - 10deg));}
+  50% {transform: translateX(calc(var(--x,0) + 10px)) translateY(55vh) rotate(calc(var(--r,0deg) + 10deg));}
+  100%{transform: translateX(calc(var(--x,0) - 6px))  translateY(135vh) rotate(calc(var(--r,0deg) + 20deg));}
+}
 
-  html, body { height: 100%; }
-  body {
-    margin: 0; font-family: 'Segoe UI', sans-serif; color: var(--ink);
-    min-height: 100vh; display: flex; flex-direction: column; align-items: center;
-    background: var(--bg-light); position: relative; overflow-x: hidden;
-  }
+h1, h2, h3{
+  font-family: 'Yuji Syuku', serif;
+  text-align: center;
+  color: var(--title-main);
+}
+h1{ text-shadow: 0 2px 0 #fff; margin: 10px 0 6px; }
+h2{ margin: 6px 0 10px; }
+strong{ color: var(--strong-color); }
 
-  /* Kanji */
-  #kanji-layer{ position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
-  .kanji-char{
-    position: absolute; top: -12vh; transform: translateX(var(--x, 0)) translateY(0) rotate(var(--r, 0deg));
-    font-family: 'Yuji Syuku', serif; color: rgba(var(--petal-rgba), var(--opa, .25));
-    animation: fall-kanji var(--dur, 24s) linear infinite; user-select: none; white-space: pre; filter: blur(.2px);
-  }
-  .kanji-layer-a { --dur: 24s; --opa:.25; }
-  .kanji-layer-b { --dur: 32s; --opa:.6;  }
-  @keyframes fall-kanji{
-    0%{transform: translateX(calc(var(--x,0) - 10px)) translateY(-12vh) rotate(calc(var(--r,0deg) - 10deg));}
-    50%{transform: translateX(calc(var(--x,0) + 10px)) translateY(55vh)  rotate(calc(var(--r,0deg) + 10deg));}
-    100%{transform: translateX(calc(var(--x,0) - 6px))  translateY(135vh) rotate(calc(var(--r,0deg) + 20deg));}
-  }
+/* Pantallas */
+#start-screen, #mode-screen, #game-screen, #results, #stats-screen{
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+}
+#start-screen{
+  display:flex;
+  justify-content:center;
+  gap:15px;
+  min-height:100vh;
+  padding: 16px 10px;
+}
 
-  h1, h2, h3 { font-family: 'Yuji Syuku', serif; text-align: center; color: var(--title-main); }
-  h1 { text-shadow: 0 2px 0 #fff; margin: 10px 0 6px; }
-  h2 { margin: 6px 0 10px; }
-  strong { color: var(--strong-color); }
+/* Tutorial */
+.tutorial{
+  background: var(--card-bg);
+  border: 2px solid var(--accent-1);
+  border-radius: 14px;
+  width: min(92vw, 520px);
+  box-shadow: 0 8px 18px rgba(0,0,0,.08);
+  overflow: hidden;
+}
+.tutorial-header{
+  display:flex; align-items:center; justify-content:space-between;
+  padding: 12px 12px;
+  cursor: pointer;
+  user-select: none;
+  background: linear-gradient(180deg, color-mix(in oklab, var(--accent-2), #000 10%), color-mix(in oklab, var(--accent-1), #000 10%));
+  color: #fff;
+}
+.tutorial-title{ margin: 0; font-size: 22px; width: 100%; text-align: center; font-weight: 800; letter-spacing: .3px; text-shadow: 0 1px 2px rgba(0,0,0,.45); }
+.tutorial-toggle{ border: none; background: rgba(255,255,255,.22); padding: 6px 10px; border-radius: 10px; color: #fff; cursor: pointer; font-weight: 700; box-shadow: inset 0 0 0 1px rgba(0,0,0,.15); }
+.tutorial-body{ padding: 10px 12px; text-align: left; font-size: 14px; background: var(--card-bg); }
+.tutorial ul{ margin: 0; padding-left: 18px; }
+.tutorial li{ margin: 6px 0; }
+@media (hover: hover) and (pointer: fine){
+  #tutorialToggleBtn { display: none; }
+  .tutorial-header { cursor: default; }
+}
 
-  /* Pantallas */
-  #start-screen, #mode-screen, #game-screen, #results, #stats-screen {
-    display: none; flex-direction: column; align-items: center; width: 100%; position: relative; z-index: 1;
-  }
-  #start-screen { display:flex; justify-content:center; gap:15px; min-height:100vh; padding: 16px 10px; }
+/* Caja “¿Quién eres?” */
+.start-card{
+  background: var(--card-bg);
+  border: 2px solid var(--accent-1);
+  border-radius: 16px;
+  width: min(92vw, 520px);
+  box-shadow: 0 10px 24px rgba(0,0,0,.10);
+  padding: 14px 14px 16px;
+  overflow: hidden;
+}
+.start-input{
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  display: block;
+  font-size: 16px;
+  padding: 12px 14px;
+  border: 2px solid color-mix(in oklab, var(--accent-1), #000 0%);
+  border-radius: 12px;
+  background: #fff;
+  outline: none;
+  box-shadow: 0 4px 10px rgba(0,0,0,.06) inset, 0 4px 14px rgba(0,0,0,.06);
+  transition: box-shadow .2s ease, border-color .2s ease, transform .08s ease;
+}
+.start-input::placeholder{ color:#888; }
+.start-input:focus{
+  border-color: var(--accent-2);
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent-2), #fff 75%), 0 8px 20px rgba(0,0,0,.10);
+  transform: translateY(-1px);
+}
 
-  /* Tutorial */
-  .tutorial {
-    background: var(--card-bg);
-    border: 2px solid var(--accent-1);
-    border-radius: 14px;
-    width: min(92vw, 520px);
-    box-shadow: 0 8px 18px rgba(0,0,0,.08);
-    overflow: hidden;
-  }
-  .tutorial-header{
-    display:flex; align-items:center; justify-content:space-between;
-    padding: 12px 12px; cursor: pointer; user-select: none;
-    background: linear-gradient(180deg, color-mix(in oklab, var(--accent-2), #000 10%), color-mix(in oklab, var(--accent-1), #000 10%));
-    color: #fff;
-  }
-  .tutorial-title {
-    margin: 0; font-size: 22px; width: 100%; text-align: center;
-    font-weight: 800; letter-spacing: .3px;
-    text-shadow: 0 1px 2px rgba(0,0,0,.45);
-  }
-  .tutorial-toggle {
-    border: none; background: rgba(255,255,255,.22);
-    padding: 6px 10px; border-radius: 10px; color: #fff; cursor: pointer;
-    font-weight: 700; box-shadow: inset 0 0 0 1px rgba(0,0,0,.15);
-  }
-  .tutorial-body { padding: 10px 12px; text-align: left; font-size: 14px; background: var(--card-bg); }
-  .tutorial ul { margin: 0; padding-left: 18px; }
-  .tutorial li { margin: 6px 0; }
+/* Juego */
+#game-screen{ padding-top: 40px; }
+#card-container{
+  position: relative;
+  width: min(92%, 520px);
+  height: min(70vh, 720px);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+.card{
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 2px solid var(--accent-1);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  background:#fff;
+}
+.card img{ width: 100%; height: 100%; object-fit: cover; display: block; user-select: none; -webkit-user-drag: none; }
+.card div{
+  position: absolute; bottom:0; left:0; right:0;
+  background: rgba(255,255,255,.85); color:var(--ink); font-weight:600;
+  font-size: clamp(14px, 2vw, 16px); padding: 8px 12px; text-align:center; backdrop-filter: blur(4px);
+}
 
-  @media (hover: hover) and (pointer: fine){
-    #tutorialToggleBtn { display: none; }
-    .tutorial-header { cursor: default; }
-  }
+/* Botones */
+#buttons{ margin-top:10px; display:flex; gap:12px; z-index:10; }
+.btn{
+  padding: 12px 18px; font-size: 16px; border: none; border-radius: 12px;
+  cursor: pointer; transition: transform .15s ease, box-shadow .15s ease, opacity .2s ease;
+  box-shadow: 0 8px 18px rgba(0,0,0,.12); color: white;
+}
+#btnNameNext, .stats-btn, .btn-primary{ background: linear-gradient(180deg, var(--accent-1), var(--accent-2)); }
+.accept{ background: linear-gradient(180deg, var(--yes), #5fb5ef); }
+.meh{ background: linear-gradient(180deg, var(--meh), #7343d8); }
+.reject{ background: linear-gradient(180deg, var(--no), #ff5f93); }
+.btn:hover{ transform: translateY(-1px); box-shadow: 0 10px 20px rgba(0,0,0,.16); }
+.btn:active{ transform: translateY(0); opacity:.95; }
 
-  /* Caja “¿Quién eres?” */
-  .start-card{
-    background: var(--card-bg);
-    border: 2px solid var(--accent-1);
-    border-radius: 16px;
-    width: min(92vw, 520px);
-    box-shadow: 0 10px 24px rgba(0,0,0,.10);
-    padding: 14px 14px 16px;
-    overflow: hidden; 
-  }
-  .start-input{
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box; 
-    display: block;
-    font-size: 16px;
-    padding: 12px 14px;
-    border: 2px solid color-mix(in oklab, var(--accent-1), #000 0%);
-    border-radius: 12px;
-    background: #fff;
-    outline: none;
-    box-shadow: 0 4px 10px rgba(0,0,0,.06) inset, 0 4px 14px rgba(0,0,0,.06);
-    transition: box-shadow .2s ease, border-color .2s ease, transform .08s ease;
-  }
-  .start-input::placeholder{ color:#888; }
-  .start-input:focus{
-    border-color: var(--accent-2);
-    box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent-2), #fff 75%), 0 8px 20px rgba(0,0,0,.10);
-    transform: translateY(-1px);
-  }
+/* Tabla / stats (legible) */
+table{
+  border-collapse: collapse;
+  margin-top: 10px;
+  width: 100%;
+  background: #fff;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  border: 2px solid var(--accent-1);
+}
+th, td{
+  padding: 10px 12px;
+  border-bottom: 1px solid #f0e7f8;
+  text-align: left;
+  word-break: break-word;
+  font-size: 14px;
+  line-height: 1.35;
+}
+th{
+  background: linear-gradient(180deg, var(--accent-2), var(--accent-1));
+  color: #fff;
+  letter-spacing:.3px;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+tr:nth-child(even){ background-color: #faf7ff; }
 
-  /* Juego */
-  #game-screen{ padding-top: 40px; }
-  #card-container { position: relative; width: min(92%, 520px); height: min(70vh, 720px); display:flex; justify-content:center; align-items:center; }
-  .card {
-    position: relative; width: 100%; height: 100%; border-radius: 20px; overflow: hidden;
-    border: 2px solid var(--accent-1); box-shadow: 0 10px 25px rgba(0,0,0,0.15); background:#fff;
-  }
-  .card img { width: 100%; height: 100%; object-fit: cover; display: block; user-select: none; -webkit-user-drag: none; }
-  .card div { position: absolute; bottom:0; left:0; right:0; background: rgba(255,255,255,.85); color:var(--ink);
-    font-weight:600; font-size: clamp(14px, 2vw, 16px); padding: 8px 12px; text-align:center; backdrop-filter: blur(4px); }
+/* Scroll contenedores */
+.chart-scroll{ overflow-x: auto; overflow-y: hidden; }
+.top-scroll, .aff-scroll{ overflow-y:auto; max-height: 260px; padding-bottom:6px; }
 
-  /* Botones */
-  #buttons { margin-top:10px; display:flex; gap:12px; z-index:10; }
-  .btn { padding: 12px 18px; font-size: 16px; border: none; border-radius: 12px; cursor: pointer;
-         transition: transform .15s ease, box-shadow .15s ease, opacity .2s ease; box-shadow: 0 8px 18px rgba(0,0,0,.12); color: white; }
-  #btnNameNext, .stats-btn, .btn-primary { background: linear-gradient(180deg, var(--accent-1), var(--accent-2)); }
-  .accept { background: linear-gradient(180deg, var(--yes), #5fb5ef); }
-  .meh    { background: linear-gradient(180deg, var(--meh), #7343d8); }
-  .reject { background: linear-gradient(180deg, var(--no), #ff5f93); }
-  .btn:hover { transform: translateY(-1px); box-shadow: 0 10px 20px rgba(0,0,0,.16); }
-  .btn:active{ transform: translateY(0); opacity:.95; }
+/* Bloques tipo card */
+.card-surface{
+  background: var(--card-bg);
+  border: 2px solid var(--accent-1);
+  border-radius: 16px;
+  padding: 8px;
+  box-shadow: 0 10px 24px rgba(0,0,0,.10);
+}
 
-  /* Tabla / stats */
-  table { border-collapse: collapse; margin-top: 10px; width: 100%; background: #fff;
-    border-radius: 14px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.12); border: 2px solid var(--accent-1); }
-  th, td { padding: 8px 10px; border-bottom: 1px solid #f0e7f8; text-align: left; word-break: break-word; font-size: 13px; }
-  th { background: linear-gradient(180deg, var(--accent-2), var(--accent-1)); color: #fff; letter-spacing:.3px; }
-  tr:nth-child(even) { background-color: #faf7ff; }
+/* === Mapas === */
+.map-card{ composes: card-surface; }
+.map-wrap{ width: 100%; display: grid; gap: 10px; align-items: start; }
+.map-container{
+  width: 100%;
+  aspect-ratio: 570/755;
+  position: relative;
+  max-width: 760px;         /* centrado cómodo */
+  margin-inline: auto;      /* centrado */
+}
+.map-container svg{ width: 100%; height: 100%; display: block; }
+.map-legend{ display:flex; gap:8px; flex-wrap:wrap; font-size: 12px; margin-top: 6px; justify-content:center; }
+.legend-chip{ display:inline-flex; align-items:center; gap:6px; }
+.legend-swatch{
+  width: 14px; height: 14px; border-radius: 4px; border: 1px solid rgba(0,0,0,.12); box-shadow: 0 1px 0 rgba(0,0,0,.06) inset;
+}
 
-  /* Modo: tintado derecha */
-  .half.right { position: relative; }
-  .half.right::before{
-    content:""; position:absolute; inset:0;
-    background: var(--bg-dark);
-    opacity: .18;
-    pointer-events: none; z-index: 0;
-  }
-  .half.right > .content { position: relative; z-index: 1; }
+/* estilos sobre paths de prefecturas */
+.pref-shape{ fill: var(--map-fill); stroke: var(--map-stroke); stroke-width: .6; vector-effect: non-scaling-stroke; transition: fill .18s ease, filter .18s ease; }
+.pref-yes{ fill: var(--map-yes); filter: drop-shadow(0 1px 0 rgba(0,0,0,.08)); }
+.pref-top{ fill: var(--map-yes-strong); }
+.pref-meh{ fill: var(--map-meh); }
+.pref-no{  fill: var(--map-no); }
+.pref-hover:hover{ filter: brightness(1.05); }
 
-  .chart-scroll { overflow-x: auto; overflow-y: hidden; }
+.cards-small{ font-size: 12px; }
 
-  /* === Bloques de mapas === */
-  .map-card{ background: var(--card-bg); border: 2px solid var(--accent-1); border-radius: 16px; padding: 8px; box-shadow: var(--map-shadow); }
-  .map-wrap{ width: 100%; max-width: 980px; display: grid; grid-template-columns: 1.15fr .85fr; gap: 10px; align-items: start; }
-  .map-container{ width: 100%; aspect-ratio: 570/755; position: relative; }
-  .map-container svg{ width: 100%; height: 100%; display: block; }
-  .map-legend{ display:flex; gap:8px; flex-wrap:wrap; font-size: 12px; margin-top: 6px; }
-  .legend-chip{ display:inline-flex; align-items:center; gap:6px; }
-  .legend-swatch{ width: 14px; height: 14px; border-radius: 4px; border: 1px solid rgba(0,0,0,.12); box-shadow: 0 1px 0 rgba(0,0,0,.06) inset; }
+/* Secciones específicas: tabla & mapa en contenedores separados */
+.table-card{ composes: card-surface; }
+.table-card h3, .map-card h3{ margin: 6px 0 8px; text-align:center; }
 
-  /* estilos sobre paths de prefecturas */
-  .pref-shape{ fill: var(--map-fill); stroke: var(--map-stroke); stroke-width: .6; vector-effect: non-scaling-stroke; transition: fill .18s ease, filter .18s ease; }
-  .pref-yes{ fill: var(--map-yes); filter: drop-shadow(0 1px 0 rgba(0,0,0,.08)); }
-  .pref-top{ fill: var(--map-yes-strong); }
-  .pref-meh{ fill: var(--map-meh); }
-  .pref-no{  fill: var(--map-no); }
-  .pref-hover:hover{ filter: brightness(1.04); }
+.notice{ opacity:.8; font-style:italic; }
 
-  .cards-small{ font-size: 12px; }
+/* Afinidad área en dos columnas en desktop */
+#affinityArea{
+  display:none;
+  margin-top:12px;
+  gap:12px;
+  grid-template-columns:1fr 1fr;
+}
+@media (max-width: 860px){
+  #affinityArea{ grid-template-columns:1fr; }
+}
 </style>
 </head>
 <body>
-  <div id="kanji-layer" aria-hidden="true"></div>
+<div id="kanji-layer" aria-hidden="true"></div>
 
-  <!-- Inicio -->
-  <div id="start-screen">
-    <div style="text-align:center; width:100%; display:flex; flex-direction:column; align-items:center; gap:10px;">
-      <h1>Japotinder</h1>
+<!-- Inicio -->
+<div id="start-screen">
+  <div style="text-align:center; width:100%; display:flex; flex-direction:column; align-items:center; gap:10px;">
+    <h1>Japotinder</h1>
 
-      <!-- TUTORIAL -->
-      <div class="tutorial" id="tutorial">
-        <div class="tutorial-header" id="tutorialHeader" role="button" tabindex="0" aria-expanded="true" aria-controls="tutorialBody">
-          <h3 class="tutorial-title">¿Cómo se juega?</h3>
-          <button class="tutorial-toggle" id="tutorialToggleBtn" type="button">Ocultar</button>
-        </div>
-        <div class="tutorial-body" id="tutorialBody">
-          <ul>
-            <li><strong>Swipe derecha</strong> → “Aquí sí”.</li>
-            <li><strong>Swipe izquierda</strong> → “Pasando”.</li>
-            <li><strong>Swipe hacia arriba</strong> → “Me da igual”.</li>
-            <li>También puedes usar los <strong>botones</strong> bajo la tarjeta.</li>
-            <li>En <em>Modo corto</em> tienes <strong>5</strong> “Me da igual”; en <em>Modo completo</em>, <strong>10</strong>.</li>
-            <li>Si juegas más de una partida, pon el mismo nombre: en modo corto no te saldrán tarjetas repetidas. En modo completo el juego seleccionará solo tu 
-              respuesta más reciente</li>
-          </ul>
-        </div>
+    <!-- TUTORIAL -->
+    <div class="tutorial" id="tutorial">
+      <div class="tutorial-header" id="tutorialHeader" role="button" tabindex="0" aria-expanded="true" aria-controls="tutorialBody">
+        <h3 class="tutorial-title">¿Cómo se juega?</h3>
+        <button class="tutorial-toggle" id="tutorialToggleBtn" type="button">Ocultar</button>
       </div>
-
-      <!-- QUIÉN ERES -->
-      <div class="start-card">
-        <p style="margin:0 0 8px;">¿Quién eres?</p>
-        <input class="start-input" type="text" id="username" placeholder="Si no me lo dices no empezamos ù3ú" />
-        <div style="margin-top:10px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
-          <button class="btn btn-primary" id="btnNameNext">Siguiente</button>
-          <button class="btn stats-btn" onclick="showStats()">Ver estadísticas</button>
-        </div>
+      <div class="tutorial-body" id="tutorialBody">
+        <ul>
+          <li><strong>Swipe derecha</strong> → “Aquí sí”.</li>
+          <li><strong>Swipe izquierda</strong> → “Pasando”.</li>
+          <li><strong>Swipe hacia arriba</strong> → “Me da igual”.</li>
+          <li>También puedes usar los <strong>botones</strong> bajo la tarjeta.</li>
+          <li>En <em>Modo corto</em> tienes <strong>5</strong> “Me da igual”; en <em>Modo completo</em>, <strong>10</strong>.</li>
+          <li>Si juegas más de una partida, pon el mismo nombre: en modo corto no te saldrán tarjetas repetidas. En modo completo el juego seleccionará solo tu respuesta más reciente</li>
+        </ul>
       </div>
-
     </div>
-  </div>
 
-  <!-- Modo -->
-  <div id="mode-screen" style="display:none; min-height: 100vh;">
-    <div class="mode-split" style="display:grid; grid-template-columns:1fr 1fr; width:100%; min-height:100vh;">
-      <div class="half left" id="halfShort" style="display:flex; align-items:center; justify-content:center; cursor:pointer; padding:20px;">
-        <div class="content" style="text-align:center; max-width:520px; background: var(--card-bg); border:2px solid var(--accent-1); border-radius:16px; padding:18px;">
-          <h2>Modo corto</h2>
-          <p>20 tarjetas aleatorias. “Me da igual” 5 veces.</p>
-        </div>
-      </div>
-      <div class="half right" id="halfFull" style="display:flex; align-items:center; justify-content:center; cursor:pointer; padding:20px;">
-        <div class="content" style="text-align:center; max-width:520px; background: var(--card-bg); border:2px solid var(--accent-1); border-radius:16px; padding:18px;">
-          <h2>Modo completo</h2>
-          <p>Todas las tarjetas. “Me da igual” 10 veces.</p>
-        </div>
+    <!-- QUIÉN ERES -->
+    <div class="start-card">
+      <p style="margin:0 0 8px;">¿Quién eres?</p>
+      <input class="start-input" type="text" id="username" placeholder="Si no me lo dices no empezamos ù3ú" />
+      <div style="margin-top:10px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
+        <button class="btn btn-primary" id="btnNameNext">Siguiente</button>
+        <button class="btn stats-btn" onclick="showStats()">Ver estadísticas</button>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- Juego -->
-  <div id="game-screen" style="display:none; flex-direction:column; align-items:center;">
-    <div id="card-container"></div>
-    <div id="buttons">
-      <button class="btn reject" onclick="handleDecision(-1)">Pasando</button>
-      <button class="btn meh"    onclick="handleDecision(0)">Me da igual</button>
-      <button class="btn accept" onclick="handleDecision(1)">Aquí sí</button>
+<!-- Modo -->
+<div id="mode-screen" style="display:none; min-height: 100vh;">
+  <div class="mode-split" style="display:grid; grid-template-columns:1fr 1fr; width:100%; min-height:100vh;">
+    <div class="half left" id="halfShort" style="display:flex; align-items:center; justify-content:center; cursor:pointer; padding:20px;">
+      <div class="content card-surface" style="text-align:center; max-width:520px;">
+        <h2>Modo corto</h2>
+        <p>20 tarjetas aleatorias. “Me da igual” 5 veces.</p>
+      </div>
+    </div>
+    <div class="half right" id="halfFull" style="display:flex; align-items:center; justify-content:center; cursor:pointer; padding:20px;">
+      <div class="content card-surface" style="text-align:center; max-width:520px;">
+        <h2>Modo completo</h2>
+        <p>Todas las tarjetas. “Me da igual” 10 veces.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Juego -->
+<div id="game-screen" style="display:none; flex-direction:column; align-items:center;">
+  <div id="card-container"></div>
+  <div id="buttons">
+    <button class="btn reject" onclick="handleDecision(-1)">Pasando</button>
+    <button class="btn meh"    onclick="handleDecision(0)">Me da igual</button>
+    <button class="btn accept" onclick="handleDecision(1)">Aquí sí</button>
+  </div>
+</div>
+
+<!-- Resultados -->
+<div id="results" style="display:none; align-items:center; padding:10px; width:100%; max-width:980px;">
+  <h2>Resultados</h2>
+  <p id="player-info" style="margin:4px 0 8px;"></p>
+
+  <div class="results-table" style="width:100%;">
+    <table>
+      <thead><tr><th>Aquí sí</th><th>Me da igual</th><th>Pasando</th></tr></thead>
+      <tbody id="results-body"></tbody>
+    </table>
+  </div>
+
+  <!-- Mapa de resultados -->
+  <div class="map-card" style="margin-top:12px; width:100%;">
+    <h3>Mapa de prefecturas con "Aquí sí"</h3>
+    <div class="map-container" id="resultsMap"></div>
+    <div class="map-legend">
+      <span class="legend-chip"><span class="legend-swatch" style="background:var(--map-yes)"></span>Prefecturas con "sí" de esta partida</span>
     </div>
   </div>
 
-  <!-- Resultados -->
-  <div id="results" style="display:none; align-items:center; padding:10px; width:100%; max-width:980px;">
-    <h2>Resultados</h2>
-    <p id="player-info" style="margin:4px 0 8px;"></p>
-    <div class="results-table" style="width:100%;">
-      <table>
-        <thead><tr><th>Aquí sí</th><th>Me da igual</th><th>Pasando</th></tr></thead>
-        <tbody id="results-body"></tbody>
+  <div style="margin-top:10px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
+    <button class="btn stats-btn" onclick="showStats()">Ver estadísticas</button>
+    <button class="btn stats-btn" onclick="goToStart()">Volver</button>
+  </div>
+</div>
+
+<!-- Stats -->
+<div id="stats-screen" style="display:none; min-height:100vh; padding: 6px 10px 10px; box-sizing: border-box; overflow-y:auto;">
+  <h2>Estadísticas globales</h2>
+
+  <!-- Chart + Top -->
+  <div class="stats-grid" style="display:grid; grid-template-columns: minmax(340px, 1fr) minmax(420px, 1.2fr); gap:12px;">
+    <div class="chart-card card-surface">
+      <div class="chart-scroll" style="max-height:360px; padding-bottom:6px;">
+        <canvas id="statsChart"></canvas>
+      </div>
+    </div>
+    <div class="top-card card-surface">
+      <h3 style="margin:4px 0 6px;">TOP tarjetas con más "sí"</h3>
+      <div class="top-scroll">
+        <table id="topCardsTable">
+          <thead><tr><th>Tarjeta</th><th>Sí</th><th>Meh</th><th>No</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Afinidad (global y personal) -->
+  <div id="affinityArea">
+    <div class="aff-card card-surface">
+      <h3 style="margin:4px 0 6px;">Ranking de afinidad (todos)</h3>
+      <div class="aff-scroll">
+        <table id="affinityGlobal">
+          <thead><tr><th>Pareja</th><th>#</th><th>Tarjetas en común (SÍ)</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="aff-card card-surface">
+      <h3 style="margin:4px 0 6px;">Jugadores más afines contigo</h3>
+      <div class="aff-scroll">
+        <table id="affinityPersonal">
+          <thead><tr><th>Jugador</th><th>#</th><th>Tarjetas en común (SÍ)</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ⬇️ Mapa y ranking de prefecturas (AHORA DEBAJO de afinidad personal, en contenedores separados) -->
+  <div class="map-card" style="margin-top:12px;">
+    <h3>Zonas con más "sí" (todas las partidas)</h3>
+    <div class="map-container" id="statsMap"></div>
+    <div class="map-legend">
+      <span class="legend-chip"><span class="legend-swatch" style="background:var(--map-yes)"></span>≥ 1 "sí"</span>
+      <span class="legend-chip"><span class="legend-swatch" style="background:var(--map-yes-strong)"></span>Top prefecturas</span>
+    </div>
+  </div>
+
+  <div class="table-card" style="margin-top:12px;">
+    <h3>Ranking de prefecturas por número de “sí”</h3>
+    <div class="top-scroll">
+      <table id="prefRanking">
+        <thead><tr><th>Prefectura</th><th>Likes</th><th>Tarjetas</th></tr></thead>
+        <tbody></tbody>
       </table>
     </div>
-
-    <!-- Mapa de resultados -->
-    <div class="map-card" style="margin-top:12px; width:100%;">
-      <h3 style="margin:6px 0 8px;">Mapa de prefecturas con "Aquí sí"</h3>
-      <div class="map-container" id="resultsMap"></div>
-      <div class="map-legend">
-        <span class="legend-chip"><span class="legend-swatch" style="background:var(--map-yes)"></span>Prefecturas con "sí" de esta partida</span>
-      </div>
-    </div>
-
-    <div style="margin-top:10px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
-      <button class="btn stats-btn" onclick="showStats()">Ver estadísticas</button>
-      <button class="btn stats-btn" onclick="goToStart()">Volver</button>
-    </div>
   </div>
 
-  <!-- Stats -->
-  <div id="stats-screen" style="display:none; min-height:100vh; padding: 6px 10px 10px; box-sizing: border-box; overflow-y:auto;">
-    <h2>Estadísticas globales</h2>
-    <div class="stats-grid" style="display:grid; grid-template-columns: minmax(340px, 1fr) minmax(420px, 1.2fr); gap:12px;">
-      <div class="chart-card" style="background:var(--card-bg); border:2px solid var(--accent-1); border-radius:16px; padding:8px;">
-        <div class="chart-scroll" style="max-height:360px; padding-bottom:6px;">
-          <canvas id="statsChart"></canvas>
-        </div>
-      </div>
-      <div class="top-card" style="background:var(--card-bg); border:2px solid var(--accent-1); border-radius:16px; padding:8px;">
-        <h3 style="margin:4px 0 6px;">TOP tarjetas con más "sí"</h3>
-        <div class="top-scroll" style="overflow-y:auto; max-height:220px; padding-bottom:6px;">
-          <table id="topCardsTable">
-            <thead><tr><th>Tarjeta</th><th>Sí</th><th>Meh</th><th>No</th></tr></thead>
-            <tbody></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- Mapa + ranking de prefecturas -->
-    <div class="map-card" style="margin-top:12px;">
-      <h3 style="margin:4px 0 8px;">Zonas con más "sí" (todas las partidas)</h3>
-      <div class="map-wrap">
-        <div>
-          <div class="map-container" id="statsMap"></div>
-          <div class="map-legend">
-            <span class="legend-chip"><span class="legend-swatch" style="background:var(--map-yes)"></span>≥ 1 "sí"</span>
-            <span class="legend-chip"><span class="legend-swatch" style="background:var(--map-yes-strong)"></span>Top prefecturas</span>
-          </div>
-        </div>
-        <div>
-          <div class="top-scroll" style="overflow-y:auto; max-height:360px; padding-bottom:6px;">
-            <table id="prefRanking">
-              <thead><tr><th>Prefectura</th><th>Likes</th><th>Tarjetas</th></tr></thead>
-              <tbody></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div id="affinityArea" style="display:none; margin-top:12px; gap:12px; grid-template-columns:1fr 1fr;">
-      <div class="aff-card" style="background:var(--card-bg); border:2px solid var(--accent-1); border-radius:16px; padding:8px;">
-        <h3 style="margin:4px 0 6px;">Ranking de afinidad (todos)</h3>
-        <div class="aff-scroll" style="overflow-y:auto; max-height:220px; padding-bottom:6px;">
-          <table id="affinityGlobal">
-            <thead><tr><th>Pareja</th><th>#</th><th>Tarjetas en común (SÍ)</th></tr></thead>
-            <tbody></tbody>
-          </table>
-        </div>
-      </div>
-      <div class="aff-card" style="background:var(--card-bg); border:2px solid var(--accent-1); border-radius:16px; padding:8px;">
-        <h3 style="margin:4px 0 6px;">Jugadores más afines contigo</h3>
-        <div class="aff-scroll" style="overflow-y:auto; max-height:220px; padding-bottom:6px;">
-          <table id="affinityPersonal">
-            <thead><tr><th>Jugador</th><th>#</th><th>Tarjetas en común (SÍ)</th></tr></thead>
-            <tbody></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <div style="margin-top:8px; display:flex; justify-content:center;">
-      <button class="btn stats-btn" onclick="goToStart()">Volver</button>
-    </div>
+  <div style="margin-top:8px; display:flex; justify-content:center;">
+    <button class="btn stats-btn" onclick="goToStart()">Volver</button>
   </div>
+</div>
 
 <script>
-  /************ Config ************/
-  const saveEndpoint = "/api/save";
-  const dataUrl = "https://raw.githubusercontent.com/Syarapi/japotinder/main/results/data.json";
-  const TUTORIAL_LS = "japotinder_tutorial_open_v1";
+/************ Config ************/
+const saveEndpoint = "/api/save";
+const dataUrl = "https://raw.githubusercontent.com/Syarapi/japotinder/main/results/data.json";
+/* URL de un SVG con las 47 prefecturas */
+const JAPAN_SVG_URLS = [
+  "https://raw.githubusercontent.com/geolonia/japanese-prefectures/master/map-full.svg",
+  "https://upload.wikimedia.org/wikipedia/commons/b/bc/Regions_and_Prefectures_of_Japan_2.svg"
+];
 
-  /* URL de un SVG con las 47 prefecturas, shapes reales */
-  const JAPAN_SVG_URLS = [
-    // Geolonia: SVG específico por prefecturas
-    "https://raw.githubusercontent.com/geolonia/japanese-prefectures/master/map-full.svg",
-    // Wikimedia (por si lo anterior falla). Algunos IDs/nombres pueden variar; intentamos detectarlos por <title>
-    "https://upload.wikimedia.org/wikipedia/commons/b/bc/Regions_and_Prefectures_of_Japan_2.svg"
-  ];
+/************ Datos base ************/
+// Cada tarjeta tiene pref (prefectura)
+const originalData = [
+  { name: "Disney Tokyo", img: "img/disney.jpg", pref: "Tokyo" },
+  { name: "Gotokuji", img: "img/gotokuji.jpg", pref: "Tokyo" },
+  { name: "Pokemon Cafe", img: "img/pokemon.jpg", pref: "Tokyo" },
+  { name: "Shikisai no oka", img: "img/shikisai.jpg", pref: "Hokkaido" },
+  { name: "Shinkansen Hello Kitty", img: "img/hello-kitty.jpg", pref: "Fukuoka" },
+  { name: "Maid cafe", img: "img/maid.jpg", pref: "Tokyo" },
+  { name: "Nabana no sato", img: "img/nabana.jpg", pref: "Mie" },
+  { name: "Otaru", img: "img/otaru.jpg", pref: "Hokkaido" },
+  { name: "Nagano y monos de nieve", img: "img/nagano.jpg", pref: "Nagano" },
+  { name: "RJ Cafe Osaka", img: "img/rj-cafe.jpg", pref: "Osaka" },
+  { name: "Kumachan Onsen Tokyo", img: "img/kumachan.jpg", pref: "Tokyo" },
+  { name: "Enoshima", img: "img/enoshima.jpg", pref: "Kanagawa" },
+  { name: "Ginzan Onsen", img: "img/ginzan.jpg", pref: "Yamagata" },
+  { name: "Tarde de recreativas", img: "img/arcade.jpg", pref: "Tokyo" },
+  { name: "Shibazakura park Hokkaido", img: "img/shibazakura.jpg", pref: "Hokkaido" },
+  { name: "Musical Tokyo Revengers", img: "img/tokyo-revengers.jpg", pref: "Tokyo" },
+  { name: "Eventos de mangas específicos", img: "img/kisekoi.jpg", pref: "Tokyo" },
+  { name: "Museo/cafe de los yokai", img: "img/yokai.jpg", pref: "Tottori" },
+  { name: "Kumamoto", img: "img/kumamoto.jpg", pref: "Kumamoto" },
+  { name: "Beppu", img: "img/beppu.jpg", pref: "Oita" },
+  { name: "Bandai Museum", img: "img/bandai.jpg", pref: "Tochigi" },
+  { name: "Tanuki Dori", img: "img/tanuki.jpg", pref: "Hokkaido" },
+  { name: "Coleccionar Manhole cards", img: "img/manhole.jpg", pref: "Tokyo" },
+  { name: "Entrar a Sekaido o Itoya (90 pisos de material de arte)", img: "img/sekaido.jpg", pref: "Tokyo" },
+  { name: "Doraemon time square", img: "img/doraemon.jpg", pref: "Toyama" },
+  { name: "Shiroi Koibito Park", img: "img/shiroi-koibito.jpg", pref: "Hokkaido" },
+  { name: "2D Café Tokyo", img: "img/2dcafe.jpg", pref: "Tokyo" },
+  { name: "Comer en Tofuro Ginza", img: "img/tofuro.jpg", pref: "Tokyo" },
+  { name: "Music box Museum", img: "img/musicbox.jpg", pref: "Hokkaido" },
+  { name: "Aitama Daibutsu (Buddha y moais)", img: "img/aitama.jpg", pref: "Saitama" },
+  { name: "Hakone", img: "img/hakone.jpg", pref: "Kanagawa" },
+  { name: "Nikko", img: "img/nikko.jpg", pref: "Tochigi" },
+  { name: "Oarai Isosaki shrine", img: "img/oarai.jpg", pref: "Ibaraki" },
+  { name: "Dormir en Ryokan Ookawaso", img: "img/ookawaso.jpg", pref: "Fukushima" },
+  { name: "Museo de Nintendo", img: "img/nintendo.jpg", pref: "Kyoto" },
+  { name: "Dormir en Onyado Nono Kyoto", img: "img/onyado.jpg", pref: "Kyoto" },
+  { name: "Katsuouji y postal de Darumas", img: "img/katsuouji.jpg", pref: "Osaka" },
+  { name: "Dormir en Toggle (cada habitación es de un único color completa)", img: "img/toggle.jpg", pref: "Tokyo" },
+  { name: "Dormir en Henn na hotel", img: "img/hennna.jpg", pref: "Nagasaki" },
+  { name: "Probar los simulacros de terremotos", img: "img/terremoto.jpg", pref: "Tokyo" },
+  { name: "Ir a ver sumo", img: "img/sumo.jpg", pref: "Tokyo" },
+  { name: "Ir a ver kabuki", img: "img/kabuki.jpg", pref: "Tokyo" },
+  { name: "Ushiku Daibutsu", img: "img/ushiku.jpg", pref: "Ibaraki" },
+  { name: "Tienda de Chopper", img: "img/mugiwara.jpg", pref: "Tokyo" },
+];
 
-  /************ Datos base ************/
-  // Ahora cada tarjeta tiene un atributo invisible `pref` con el nombre de la prefectura.
-  // Si no estás segura, puedes dejarlo en "" y editarlo después. He completado varios como ejemplo.
-  const originalData = [
-    { name: "Disney Tokyo",                        img: "img/disney.jpg",           pref: "Tokyo" },
-    { name: "Gotokuji",                             img: "img/gotokuji.jpg",          pref: "Tokyo" },
-    { name: "Pokemon Cafe",                         img: "img/pokemon.jpg",           pref: "Tokyo" },
-    { name: "Shikisai no oka",                      img: "img/shikisai.jpg",          pref: "Hokkaido" },
-    { name: "Shinkansen Hello Kitty",               img: "img/hello-kitty.jpg",       pref: "Fukuoka" },
-    { name: "Maid cafe",                            img: "img/maid.jpg",              pref: "Tokyo" },
-    { name: "Nabana no sato",                       img: "img/nabana.jpg",            pref: "Mie" },
-    { name: "Otaru",                                img: "img/otaru.jpg",             pref: "Hokkaido" },
-    { name: "Nagano y monos de nieve",              img: "img/nagano.jpg",            pref: "Nagano" },
-    { name: "RJ Cafe Osaka",                        img: "img/rj-cafe.jpg",           pref: "Osaka" },
-    { name: "Kumachan Onsen Tokyo",                 img: "img/kumachan.jpg",          pref: "Tokyo" },
-    { name: "Enoshima",                             img: "img/enoshima.jpg",          pref: "Kanagawa" },
-    { name: "Ginzan Onsen",                         img: "img/ginzan.jpg",            pref: "Yamagata" },
-    { name: "Tarde de recreativas",                 img: "img/arcade.jpg",            pref: "Tokyo" },
-    { name: "Shibazakura park Hokkaido",            img: "img/shibazakura.jpg",       pref: "Hokkaido" },
-    { name: "Musical Tokyo Revengers",              img: "img/tokyo-revengers.jpg",   pref: "Tokyo" },
-    { name: "Eventos de mangas específicos",         img: "img/kisekoi.jpg",           pref: "Tokyo" },
-    { name: "Museo/cafe de los yokai",              img: "img/yokai.jpg",             pref: "Tottori" },
-    { name: "Kumamoto",                              img: "img/kumamoto.jpg",          pref: "Kumamoto" },
-    { name: "Beppu",                                 img: "img/beppu.jpg",             pref: "Oita" },
-    { name: "Bandai Museum",                         img: "img/bandai.jpg",            pref: "Tochigi" },
-    { name: "Tanuki Dori",                           img: "img/tanuki.jpg",            pref: "Hokkaido" },
-    { name: "Coleccionar Manhole cards",             img: "img/manhole.jpg",           pref: "Tokyo" },
-    { name: "Entrar a Sekaido o Itoya (90 pisos de material de arte)", img: "img/sekaido.jpg", pref: "Tokyo" },
-    { name: "Doraemon time square",                  img: "img/doraemon.jpg",          pref: "Toyama" },
-    { name: "Shiroi Koibito Park",                   img: "img/shiroi-koibito.jpg",    pref: "Hokkaido" },
-    { name: "2D Café Tokyo",                         img: "img/2dcafe.jpg",            pref: "Tokyo" },
-    { name: "Comer en Tofuro Ginza",                 img: "img/tofuro.jpg",            pref: "Tokyo" },
-    { name: "Music box Museum",                      img: "img/musicbox.jpg",          pref: "Hokkaido" },
-    { name: "Aitama Daibutsu (Buddha y moais)",      img: "img/aitama.jpg",            pref: "Saitama" },
-    { name: "Hakone",                                img: "img/hakone.jpg",            pref: "Kanagawa" },
-    { name: "Nikko",                                 img: "img/nikko.jpg",             pref: "Tochigi" },
-    { name: "Oarai Isosaki shrine",                  img: "img/oarai.jpg",             pref: "Ibaraki" },
-    { name: "Dormir en Ryokan Ookawaso",             img: "img/ookawaso.jpg",          pref: "Fukushima" },
-    { name: "Museo de Nintendo",                     img: "img/nintendo.jpg",          pref: "Kyoto" },
-    { name: "Dormir en Onyado Nono Kyoto",           img: "img/onyado.jpg",            pref: "Kyoto" },
-    { name: "Katsuouji y postal de Darumas",         img: "img/katsuouji.jpg",         pref: "Osaka" },
-    { name: "Dormir en Toggle (cada habitación es de un único color completa)", img: "img/toggle.jpg", pref: "Tokyo" },
-    { name: "Dormir en Henn na hotel",               img: "img/hennna.jpg",            pref: "Nagasaki" },
-    { name: "Probar los simulacros de terremotos",   img: "img/terremoto.jpg",         pref: "Tokyo" },
-    { name: "Ir a ver sumo",                         img: "img/sumo.jpg",              pref: "Tokyo" },
-    { name: "Ir a ver kabuki",                       img: "img/kabuki.jpg",            pref: "Tokyo" },
-    { name: "Ushiku Daibutsu",                       img: "img/ushiku.jpg",            pref: "Ibaraki" },
-    { name: "Tienda de Chopper",                     img: "img/mugiwara.jpg",          pref: "Tokyo" },
-  ];
+/************ Estado ************/
+let playerName = "";
+let mode = "short";
+let data = [];
+let accepted = [];
+let rejected = [];
+let meh = [];
+let index = 0;
+let mehLimit = 5;
+let statsChartInstance = null;
+const container = document.getElementById('card-container');
 
-  /************ Estado ************/
-  let playerName = "";
-  let mode = "short";
-  let data = [];
-  let accepted = [];
-  let rejected = [];
-  let meh = [];
-  let index = 0;
-  let mehLimit = 5;
-  let statsChartInstance = null;
-  const container = document.getElementById('card-container');
-
-  /************ Utilidades ************/
-  const shuffleArray = (array) => array.slice().sort(() => Math.random() - 0.5);
-
-  const LS_KEY = "japotinder_player_colors_v3";
-  function loadColorMap(){ try{ return JSON.parse(localStorage.getItem(LS_KEY)) || {}; }catch{ return {}; } }
-  function saveColorMap(map){ try{ localStorage.setItem(LS_KEY, JSON.stringify(map)); }catch{} }
-  const COLOR_POOL = ["#2f7bdc","#8a5adf","#b398d6","#acd68a","#ff6fa1","#48d1cc","#ffd666","#56e0b5","#68cba7","#ffd8a3","#ffccb1","#c1ff71"];
-  const RESERVED = { "alba":"#2f7bdc", "sara":"#ff6fa1", "alicia":"#8a5adf", "vaini":"#b398d6" };
-  function hslColor(i){ const hue = (i * 47) % 360; return `hsl(${hue} 70% 55%)`; }
-  function getPlayerColorUnique(name){
-    const key = (name||"").trim().toLowerCase();
-    let map = loadColorMap();
-    if (map[key]) return map[key];
-    if (RESERVED[key]) { const rc = RESERVED[key]; for (const n in map) if (map[n] === rc) delete map[n]; map[key]=rc; saveColorMap(map); return rc; }
-    const used = new Set(Object.values(map)); Object.values(RESERVED).forEach(c=>used.add(c));
-    for (const c of COLOR_POOL) if (!used.has(c)) { map[key]=c; saveColorMap(map); return c; }
-    let i=0; while(true){ const c=hslColor(i++); if(!used.has(c)){ map[key]=c; saveColorMap(map); return c; } }
+/************ Utilidades ************/
+const shuffleArray = (array) => array.slice().sort(() => Math.random() - 0.5);
+const LS_KEY = "japotinder_player_colors_v3";
+function loadColorMap(){ try{ return JSON.parse(localStorage.getItem(LS_KEY)) || {}; }catch{ return {}; } }
+function saveColorMap(map){ try{ localStorage.setItem(LS_KEY, JSON.stringify(map)); }catch{} }
+const COLOR_POOL = ["#2f7bdc","#8a5adf","#b398d6","#acd68a","#ff6fa1","#48d1cc","#ffd666","#56e0b5","#68cba7","#ffd8a3","#ffccb1","#c1ff71"];
+const RESERVED = { "alba":"#2f7bdc", "sara":"#ff6fa1", "alicia":"#8a5adf", "vaini":"#b398d6" };
+function hslColor(i){ const hue = (i * 47) % 360; return `hsl(${hue} 70% 55%)`; }
+function getPlayerColorUnique(name){
+  const key = (name||"").trim().toLowerCase();
+  let map = loadColorMap();
+  if (map[key]) return map[key];
+  if (RESERVED[key]) {
+    const rc = RESERVED[key];
+    for (const n in map) if (map[n] === rc) delete map[n];
+    map[key]=rc; saveColorMap(map); return rc;
   }
+  const used = new Set(Object.values(map));
+  Object.values(RESERVED).forEach(c=>used.add(c));
+  for (const c of COLOR_POOL) if (!used.has(c)) { map[key]=c; saveColorMap(map); return c; }
+  let i=0; while(true){ const c=hslColor(i++); if(!used.has(c)){ map[key]=c; saveColorMap(map); return c; } }
+}
+function destroyChart(){ try { if (statsChartInstance && typeof statsChartInstance.destroy === 'function') statsChartInstance.destroy(); } catch(_){} }
+function ensureArray(maybeArray) { if (Array.isArray(maybeArray)) return maybeArray; if (maybeArray && Array.isArray(maybeArray.games)) return maybeArray.games; return []; }
 
-  function destroyChart(){ try { if (statsChartInstance && typeof statsChartInstance.destroy === 'function') statsChartInstance.destroy(); } catch(_){} }
-
-  function ensureArray(maybeArray) {
-    if (Array.isArray(maybeArray)) return maybeArray;
-    if (maybeArray && Array.isArray(maybeArray.games)) return maybeArray.games;
-    return [];
+async function getSeenCardsForPlayer(name){
+  const seen = new Set();
+  try {
+    const res = await fetch(`${dataUrl}?t=${Date.now()}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const games = ensureArray(await res.json());
+    const latest = new Map();
+    games
+      .filter(g => g && g.player && g.player.trim().toLowerCase() === name.trim().toLowerCase())
+      .forEach(g => {
+        const ts = Date.parse(g.date || g.timestamp || "") || 0;
+        const add = (card) => {
+          const prev = latest.get(card);
+          if (!prev || ts >= prev) latest.set(card, ts);
+        };
+        (g.accepted||[]).forEach(add);
+        (g.meh||[]).forEach(add);
+        (g.rejected||[]).forEach(add);
+      });
+    latest.forEach((_ts, card)=>seen.add(card));
+  } catch(e){
+    console.warn("No se pudo cargar partidas previas:", e);
   }
+  return seen;
+}
 
-  async function getSeenCardsForPlayer(name){
-    const seen = new Set();
-    try {
-      const res = await fetch(`${dataUrl}?t=${Date.now()}`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const games = ensureArray(await res.json());
-      const latest = new Map();
-      games
-        .filter(g => g && g.player && g.player.trim().toLowerCase() === name.trim().toLowerCase())
-        .forEach(g => {
-          const ts = Date.parse(g.date || g.timestamp || "") || 0;
-          const add = (card) => {
-            const prev = latest.get(card);
-            if (!prev || ts >= prev) latest.set(card, ts);
-          };
-          (g.accepted||[]).forEach(add);
-          (g.meh||[]).forEach(add);
-          (g.rejected||[]).forEach(add);
-        });
-      latest.forEach((_ts, card)=>seen.add(card));
-    } catch(e){ console.warn("No se pudo cargar partidas previas:", e); }
-    return seen;
+/* ===== Mapa: utilidades y normalizadores ===== */
+const PREFS = [
+ "Hokkaido","Aomori","Iwate","Miyagi","Akita","Yamagata","Fukushima",
+ "Ibaraki","Tochigi","Gunma","Saitama","Chiba","Tokyo","Kanagawa",
+ "Niigata","Toyama","Ishikawa","Fukui","Yamanashi","Nagano","Gifu","Shizuoka","Aichi",
+ "Mie","Shiga","Kyoto","Osaka","Hyogo","Nara","Wakayama",
+ "Tottori","Shimane","Okayama","Hiroshima","Yamaguchi",
+ "Tokushima","Kagawa","Ehime","Kochi",
+ "Fukuoka","Saga","Nagasaki","Kumamoto","Oita","Miyazaki","Kagoshima","Okinawa"
+];
+const PREF_CODE = Object.fromEntries(PREFS.map((n,i)=>[n, String(i+1).padStart(2,'0')]));
+
+function normPrefName(s){
+  return (s||"")
+    .toLowerCase()
+    .replaceAll("ô","o").replaceAll("ō","o").replaceAll("ū","u")
+    .replaceAll("á","a").replaceAll("é","e").replaceAll("í","i").replaceAll("ó","o").replaceAll("ú","u")
+    .replace(/\s+prefecture$/,'')
+    .replace(/-ken|-fu|-to/g,'')
+    .replaceAll('tokyo-to','tokyo')
+    .trim();
+}
+
+// Encuentra nodos de prefectura por múltiples pistas: id, data-code, data-name, <title>
+function guessPrefKey(el){
+  const id = (el.id||"").toLowerCase();
+  const dc = el.getAttribute?.('data-code')||"";
+  const dn = (el.getAttribute?.('data-name')||"").toLowerCase();
+  const title = normPrefName(el.querySelector?.('title')?.textContent||"");
+  const attrText = `${id} ${dn}`;
+
+  if (/^\d{2}$/.test(dc)) return dc;
+  const m = attrText.match(/(\d{2})/);
+  if (m) return m[1];
+  for (const p of PREFS){
+    const pn = normPrefName(p);
+    if (attrText.includes(pn) || title === pn) return PREF_CODE[p];
   }
+  return null;
+}
 
-  /* ===== Mapa: utilidades y normalizadores ===== */
-  const PREFS = [
-    "Hokkaido","Aomori","Iwate","Miyagi","Akita","Yamagata","Fukushima",
-    "Ibaraki","Tochigi","Gunma","Saitama","Chiba","Tokyo","Kanagawa",
-    "Niigata","Toyama","Ishikawa","Fukui","Yamanashi","Nagano","Gifu","Shizuoka","Aichi",
-    "Mie","Shiga","Kyoto","Osaka","Hyogo","Nara","Wakayama",
-    "Tottori","Shimane","Okayama","Hiroshima","Yamaguchi",
-    "Tokushima","Kagawa","Ehime","Kochi",
-    "Fukuoka","Saga","Nagasaki","Kumamoto","Oita","Miyazaki","Kagoshima","Okinawa"
-  ];
+async function loadJapanSVG(into){
+  for (const url of JAPAN_SVG_URLS){
+    try{
+      const res = await fetch(url, { mode:'cors' });
+      if(!res.ok) throw new Error(`HTTP ${res.status}`);
+      const svgText = await res.text();
+      into.innerHTML = svgText;
+      const svg = into.querySelector('svg');
+      if (!svg) throw new Error('No SVG root');
 
-  const PREF_CODE = Object.fromEntries(PREFS.map((n,i)=>[n, String(i+1).padStart(2,'0')]));
+      svg.setAttribute('preserveAspectRatio','xMidYMid meet');
 
-  function normPrefName(s){
-    return (s||"")
-      .toLowerCase()
-      .replaceAll("ô","o").replaceAll("ō","o").replaceAll("ū","u").replaceAll("á","a").replaceAll("é","e").replaceAll("í","i").replaceAll("ó","o").replaceAll("ú","u")
-      .replace(/\s+prefecture$/,'')
-      .replace(/-ken|-fu|-to/g,'')
-      .replaceAll('tokyo-to','tokyo')
-      .trim();
-  }
+      // Marcar shapes / grupos por prefectura
+      const shapes = Array.from(svg.querySelectorAll('path, polygon, polyline, rect, circle, g'));
+      let marked = 0;
+      const foundCodes = new Set();
 
-  // Encuentra nodos de prefectura por múltiples pistas: id, data-code, data-name, <title>
-  function guessPrefKey(el){
-    const id = (el.id||"").toLowerCase();
-    const dc = el.getAttribute?.('data-code')||"";
-    const dn = (el.getAttribute?.('data-name')||"").toLowerCase();
-    const title = normPrefName(el.querySelector?.('title')?.textContent||"");
-    const attrText = `${id} ${dn}`;
-    // Por código
-    if (/^\d{2}$/.test(dc)) return dc;
-    // Por id tipo pref-01 o jp-01
-    const m = attrText.match(/(\d{2})/);
-    if (m) return m[1];
-    // Por nombre
-    for (const p of PREFS){
-      const pn = normPrefName(p);
-      if (attrText.includes(pn) || title === pn) return PREF_CODE[p];
-    }
-    return null;
-  }
-
-  async function loadJapanSVG(into){
-    for (const url of JAPAN_SVG_URLS){
-      try{
-        const res = await fetch(url, { mode:'cors' });
-        if(!res.ok) throw new Error(`HTTP ${res.status}`);
-        const svgText = await res.text();
-        into.innerHTML = svgText;
-        const svg = into.querySelector('svg');
-        if (!svg) throw new Error('No SVG root');
-        // Asegurar viewBox y clases
-        svg.setAttribute('preserveAspectRatio','xMidYMid meet');
-        // Marcar todas las shapes de prefecturas
-        const shapes = Array.from(svg.querySelectorAll('path, polygon, polyline, rect, circle, g'));
-        let marked = 0;
-        for (const s of shapes){
-          const code = guessPrefKey(s);
-          if (code){
-            s.classList.add('pref-shape','pref-hover');
-            s.setAttribute('data-pref-code', code);
-            marked++;
+      for (const s of shapes){
+        const code = guessPrefKey(s);
+        if (code){
+          s.classList.add('pref-shape','pref-hover');
+          s.setAttribute('data-pref-code', code);
+          foundCodes.add(code);
+          marked++;
+        }
+      }
+      // Si hay <g> que envuelven paths, propagar data-pref-code
+      svg.querySelectorAll('g').forEach(g=>{
+        if (!g.hasAttribute('data-pref-code')){
+          const any = g.querySelector('[data-pref-code]');
+          if (any) {
+            const code = any.getAttribute('data-pref-code');
+            g.setAttribute('data-pref-code', code);
+            g.classList.add('pref-shape','pref-hover');
+            foundCodes.add(code);
           }
         }
-        // Si el fichero usa <g> por prefectura con paths dentro, asegura que el <g> reciba la clase
-        svg.querySelectorAll('g').forEach(g=>{
-          if (!g.hasAttribute('data-pref-code')){
-            const any = g.querySelector('[data-pref-code]');
-            if (any) { g.setAttribute('data-pref-code', any.getAttribute('data-pref-code')); g.classList.add('pref-shape','pref-hover'); }
-          }
-        });
-        return svg;
-      }catch(e){ console.warn('Fallo al cargar SVG', url, e); }
-    }
-    throw new Error('No se pudo cargar ningún SVG de Japón');
-  }
-
-  function paintPrefectures(svg, codes, cls){
-    if (!svg) return;
-    const set = new Set(codes.map(c=>String(c).padStart(2,'0')));
-    svg.querySelectorAll('[data-pref-code]').forEach(el=>{
-      const code = el.getAttribute('data-pref-code');
-      el.classList.remove('pref-yes','pref-top','pref-meh','pref-no');
-      if (set.has(code)) el.classList.add(cls||'pref-yes');
-    });
-  }
-
-  function clearMap(svg){ if (!svg) return; svg.querySelectorAll('[data-pref-code]').forEach(el=>el.classList.remove('pref-yes','pref-top','pref-meh','pref-no')); }
-
-  /* ===== Tema + Kanji ===== */
-  function applyRandomTheme(){
-    const themes = [
-      { light:"#fff7fb", mid:"#ffe3ef", dark:"#d38cb1", accent1:"#FF91C0", accent2:"#FF68A8", petal:[220,120,160] },
-      { light:"#f2f9ff", mid:"#e0f1ff", dark:"#8dbfe6", accent1:"#a3c9ff", accent2:"#7fb2f0", petal:[120,160,220] },
-      { light:"#faf5ff", mid:"#efe3ff", dark:"#b48ad6", accent1:"#d7a6f1", accent2:"#b48ad6", petal:[150,110,200] },
-      { light:"#e9fff8", mid:"#d1fff0", dark:"#68cba7", accent1:"#9fe6cc", accent2:"68cba7", petal:[90,170,140] },
-      { light:"#ffeceb", mid:"#ffb3b0", dark:"#b94a48", accent1:"#f28b82", accent2:"#e57373", petal:[242,139,130] },
-    ];
-    const pick = themes[Math.floor(Math.random()*themes.length)];
-    const root = document.documentElement.style;
-    root.setProperty('--bg-light', pick.light);
-    root.setProperty('--bg-mid', pick.mid);
-    root.setProperty('--bg-dark', pick.dark);
-    root.setProperty('--accent-1', pick.accent1);
-    root.setProperty('--accent-2', pick.accent2);
-    root.setProperty('--title-main', pick.accent1);
-    root.setProperty('--strong-color', pick.accent2);
-    const pet = Array.isArray(pick.petal) && pick.petal.length === 3 ? pick.petal : [220,120,160];
-    root.setProperty('--petal-rgba', `${pet[0]},${pet[1]},${pet[2]}`);
-    spawnKanji();
-  }
-
-  const KANJI = "日月火水木金土山川田人口女子学校先生時間東京日本大中小上下左右入口出口駅車電気食飲見行来会話読書映画音楽花愛友幸楽海空風雨雪猫犬鳥龍心星春夏秋冬夢道神寺社桜光美和新古旅食買飲遊語学写真";
-  function spawnKanji(){
-    const layer = document.getElementById('kanji-layer');
-    layer.innerHTML = "";
-    const pick = () => KANJI[Math.floor(Math.random() * KANJI.length)];
-    const makeChar = (layerClass) => {
-      const el = document.createElement('span');
-      el.className = `kanji-char ${layerClass}`;
-      el.textContent = pick();
-      const vw = Math.random() * 100;
-      const size = 14 + Math.random() * 18;
-      const rot = (Math.random() * 60 - 30) + "deg";
-      const delay = (-Math.random() * 32).toFixed(2) + "s";
-      el.style.setProperty('--x', vw + 'vw');
-      el.style.setProperty('--r', rot);
-      el.style.fontSize = size + 'px';
-      el.style.animationDelay = delay;
-      layer.appendChild(el);
-    };
-    for (let i=0;i<40;i++) makeChar('kanji-layer-a');
-    for (let i=0;i<40;i++) makeChar('kanji-layer-b');
-  }
-
-  function setPlayerInfo(dateTime){
-    const spanColor = getPlayerColorUnique(playerName);
-    const html = `Jugador: <span style="font-weight:700; color:${spanColor}">${playerName}</span> | ${dateTime} | Modo: ${mode === 'short' ? 'Corto' : 'Completo'}`;
-    document.getElementById('player-info').innerHTML = html;
-  }
-
-  /************ Tutorial toggle ************/
-  function initTutorialToggle(){
-    const box = document.getElementById('tutorial');
-    const header = document.getElementById('tutorialHeader');
-    const btn = document.getElementById('tutorialToggleBtn');
-    const body = document.getElementById('tutorialBody');
-
-    const setOpen = (open) => {
-      body.style.display = open ? 'block' : 'none';
-      header.setAttribute('aria-expanded', String(open));
-      if (btn) btn.textContent = open ? 'Ocultar' : 'Mostrar';
-      try{ localStorage.setItem(TUTORIAL_LS, JSON.stringify(!!open)); }catch{}
-    };
-
-    const isDesktopHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-
-    if (isDesktopHover){
-      setOpen(false);
-      box.addEventListener('mouseenter', ()=>setOpen(true));
-      box.addEventListener('mouseleave', ()=>setOpen(false));
-    } else {
-      let open = true;
-      try {
-        const raw = localStorage.getItem(TUTORIAL_LS);
-        if (raw !== null) open = JSON.parse(raw) === true;
-      } catch(_) {}
-      setOpen(open);
-
-      const toggle = () => setOpen(!(body.style.display !== 'none'));
-      header.addEventListener('click', toggle);
-      if (btn) btn.addEventListener('click', (e)=>{ e.stopPropagation(); toggle(); });
-      header.addEventListener('keydown', (e)=>{ if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }});
-    }
-  }
-
-  /************ Flujo UI ************/
-  document.getElementById("btnNameNext").addEventListener("click", () => {
-    const nameInput = document.getElementById("username").value.trim();
-    if (!nameInput) { alert("Que me digas quién eres o no jugamos ù3ú"); return; }
-    playerName = nameInput;
-    document.getElementById("start-screen").style.display = "none";
-    document.getElementById("mode-screen").style.display = "flex";
-  });
-
-  document.getElementById("halfShort").addEventListener("click", () => { mode = "short"; mehLimit = 5; startGameWithMode(); });
-  document.getElementById("halfFull").addEventListener("click", () => { mode = "full";  mehLimit = 10; startGameWithMode(); });
-
-  async function startGameWithMode() {
-    const SHORT_COUNT = 20;
-    let safeOriginal = [...originalData];
-    if (mode === "short") {
-      let availableCards = safeOriginal;
-      if (playerName) {
-        const seen = await getSeenCardsForPlayer(playerName);
-        availableCards = safeOriginal.filter(c => !seen.has(c.name));
-      }
-      if (availableCards.length < SHORT_COUNT) availableCards = shuffleArray(safeOriginal);
-      else availableCards = shuffleArray(availableCards);
-      data = availableCards.slice(0, SHORT_COUNT);
-    } else {
-      data = shuffleArray(safeOriginal);
-    }
-    index = 0; accepted = []; rejected = []; meh = [];
-    container.innerHTML = "";
-    document.getElementById("mode-screen").style.display = "none";
-    document.getElementById("game-screen").style.display = "flex";
-    showNextCard(true);
-  }
-
-  function createCard(item) {
-    const card = document.createElement('div'); card.className = 'card';
-    const img = document.createElement('img'); img.src = item.img; img.alt = item.name;
-    const name = document.createElement('div'); name.textContent = item.name;
-    // atributo de localización invisible (lo puedes editar en originalData.pref)
-    card.dataset.pref = item.pref || "";
-    card.appendChild(img); card.appendChild(name);
-    attachSwipe(card);
-    return card;
-  }
-
-  function showNextCard(initial=false) {
-    if (!initial) container.innerHTML = "";
-    if (index < data.length) {
-      const card = createCard(data[index]);
-      container.appendChild(card);
-    } else {
-      showResults();
-    }
-  }
-
-  function attachSwipe(el){
-    let startX=0, startY=0, dx=0, dy=0, active=false;
-    const onStart = (x,y) => { active=true; startX=x; startY=y; dx=0; dy=0; el.style.transition=""; };
-    const onMove = (x,y) => {
-      if(!active) return;
-      dx = x - startX; dy = y - startY;
-      const rot = dx * 0.05;
-      el.style.transform = `translate(${dx}px, ${dy}px) rotate(${rot}deg)`;
-      el.style.opacity = String(1 - Math.min(0.6, Math.abs(dx)/300 + Math.max(0, -dy)/300));
-    };
-    const onEnd = () => {
-      if(!active) return; active=false;
-      const THX = 80, THY = -80;
-      if (dx <= -THX) { commitDecision(-1); return; }
-      if (dx >=  THX) { commitDecision( 1); return; }
-      if (dy <=  THY) { commitDecision( 0); return; }
-      el.style.transition="transform .2s ease, opacity .2s ease";
-      el.style.transform="translate(0,0) rotate(0)"; el.style.opacity="1";
-    };
-    el.addEventListener("touchstart", (e)=>onStart(e.touches[0].clientX, e.touches[0].clientY), {passive:true});
-    el.addEventListener("touchmove",  (e)=>onMove(e.touches[0].clientX, e.touches[0].clientY), {passive:true});
-    el.addEventListener("touchend",   onEnd);
-    el.addEventListener("mousedown", (e)=>onStart(e.clientX, e.clientY));
-    window.addEventListener("mousemove", (e)=>onMove(e.clientX, e.clientY));
-    window.addEventListener("mouseup", onEnd);
-  }
-
-  function commitDecision(direction){
-    const el = container.querySelector('.card');
-    if (!el) return;
-    const name = el.querySelector('div').textContent;
-    if (direction === 1) accepted.push(name);
-    else if (direction === -1) rejected.push(name);
-    else {
-      if (meh.length >= mehLimit) {
-        alert("Por favor, mójate un poco más…");
-        el.style.transition="transform .2s ease, opacity .2s ease";
-        el.style.transform="translate(0,0) rotate(0)"; el.style.opacity="1";
-        return;
-      }
-      meh.push(name);
-    }
-    index++; container.innerHTML = ""; showNextCard();
-  }
-
-  function handleDecision(direction){ commitDecision(direction); }
-  window.handleDecision = handleDecision;
-
-  /************ Resultados + guardado ************/
-  function buildResultsTableRows(a, m, r){
-    const maxRows = Math.max(a.length, m.length, r.length);
-    const rows = [];
-    for (let i=0;i<maxRows;i++){
-      rows.push(`<tr><td>${a[i]||""}</td><td>${m[i]||""}</td><td>${r[i]||""}</td></tr>`);
-    }
-    return rows.join("");
-  }
-
-  // Construye un mapa con prefecturas resaltadas
-  async function renderResultsMap(){
-    const host = document.getElementById('resultsMap');
-    host.innerHTML = '<div style="padding:8px; opacity:.8;">Cargando mapa…</div>';
-    try{
-      const svg = await loadJapanSVG(host);
-      // Calcular prefecturas de los "sí" de ESTA partida
-      const yesPrefs = new Set();
-      // Busca los pref de las tarjetas aceptadas
-      for (const name of accepted){
-        const item = originalData.find(x=>x.name===name);
-        if (item && item.pref && PREF_CODE[item.pref]) yesPrefs.add(PREF_CODE[item.pref]);
-      }
-      paintPrefectures(svg, Array.from(yesPrefs), 'pref-yes');
-    }catch(e){ host.innerHTML = `<div style="padding:8px;">No se pudo cargar el mapa: ${e.message}</div>`; }
-  }
-
-  async function showResults() {
-    document.getElementById('game-screen').style.display = 'none';
-    document.getElementById('results').style.display = 'flex';
-    const now = new Date(); const dateTime = now.toLocaleString();
-    setPlayerInfo(dateTime);
-    document.getElementById('results-body').innerHTML = buildResultsTableRows(accepted, meh, rejected);
-
-    // Pintar mapa de resultados
-    await renderResultsMap();
-
-    // Guardado (mejor no bloquear UI si falla)
-    try {
-      await fetch(saveEndpoint, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ player: playerName, date: dateTime, mode, accepted, meh, rejected })
       });
-    } catch (e) { console.warn("No se pudo guardar en la API:", e); }
-  }
 
-  /************ Estadísticas (con inyección de la partida actual) ************/
-  async function showStats() {
+      // ✅ Asegurar que existan LAS 47 prefecturas: si falta alguna en el SVG fuente,
+      // creamos un placeholder “invisible” (off-canvas) para completar el set.
+      const allCodes = new Set(Object.values(PREF_CODE));
+      const missing = [...allCodes].filter(c => !foundCodes.has(c));
+      if (missing.length){
+        const ns = svg.namespaceURI || "http://www.w3.org/2000/svg";
+        missing.forEach(code=>{
+          const ghost = document.createElementNS(ns, 'rect');
+          ghost.setAttribute('x', '-1000');
+          ghost.setAttribute('y', '-1000');
+          ghost.setAttribute('width', '1');
+          ghost.setAttribute('height', '1');
+          ghost.setAttribute('opacity', '0'); // invisible
+          ghost.classList.add('pref-shape');
+          ghost.setAttribute('data-pref-code', code);
+          svg.appendChild(ghost);
+        });
+        console.warn("Prefecturas añadidas como placeholders (faltaban en el SVG):", missing);
+      }
+
+      return svg;
+    }catch(e){
+      console.warn('Fallo al cargar SVG', url, e);
+    }
+  }
+  throw new Error('No se pudo cargar ningún SVG de Japón');
+}
+
+function paintPrefectures(svg, codes, cls){
+  if (!svg) return;
+  const set = new Set(codes.map(c=>String(c).padStart(2,'0')));
+  svg.querySelectorAll('[data-pref-code]').forEach(el=>{
+    const code = el.getAttribute('data-pref-code');
+    el.classList.remove('pref-yes','pref-top','pref-meh','pref-no');
+    if (set.has(code)) el.classList.add(cls||'pref-yes');
+  });
+}
+function clearMap(svg){
+  if (!svg) return;
+  svg.querySelectorAll('[data-pref-code]').forEach(el=>el.classList.remove('pref-yes','pref-top','pref-meh','pref-no'));
+}
+
+/* ===== Tema + Kanji ===== */
+function applyRandomTheme(){
+  const themes = [
+    { light:"#fff7fb", mid:"#ffe3ef", dark:"#d38cb1", accent1:"#FF91C0", accent2:"#FF68A8", petal:[220,120,160] },
+    { light:"#f2f9ff", mid:"#e0f1ff", dark:"#8dbfe6", accent1:"#a3c9ff", accent2:"#7fb2f0", petal:[120,160,220] },
+    { light:"#faf5ff", mid:"#efe3ff", dark:"#b48ad6", accent1:"#d7a6f1", accent2:"#b48ad6", petal:[150,110,200] },
+    { light:"#e9fff8", mid:"#d1fff0", dark:"#68cba7", accent1:"#9fe6cc", accent2:"#68cba7", petal:[90,170,140] },
+    { light:"#ffeceb", mid:"#ffb3b0", dark:"#b94a48", accent1:"#f28b82", accent2:"#e57373", petal:[242,139,130] },
+  ];
+  const pick = themes[Math.floor(Math.random()*themes.length)];
+  const root = document.documentElement.style;
+  root.setProperty('--bg-light', pick.light);
+  root.setProperty('--bg-mid', pick.mid);
+  root.setProperty('--bg-dark', pick.dark);
+  root.setProperty('--accent-1', pick.accent1);
+  root.setProperty('--accent-2', pick.accent2);
+  root.setProperty('--title-main', pick.accent1);
+  root.setProperty('--strong-color', pick.accent2);
+  const pet = Array.isArray(pick.petal) && pick.petal.length === 3 ? pick.petal : [220,120,160];
+  root.setProperty('--petal-rgba', `${pet[0]},${pet[1]},${pet[2]}`);
+  spawnKanji();
+}
+const KANJI = "日月火水木金土山川田人口女子学校先生時間東京日本大中小上下左右入口出口駅車電気食飲見行来会話読書映画音楽花愛友幸楽海空風雨雪猫犬鳥龍心星春夏秋冬夢道神寺社桜光美和新古旅食買飲遊語学写真";
+function spawnKanji(){
+  const layer = document.getElementById('kanji-layer');
+  layer.innerHTML = "";
+  const pick = () => KANJI[Math.floor(Math.random() * KANJI.length)];
+  const makeChar = (layerClass) => {
+    const el = document.createElement('span');
+    el.className = `kanji-char ${layerClass}`;
+    el.textContent = pick();
+    const vw = Math.random() * 100;
+    const size = 14 + Math.random() * 18;
+    const rot = (Math.random() * 60 - 30) + "deg";
+    const delay = (-Math.random() * 32).toFixed(2) + "s";
+    el.style.setProperty('--x', vw + 'vw');
+    el.style.setProperty('--r', rot);
+    el.style.fontSize = size + 'px';
+    el.style.animationDelay = delay;
+    layer.appendChild(el);
+  };
+  for (let i=0;i<40;i++) makeChar('kanji-layer-a');
+  for (let i=0;i<40;i++) makeChar('kanji-layer-b');
+}
+
+function setPlayerInfo(dateTime){
+  const spanColor = getPlayerColorUnique(playerName);
+  const html = `Jugador: <span style="font-weight:700; color:${spanColor}">${playerName}</span> | ${dateTime} | Modo: ${mode === 'short' ? 'Corto' : 'Completo'}`;
+  document.getElementById('player-info').innerHTML = html;
+}
+
+/************ Tutorial toggle ************/
+function initTutorialToggle(){
+  const box = document.getElementById('tutorial');
+  const header = document.getElementById('tutorialHeader');
+  const btn = document.getElementById('tutorialToggleBtn');
+  const body = document.getElementById('tutorialBody');
+  const setOpen = (open) => {
+    body.style.display = open ? 'block' : 'none';
+    header.setAttribute('aria-expanded', String(open));
+    if (btn) btn.textContent = open ? 'Ocultar' : 'Mostrar';
+    try{ localStorage.setItem("japotinder_tutorial_open_v1", JSON.stringify(!!open)); }catch{}
+  };
+  const isDesktopHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  if (isDesktopHover){
+    setOpen(false);
+    box.addEventListener('mouseenter', ()=>setOpen(true));
+    box.addEventListener('mouseleave', ()=>setOpen(false));
+  } else {
+    let open = true;
+    try { const raw = localStorage.getItem("japotinder_tutorial_open_v1"); if (raw !== null) open = JSON.parse(raw) === true; } catch(_) {}
+    setOpen(open);
+    const toggle = () => setOpen(!(body.style.display !== 'none'));
+    header.addEventListener('click', toggle);
+    if (btn) btn.addEventListener('click', (e)=>{ e.stopPropagation(); toggle(); });
+    header.addEventListener('keydown', (e)=>{ if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }});
+  }
+}
+
+/************ Flujo UI ************/
+document.getElementById("btnNameNext").addEventListener("click", () => {
+  const nameInput = document.getElementById("username").value.trim();
+  if (!nameInput) { alert("Que me digas quién eres o no jugamos ù3ú"); return; }
+  playerName = nameInput;
+  document.getElementById("start-screen").style.display = "none";
+  document.getElementById("mode-screen").style.display = "flex";
+});
+document.getElementById("halfShort").addEventListener("click", () => { mode = "short"; mehLimit = 5; startGameWithMode(); });
+document.getElementById("halfFull").addEventListener("click", () => { mode = "full";  mehLimit = 10; startGameWithMode(); });
+
+async function startGameWithMode() {
+  const SHORT_COUNT = 20;
+  let safeOriginal = [...originalData];
+  if (mode === "short") {
+    let availableCards = safeOriginal;
+    if (playerName) {
+      const seen = await getSeenCardsForPlayer(playerName);
+      availableCards = safeOriginal.filter(c => !seen.has(c.name));
+    }
+    if (availableCards.length < SHORT_COUNT) availableCards = shuffleArray(safeOriginal);
+    else availableCards = shuffleArray(availableCards);
+    data = availableCards.slice(0, SHORT_COUNT);
+  } else {
+    data = shuffleArray(safeOriginal);
+  }
+  index = 0; accepted = []; rejected = []; meh = [];
+  container.innerHTML = "";
+  document.getElementById("mode-screen").style.display = "none";
+  document.getElementById("game-screen").style.display = "flex";
+  showNextCard(true);
+}
+
+function createCard(item) {
+  const card = document.createElement('div');
+  card.className = 'card';
+  const img = document.createElement('img');
+  img.src = item.img;
+  img.alt = item.name;
+  const name = document.createElement('div');
+  name.textContent = item.name;
+  card.dataset.pref = item.pref || "";
+  card.appendChild(img);
+  card.appendChild(name);
+  attachSwipe(card);
+  return card;
+}
+
+function showNextCard(initial=false) {
+  if (!initial) container.innerHTML = "";
+  if (index < data.length) {
+    const card = createCard(data[index]);
+    container.appendChild(card);
+  } else {
+    showResults();
+  }
+}
+
+function attachSwipe(el){
+  let startX=0, startY=0, dx=0, dy=0, active=false;
+  const onStart = (x,y) => { active=true; startX=x; startY=y; dx=0; dy=0; el.style.transition=""; };
+  const onMove = (x,y) => {
+    if(!active) return;
+    dx = x - startX; dy = y - startY;
+    const rot = dx * 0.05;
+    el.style.transform = `translate(${dx}px, ${dy}px) rotate(${rot}deg)`;
+    el.style.opacity = String(1 - Math.min(0.6, Math.abs(dx)/300 + Math.max(0, -dy)/300));
+  };
+  const onEnd = () => {
+    if(!active) return; active=false;
+    const THX = 80, THY = -80;
+    if (dx <= -THX) { commitDecision(-1); return; }
+    if (dx >= THX)  { commitDecision( 1); return; }
+    if (dy <= THY)  { commitDecision( 0); return; }
+    el.style.transition="transform .2s ease, opacity .2s ease";
+    el.style.transform="translate(0,0) rotate(0)";
+    el.style.opacity="1";
+  };
+  el.addEventListener("touchstart", (e)=>onStart(e.touches[0].clientX, e.touches[0].clientY), {passive:true});
+  el.addEventListener("touchmove",  (e)=>onMove(e.touches[0].clientX, e.touches[0].clientY),  {passive:true});
+  el.addEventListener("touchend", onEnd);
+  el.addEventListener("mousedown", (e)=>onStart(e.clientX, e.clientY));
+  window.addEventListener("mousemove", (e)=>onMove(e.clientX, e.clientY));
+  window.addEventListener("mouseup", onEnd);
+}
+
+function commitDecision(direction){
+  const el = container.querySelector('.card');
+  if (!el) return;
+  const name = el.querySelector('div').textContent;
+  if (direction === 1) accepted.push(name);
+  else if (direction === -1) rejected.push(name);
+  else {
+    if (meh.length >= mehLimit) {
+      alert("Por favor, mójate un poco más…");
+      el.style.transition="transform .2s ease, opacity .2s ease";
+      el.style.transform="translate(0,0) rotate(0)";
+      el.style.opacity="1";
+      return;
+    }
+    meh.push(name);
+  }
+  index++; container.innerHTML = ""; showNextCard();
+}
+function handleDecision(direction){ commitDecision(direction); }
+window.handleDecision = handleDecision;
+/************ Resultados + guardado ************/
+function buildResultsTableRows(a, m, r){
+  const maxRows = Math.max(a.length, m.length, r.length);
+  const rows = [];
+  for (let i=0;i<maxRows;i++){
+    rows.push(`<tr><td>${a[i]||""}</td><td>${m[i]||""}</td><td>${r[i]||""}</td></tr>`);
+  }
+  return rows.join("");
+}
+
+// Construye el mapa para la partida actual (resultados)
+async function renderResultsMap(){
+  const host = document.getElementById('resultsMap');
+  host.innerHTML = '<div style="padding:8px; opacity:.8;">Cargando mapa…</div>';
+  try{
+    const svg = await loadJapanSVG(host);
+    const yesPrefs = new Set();
+    for (const name of accepted){
+      const item = originalData.find(x=>x.name===name);
+      if (item && item.pref && PREF_CODE[item.pref]) yesPrefs.add(PREF_CODE[item.pref]);
+    }
+    paintPrefectures(svg, Array.from(yesPrefs), 'pref-yes');
+  }catch(e){
+    host.innerHTML = `<div style="padding:8px;">No se pudo cargar el mapa: ${e.message}</div>`;
+  }
+}
+
+async function showResults() {
+  document.getElementById('game-screen').style.display = 'none';
+  document.getElementById('results').style.display = 'flex';
+  const now = new Date();
+  const dateTime = now.toLocaleString();
+  setPlayerInfo(dateTime);
+  document.getElementById('results-body').innerHTML = buildResultsTableRows(accepted, meh, rejected);
+
+  await renderResultsMap();
+
+  // Guardado no bloqueante
+  try {
+    await fetch(saveEndpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ player: playerName, date: dateTime, mode, accepted, meh, rejected })
+    });
+  } catch (e) {
+    console.warn("No se pudo guardar en la API:", e);
+  }
+}
+
+/************ Estadísticas (inyectando partida actual) ************/
+async function showStats() {
   // Mostrar pantalla y limpiar
   document.getElementById('start-screen').style.display = 'none';
   document.getElementById('mode-screen').style.display = 'none';
@@ -813,10 +933,10 @@
   document.getElementById('results').style.display = 'none';
   document.getElementById('stats-screen').style.display = 'block';
 
-  const topBodyEl        = document.querySelector('#topCardsTable tbody');
-  const affGlobalBodyEl  = document.querySelector('#affinityGlobal tbody');
+  const topBodyEl = document.querySelector('#topCardsTable tbody');
+  const affGlobalBodyEl = document.querySelector('#affinityGlobal tbody');
   const affPersonalBodyEl= document.querySelector('#affinityPersonal tbody');
-  const prefBodyEl       = document.querySelector('#prefRanking tbody');
+  const prefBodyEl = document.querySelector('#prefRanking tbody');
 
   topBodyEl.innerHTML = "";
   affGlobalBodyEl.innerHTML = "";
@@ -837,30 +957,17 @@
     return;
   }
 
-  // Inyectar la partida actual para que ya aparezca en stats
+  // Inyectar partida actual
   if (playerName && (accepted.length || meh.length || rejected.length)) {
     games = games.slice();
-    games.push({
-      player: playerName,
-      date: new Date().toISOString(),
-      mode,
-      accepted: [...accepted],
-      meh: [...meh],
-      rejected: [...rejected]
-    });
+    games.push({ player: playerName, date: new Date().toISOString(), mode, accepted: [...accepted], meh: [...meh], rejected: [...rejected] });
   }
   if (!games.length) { destroyChart(); return; }
 
   // Normalizar partidas y quedarnos con la respuesta más reciente por jugador/tarjeta
   const safeGames = games
     .filter(g => g && (Array.isArray(g.accepted) || Array.isArray(g.rejected) || Array.isArray(g.meh)))
-    .map(g => ({
-      player: (g.player || "¿anon?").trim(),
-      accepted: Array.isArray(g.accepted) ? g.accepted : [],
-      meh: Array.isArray(g.meh) ? g.meh : [],
-      rejected: Array.isArray(g.rejected) ? g.rejected : [],
-      ts: Date.parse(g.date || g.timestamp || "") || 0
-    }));
+    .map(g => ({ player: (g.player || "¿anon?").trim(), accepted: Array.isArray(g.accepted) ? g.accepted : [], meh: Array.isArray(g.meh) ? g.meh : [], rejected: Array.isArray(g.rejected) ? g.rejected : [], ts: Date.parse(g.date || g.timestamp || "") || 0 }));
 
   const latest = {};
   for (const g of safeGames) {
@@ -871,7 +978,7 @@
       if (!prev || g.ts >= prev.ts) latest[p][card] = { choice, ts: g.ts };
     };
     g.accepted.forEach(c => up(c, 'yes'));
-    g.meh.forEach(c      => up(c, 'meh'));
+    g.meh.forEach(c => up(c, 'meh'));
     g.rejected.forEach(c => up(c, 'no'));
   }
 
@@ -885,20 +992,17 @@
     }
   }
 
-  // Datos para Chart.js
-  const labels  = Object.keys(stats).sort((a,b)=>a.localeCompare(b));
+  // Datos Chart.js
+  const labels = Object.keys(stats).sort((a,b)=>a.localeCompare(b));
   const yesData = labels.map(l => stats[l].yes);
   const mehData = labels.map(l => stats[l].meh);
-  const noData  = labels.map(l => stats[l].no);
+  const noData = labels.map(l => stats[l].no);
 
-  // Canvas más ancho para que entren todos los nombres
   const canvas = document.getElementById('statsChart');
   const legendBuffer = 180;
   const desiredWidth = Math.max(labels.length * 80 + legendBuffer, 640);
-  canvas.width = desiredWidth; 
-  canvas.height = 360;
+  canvas.width = desiredWidth; canvas.height = 360;
   const ctx = canvas.getContext('2d');
-
   const css = getComputedStyle(document.documentElement);
   const grad = (hex) => { const g = ctx.createLinearGradient(0,0,0,canvas.height); g.addColorStop(0,hex); g.addColorStop(1,hex); return g; };
 
@@ -909,24 +1013,19 @@
       data: {
         labels,
         datasets: [
-          { label: 'Aquí sí',     data: yesData, backgroundColor: grad(css.getPropertyValue('--yes').trim()), borderRadius: 8, stack: 'stack', barPercentage: 0.75, categoryPercentage: 0.35, maxBarThickness: 26 },
+          { label: 'Aquí sí', data: yesData, backgroundColor: grad(css.getPropertyValue('--yes').trim()), borderRadius: 8, stack: 'stack', barPercentage: 0.75, categoryPercentage: 0.35, maxBarThickness: 26 },
           { label: 'Me da igual', data: mehData, backgroundColor: grad(css.getPropertyValue('--meh').trim()), borderRadius: 8, stack: 'stack', barPercentage: 0.75, categoryPercentage: 0.35, maxBarThickness: 26 },
-          { label: 'Pasando',     data: noData,  backgroundColor: grad(css.getPropertyValue('--no').trim()),  borderRadius: 8, stack: 'stack', barPercentage: 0.75, categoryPercentage: 0.35, maxBarThickness: 26 }
+          { label: 'Pasando', data: noData, backgroundColor: grad(css.getPropertyValue('--no').trim()), borderRadius: 8, stack: 'stack', barPercentage: 0.75, categoryPercentage: 0.35, maxBarThickness: 26 }
         ]
       },
       options: {
-        responsive: false,
-        maintainAspectRatio: false,
+        responsive: false, maintainAspectRatio: false,
         scales: {
           x: { stacked: true, ticks: { autoSkip: false, maxRotation: 70, minRotation: 45 } },
           y: { stacked: true, beginAtZero: true }
         },
         plugins: {
-          legend: {
-            position: 'left',
-            align: 'start',
-            labels: { color: '#333', boxWidth: 18, usePointStyle: true, pointStyle: 'rectRounded' }
-          },
+          legend: { position: 'left', align: 'start', labels: { color: '#333', boxWidth: 18, usePointStyle: true, pointStyle: 'rectRounded' } },
           tooltip: { backgroundColor: 'rgba(255,255,255,.95)', titleColor: '#333', bodyColor: '#333', borderColor: '#ddd', borderWidth: 1 }
         },
         animation: { duration: 220 }
@@ -951,12 +1050,14 @@
   }
   const players = Object.keys(byPlayer).sort((a,b)=>a.localeCompare(b));
 
+  // Global
   const pairs = [];
   for (let i=0;i<players.length;i++){
     for (let j=i+1;j<players.length;j++){
       const p1 = players[i], p2 = players[j];
       const s1 = byPlayer[p1], s2 = byPlayer[p2];
-      const inter = []; s1.forEach(x => { if (s2.has(x)) inter.push(x); });
+      const inter = [];
+      s1.forEach(x => { if (s2.has(x)) inter.push(x); });
       if (inter.length) pairs.push({ a:p1, b:p2, common:inter.sort(), count:inter.length });
     }
   }
@@ -965,18 +1066,19 @@
     const cA = getPlayerColorUnique(row.a);
     const cB = getPlayerColorUnique(row.b);
     const tr = document.createElement('tr');
-    tr.innerHTML =
-      `<td><span style="font-weight:600;color:${cA}">${row.a}</span> &amp;  <span style="font-weight:600;color:${cB}">${row.b}</span></td>` +
-      `<td>${row.count}</td>` +
-      `<td class="cards-small">${row.common.join(", ")}</td>`;
+    tr.innerHTML = `<td><span style="font-weight:600;color:${cA}">${row.a}</span> &amp; <span style="font-weight:600;color:${cB}">${row.b}</span></td>` +
+                   `<td>${row.count}</td>` +
+                   `<td class="cards-small">${row.common.join(", ")}</td>`;
     affGlobalBodyEl.appendChild(tr);
   });
 
+  // Personal
   let personalRows = [];
   if (playerName && byPlayer[playerName]) {
     const mine = byPlayer[playerName];
     players.filter(p=>p!==playerName).forEach(p=>{
-      const inter = []; byPlayer[p].forEach(x=>{ if (mine.has(x)) inter.push(x); });
+      const inter = [];
+      byPlayer[p].forEach(x=>{ if (mine.has(x)) inter.push(x); });
       if (inter.length) personalRows.push({ player:p, count:inter.length, list:inter.sort() });
     });
     personalRows.sort((x,y)=> y.count - x.count || x.player.localeCompare(y.player));
@@ -993,15 +1095,18 @@
     tr.innerHTML = `<td colspan="3"><span class="notice">Juega una partida para ver tu afinidad personal.</span></td>`;
     affPersonalBodyEl.appendChild(tr);
   }
+
+  // Mostrar área de afinidad
   document.getElementById('affinityArea').style.display = "grid";
 
-  // === MAPA + RANKING de prefecturas (global) ===
+  // === MAPA + RANKING de prefecturas (global, AHORA debajo de afinidad) ===
   const statsHost = document.getElementById('statsMap');
-  statsHost.innerHTML = '<div style="padding:8px; opacity:.8;">Cargando mapa…</div>';
+  statsHost.innerHTML = '<div style="padding:8px; opacity:.8; text-align:center;">Cargando mapa…</div>';
   let svg = null;
-  try{ svg = await loadJapanSVG(statsHost); }catch(e){ statsHost.innerHTML = `<div style="padding:8px;">No se pudo cargar el mapa: ${e.message}</div>`; }
+  try{ svg = await loadJapanSVG(statsHost); }
+  catch(e){ statsHost.innerHTML = `<div style="padding:8px;">No se pudo cargar el mapa: ${e.message}</div>`; }
 
-  // Contar likes por prefectura a partir de las tarjetas aceptadas de cada jugador (última respuesta)
+  // Contar likes por prefectura
   const prefLikes = new Map(); // code -> {count, names:Set}
   const nameToPref = new Map(originalData.filter(x=>x.pref && PREF_CODE[x.pref]).map(x=>[x.name, PREF_CODE[x.pref]]));
 
@@ -1012,7 +1117,8 @@
         if (!code) continue;
         if (!prefLikes.has(code)) prefLikes.set(code, {count:0, names:new Set()});
         const obj = prefLikes.get(code);
-        obj.count += 1; obj.names.add(card);
+        obj.count += 1;
+        obj.names.add(card);
       }
     }
   }
@@ -1020,37 +1126,45 @@
   const sorted = Array.from(prefLikes.entries()).sort((a,b)=> b[1].count - a[1].count || a[0].localeCompare(b[0]));
   const topCodes = sorted.slice(0, Math.min(8, sorted.length)).map(([code])=>code);
 
-  // Pintar todas con likes y sobrepintar top
   if (svg){
     paintPrefectures(svg, Array.from(prefLikes.keys()), 'pref-yes');
     paintPrefectures(svg, topCodes, 'pref-top');
   }
 
-  // Tabla de ranking
+  // Tabla de ranking (por número de "sí")
+  const prefBody = document.querySelector('#prefRanking tbody');
   const prefNameByCode = Object.fromEntries(Object.entries(PREF_CODE).map(([n,c])=>[c,n]));
-  for (const [code, obj] of sorted){
+  prefBody.innerHTML = "";
+
+  // Incluir también prefecturas con 0 sí al final del ranking
+  const codesAll = Object.values(PREF_CODE);
+  const codesWith = new Set(prefLikes.keys());
+  const zeroCodes = codesAll.filter(c=>!codesWith.has(c)).map(c=>[c,{count:0,names:new Set()}]);
+
+  const fullSorted = [...sorted, ...zeroCodes].sort((a,b)=> b[1].count - a[1].count || (prefNameByCode[a[0]]||a[0]).localeCompare(prefNameByCode[b[0]]||b[0]));
+
+  for (const [code, obj] of fullSorted){
+    const prettyNames = Array.from(obj.names||[]).sort().join(', ');
     const tr = document.createElement('tr');
-    const prettyNames = Array.from(obj.names).sort().join(', ');
     tr.innerHTML = `<td>${prefNameByCode[code]||code}</td><td>${obj.count}</td><td class="cards-small">${prettyNames}</td>`;
-    prefBodyEl.appendChild(tr);
+    prefBody.appendChild(tr);
   }
 }
 
+function goToStart(){
+  destroyChart();
+  document.getElementById('stats-screen').style.display = 'none';
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('game-screen').style.display = 'none';
+  document.getElementById('mode-screen').style.display = 'none';
+  document.getElementById('start-screen').style.display = 'flex';
+}
+window.goToStart = goToStart;
 
-  function goToStart(){
-    destroyChart();
-    document.getElementById('stats-screen').style.display = 'none';
-    document.getElementById('results').style.display = 'none';
-    document.getElementById('game-screen').style.display = 'none';
-    document.getElementById('mode-screen').style.display = 'none';
-    document.getElementById('start-screen').style.display = 'flex';
-  }
-  window.goToStart = goToStart;
-
-  /************ Init ************/
-  applyRandomTheme();
-  initTutorialToggle();
-  document.getElementById("start-screen").style.display = "flex";
+/************ Init ************/
+applyRandomTheme();
+initTutorialToggle();
+document.getElementById("start-screen").style.display = "flex";
 </script>
 </body>
 </html>
