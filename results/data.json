@@ -279,5 +279,34 @@
       "Music box Museum"
     ],
     "rejected": []
+  },
+  {
+    "player": "Sara",
+    "date": "17/8/2025, 1:47:30",
+    "mode": "short",
+    "accepted": [
+      "Ginzan Onsen",
+      "Tarde de recreativas",
+      "Kumachan Onsen Tokyo",
+      "Shiroi Koibito Park",
+      "Ir a ver sumo",
+      "Ir a ver kabuki",
+      "Shibazakura park Hokkaido",
+      "Otaru",
+      "Entrar a Sekaido o Itoya (90 pisos de material de arte)",
+      "Shinkansen Hello Kitty",
+      "Shikisai no oka",
+      "Kumamoto",
+      "Disney Tokyo",
+      "Beppu",
+      "Museo de Nintendo",
+      "2D Café Tokyo",
+      "Aitama Daibutsu (Buddha y moais)",
+      "Tienda de Chopper",
+      "Bandai Museum",
+      "Coleccionar Manhole cards"
+    ],
+    "meh": [],
+    "rejected": []
   }
 ]
