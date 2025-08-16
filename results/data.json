@@ -108,5 +108,60 @@
       "Music box Museum",
       "Probar los simulacros de terremotos"
     ]
+  },
+  {
+    "player": "Jose",
+    "date": "16/8/2025, 18:03:45",
+    "mode": "full",
+    "accepted": [
+      "Pokemon Cafe",
+      "Hakone",
+      "Nagano y monos de nieve",
+      "Tarde de recreativas",
+      "Tienda de Chopper",
+      "Aitama Daibutsu (Buddha y moais)",
+      "Nikko",
+      "Ir a ver kabuki",
+      "Enoshima",
+      "Shikisai no oka",
+      "Disney Tokyo",
+      "Kumamoto",
+      "Oarai Isosaki shrine",
+      "Otaru",
+      "Katsuouji y postal de Darumas",
+      "Dormir en Ryokan Ookawaso",
+      "Ushiku Daibutsu",
+      "Gotokuji",
+      "Ginzan Onsen",
+      "Ir a ver sumo",
+      "Kumachan Onsen Tokyo",
+      "Probar los simulacros de terremotos",
+      "Comer en Tofuro Ginza",
+      "Beppu",
+      "Shibazakura park Hokkaido",
+      "Nabana no sato"
+    ],
+    "meh": [
+      "Tanuki Dori",
+      "Dormir en Toggle (cada habitación es de un único color completa)",
+      "Coleccionar Manhole cards",
+      "Dormir en Henn na hotel",
+      "Bandai Museum",
+      "Dormir en Onyado Nono Kyoto",
+      "Museo de Nintendo",
+      "Shiroi Koibito Park",
+      "Doraemon time square"
+    ],
+    "rejected": [
+      "Music box Museum",
+      "Maid cafe",
+      "Museo/cafe de los yokai",
+      "RJ Cafe Osaka",
+      "Entrar a Sekaido o Itoya (90 pisos de material de arte)",
+      "Musical Tokyo Revengers",
+      "Shinkansen Hello Kitty",
+      "2D Café Tokyo",
+      "Eventos de mangas específicos"
+    ]
   }
 ]
