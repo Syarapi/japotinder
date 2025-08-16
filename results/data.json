@@ -308,5 +308,60 @@
     ],
     "meh": [],
     "rejected": []
+  },
+  {
+    "player": "Sara",
+    "date": "17/8/2025, 1:52:46",
+    "mode": "full",
+    "accepted": [
+      "Musical Tokyo Revengers",
+      "Tarde de recreativas",
+      "RJ Cafe Osaka",
+      "Hakone",
+      "Kumachan Onsen Tokyo",
+      "Disney Tokyo",
+      "Pokemon Cafe",
+      "Doraemon time square",
+      "Shiroi Koibito Park",
+      "Music box Museum",
+      "Otaru",
+      "Gotokuji",
+      "Shikisai no oka",
+      "Nagano y monos de nieve",
+      "Maid cafe",
+      "Aitama Daibutsu (Buddha y moais)",
+      "Ginzan Onsen",
+      "Ushiku Daibutsu",
+      "Beppu",
+      "Eventos de mangas específicos",
+      "Enoshima",
+      "Dormir en Toggle (cada habitación es de un único color completa)",
+      "Oarai Isosaki shrine",
+      "Dormir en Henn na hotel",
+      "Tanuki Dori",
+      "Museo/cafe de los yokai",
+      "Coleccionar Manhole cards",
+      "Kumamoto",
+      "2D Café Tokyo",
+      "Shibazakura park Hokkaido"
+    ],
+    "meh": [
+      "Shinkansen Hello Kitty",
+      "Nikko",
+      "Dormir en Onyado Nono Kyoto",
+      "Comer en Tofuro Ginza",
+      "Dormir en Ryokan Ookawaso",
+      "Entrar a Sekaido o Itoya (90 pisos de material de arte)",
+      "Bandai Museum",
+      "Museo de Nintendo"
+    ],
+    "rejected": [
+      "Ir a ver sumo",
+      "Tienda de Chopper",
+      "Nabana no sato",
+      "Katsuouji y postal de Darumas",
+      "Ir a ver kabuki",
+      "Probar los simulacros de terremotos"
+    ]
   }
 ]
