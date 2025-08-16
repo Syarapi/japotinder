@@ -1106,30 +1106,65 @@ async function showStats() {
   try{ svg = await loadJapanSVG(statsHost); }
   catch(e){ statsHost.innerHTML = `<div style="padding:8px;">No se pudo cargar el mapa: ${e.message}</div>`; }
 
-  // Contar likes por prefectura
-  const prefLikes = new Map(); // code -> {count, names:Set}
-  const nameToPref = new Map(originalData.filter(x=>x.pref && PREF_CODE[x.pref]).map(x=>[x.name, PREF_CODE[x.pref]]));
+ // Contar likes por prefectura (incluye "Sin prefectura")
+const prefLikes = new Map(); // code -> {count, names:Set}
+const noPref = { count: 0, names: new Set() };
 
-  for (const p in latest){
-    for (const card in latest[p]){
-      if (latest[p][card].choice === 'yes'){
-        const code = nameToPref.get(card);
-        if (!code) continue;
-        if (!prefLikes.has(code)) prefLikes.set(code, {count:0, names:new Set()});
-        const obj = prefLikes.get(code);
-        obj.count += 1;
-        obj.names.add(card);
+// Mapa nombre de tarjeta -> array de códigos de prefectura
+const nameToPref = new Map(
+  originalData.map(x => {
+    if (!x.pref) return [x.name, []];
+    const arr = Array.isArray(x.pref) ? x.pref : [x.pref];
+    const codes = arr.map(p => PREF_CODE[p]).filter(Boolean);
+    return [x.name, codes];
+  })
+);
+
+// Acumular likes
+for (const p in latest) {
+  for (const card in latest[p]) {
+    if (latest[p][card].choice === 'yes') {
+      const codes = nameToPref.get(card) || [];
+      if (codes.length === 0) {
+        noPref.count++;
+        noPref.names.add(card);
+      } else {
+        codes.forEach(code => {
+          if (!prefLikes.has(code)) prefLikes.set(code, { count: 0, names: new Set() });
+          const obj = prefLikes.get(code);
+          obj.count += 1;
+          obj.names.add(card);
+        });
       }
     }
   }
+}
 
-  const sorted = Array.from(prefLikes.entries()).sort((a,b)=> b[1].count - a[1].count || a[0].localeCompare(b[0]));
-  const topCodes = sorted.slice(0, Math.min(8, sorted.length)).map(([code])=>code);
+const sorted = Array.from(prefLikes.entries())
+  .sort((a,b)=> b[1].count - a[1].count || a[0].localeCompare(b[0]));
+const topCodes = sorted.slice(0, Math.min(8, sorted.length)).map(([code])=>code);
 
-  if (svg){
-    paintPrefectures(svg, Array.from(prefLikes.keys()), 'pref-yes');
-    paintPrefectures(svg, topCodes, 'pref-top');
-  }
+if (svg){
+  paintPrefectures(svg, Array.from(prefLikes.keys()), 'pref-yes');
+  paintPrefectures(svg, topCodes, 'pref-top');
+}
+
+// Mostrar fila de "Sin prefectura" en la tabla (si existe) --> ARRIBA
+if (noPref.count > 0) {
+  const tr = document.createElement('tr');
+  const prettyNames = Array.from(noPref.names).sort().join(', ');
+  tr.innerHTML = `<td>Sin prefectura</td><td>${noPref.count}</td><td class="cards-small">${prettyNames}</td>`;
+  prefBodyEl.appendChild(tr);
+}
+
+// Mostrar prefecturas normales
+const prefNameByCode = Object.fromEntries(Object.entries(PREF_CODE).map(([n,c])=>[c,n]));
+for (const [code, obj] of sorted){
+  const tr = document.createElement('tr');
+  const prettyNames = Array.from(obj.names).sort().join(', ');
+  tr.innerHTML = `<td>${prefNameByCode[code]||code}</td><td>${obj.count}</td><td class="cards-small">${prettyNames}</td>`;
+  prefBodyEl.appendChild(tr);
+}
 
   // Tabla de ranking (por número de "sí")
   const prefBody = document.querySelector('#prefRanking tbody');
@@ -1168,3 +1203,4 @@ document.getElementById("start-screen").style.display = "flex";
 </script>
 </body>
 </html>
+
