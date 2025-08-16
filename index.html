@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Japotinder — fixed full</title>
+  <title>Japotinder</title>
   <link href="https://fonts.googleapis.com/css2?family=Yuji+Syuku&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
@@ -27,12 +27,12 @@
       --map-fill:#fff;
       --map-shadow: 0 6px 18px rgba(0,0,0,.12);
 
-      /* Choropleth (5 niveles, derivados de --yes) */
-      --map-l1: color-mix(in oklab, var(--yes) 20%, white);
-      --map-l2: color-mix(in oklab, var(--yes) 40%, white);
-      --map-l3: color-mix(in oklab, var(--yes) 60%, white);
-      --map-l4: color-mix(in oklab, var(--yes) 80%, white);
-      --map-l5: color-mix(in oklab, var(--yes) 92%, black);
+      /* Choropleth (5 niveles, derivados de --accent-2) */
+      --map-l1: color-mix(in oklab, var(--accent-2) 20%, white);
+      --map-l2: color-mix(in oklab, var(--accent-2) 40%, white);
+      --map-l3: color-mix(in oklab, var(--accent-2) 60%, white);
+      --map-l4: color-mix(in oklab, var(--accent-2) 80%, white);
+      --map-l5: color-mix(in oklab, var(--accent-2) 92%, black);
 
       --tooltip-bg: #fff;
       --tooltip-border: rgba(0,0,0,.15);
@@ -50,7 +50,7 @@
       align-items: center;
       background: var(--bg-light);
       position: relative;
-      overflow-x: hidden; /* la página no hace scroll horizontal */
+      overflow-x: hidden;
     }
 
     /* Kanji background */
@@ -135,18 +135,35 @@
     tr:nth-child(even) { background-color: #faf7ff; }
     .cards-small{ font-size: 12px; }
 
+    /* Column widths for readability */
+    #topCardsTable th:first-child, #topCardsTable td:first-child { width: 70%; }
+    #topCardsTable th:nth-child(2), #topCardsTable td:nth-child(2),
+    #topCardsTable th:nth-child(3), #topCardsTable td:nth-child(3),
+    #topCardsTable th:nth-child(4), #topCardsTable td:nth-child(4) { width: 10%; text-align: center; }
+
+    #affinityGlobal th:first-child, #affinityGlobal td:first-child,
+    #affinityPersonal th:first-child, #affinityPersonal td:first-child { width: 40%; }
+    #affinityGlobal th:nth-child(2), #affinityGlobal td:nth-child(2),
+    #affinityPersonal th:nth-child(2), #affinityPersonal td:nth-child(2) { width: 10%; text-align: center; }
+    #affinityGlobal th:nth-child(3), #affinityGlobal td:nth-child(3),
+    #affinityPersonal th:nth-child(3), #affinityPersonal td:nth-child(3) { width: 50%; }
+
+    #prefRanking th:first-child, #prefRanking td:first-child { width: 30%; }
+    #prefRanking th:nth-child(2), #prefRanking td:nth-child(2) { width: 10%; text-align: center; }
+    #prefRanking th:nth-child(3), #prefRanking td:nth-child(3) { width: 60%; }
+
     /* Pantalla stats sin scroll extra; los scroll son internos de tablas */
     #stats-screen { display:none; min-height:100vh; padding: 6px 10px 10px; box-sizing: border-box; overflow-y: visible; }
 
     /* Scrollbar fino y temático en áreas con overflow */
     .top-scroll, .aff-scroll {
-      overflow-y:auto;
+      overflow: auto;
       max-height:360px;
       padding-bottom:6px;
       scrollbar-width: thin;
       scrollbar-color: var(--accent-2) transparent;
     }
-    .top-scroll::-webkit-scrollbar, .aff-scroll::-webkit-scrollbar { width: 8px; }
+    .top-scroll::-webkit-scrollbar, .aff-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
     .top-scroll::-webkit-scrollbar-thumb, .aff-scroll::-webkit-scrollbar-thumb {
       background: color-mix(in oklab, var(--accent-2), #000 10%);
       border-radius: 8px;
@@ -154,8 +171,8 @@
     .top-scroll::-webkit-scrollbar-track, .aff-scroll::-webkit-scrollbar-track { background: transparent; }
 
     /* Map blocks */
-    .map-card{ background: var(--card-bg); border: 2px solid var(--accent-1); border-radius: 16px; padding: 8px; box-shadow: var(--map-shadow); }
-    .map-wrap{ width: 100%; max-width: 1100px; display: grid; grid-template-columns: 1.1fr .9fr; gap: 16px; align-items: start; }
+    .map-card, .pref-card{ background: var(--card-bg); border: 2px solid var(--accent-1); border-radius: 16px; padding: 8px; box-shadow: var(--map-shadow); }
+    .map-pref-grid{ width: 100%; max-width: 1100px; display: grid; grid-template-columns: 1.1fr .9fr; gap: 16px; align-items: start; }
     .map-container{ width: 100%; aspect-ratio: 570/755; position: relative; display:flex; justify-content:center; align-items:center; }
     .map-container svg{ width: 100%; height: 100%; display: block; }
     .map-legend{ display:flex; gap:10px; flex-wrap:wrap; font-size: 12px; margin-top: 8px; align-items:center; justify-content:center; }
@@ -181,7 +198,7 @@
     .chart-scroll { overflow-x: auto; overflow-y: hidden; }
 
     @media (max-width: 900px){
-      .map-wrap{ grid-template-columns: 1fr; }
+      .map-pref-grid{ grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -322,23 +339,21 @@
     </div>
 
     <!-- Mapa + ranking de prefecturas (dos containers) -->
-    <div class="map-card" style="margin-top:12px;">
-      <h3 style="margin:4px 0 8px;">Zonas con más "sí" (todas las partidas)</h3>
-      <div class="map-wrap">
-        <div>
-          <div class="map-container" id="statsMap"></div>
-          <div id="map-tooltip" class="map-tooltip" role="tooltip" aria-hidden="true"></div>
-          <div class="map-legend" id="mapLegend">
-            <!-- leyenda dinámica -->
-          </div>
+    <div class="map-pref-grid" style="margin-top:12px;">
+      <div class="map-card">
+        <h3 style="margin:4px 0 8px;">Zonas con más "sí" (todas las partidas)</h3>
+        <div class="map-container" id="statsMap"></div>
+        <div id="map-tooltip" class="map-tooltip" role="tooltip" aria-hidden="true"></div>
+        <div class="map-legend" id="mapLegend">
+          <!-- leyenda dinámica -->
         </div>
-        <div>
-          <div class="top-scroll">
-            <table id="prefRanking">
-              <thead><tr><th>Prefectura</th><th>Likes</th><th>Tarjetas</th></tr></thead>
-              <tbody></tbody>
-            </table>
-          </div>
+      </div>
+      <div class="pref-card">
+        <div class="top-scroll">
+          <table id="prefRanking">
+            <thead><tr><th>Prefectura</th><th>Likes</th><th>Tarjetas</th></tr></thead>
+            <tbody></tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -356,8 +371,7 @@
 
     /* SVG fuentes */
     const JAPAN_SVG_URLS = [
-      "https://raw.githubusercontent.com/geolonia/japanese-prefectures/master/map-full.svg",
-      "https://upload.wikimedia.org/wikipedia/commons/b/bc/Regions_and_Prefectures_of_Japan_2.svg"
+      "https://raw.githubusercontent.com/geolonia/japanese-prefectures/master/map-full.svg"
     ];
 
     /************ Datos base ************/
@@ -503,11 +517,13 @@
       const id = (el.id||"").toLowerCase();
       const dc = el.getAttribute?.('data-code')||"";
       const dn = (el.getAttribute?.('data-name')||"").toLowerCase();
-      const title = normPrefName(el.querySelector?.('title')?.textContent||"");
-      const attrText = `${id} ${dn}`;
+      const classes = el.className?.baseVal?.toLowerCase() || "";
+      let titleText = el.querySelector?.('title')?.textContent||"";
+      const title = normPrefName(titleText.split('/')[1]?.trim() || titleText);
+      const attrText = `${id} ${dn} ${classes}`;
 
-      if (/^\d{2}$/.test(dc)) return dc; // por data-code exacto (geolonia)
-      const m = attrText.match(/(\d{2})/); if (m) return m[1]; // por id tipo pref-01
+      if (/^\d{1,2}$/.test(dc)) return String(dc).padStart(2,'0');
+      const m = attrText.match(/(\d{2})/); if (m) return m[1];
 
       for (const p of PREFS){
         const pn = normPrefName(p);
@@ -1009,8 +1025,8 @@
       const prefBodyEl2 = document.querySelector('#prefRanking tbody');
       prefBodyEl2.innerHTML = "";
       for (const [code, obj] of sorted){
-        const tr = document.createElement('tr');
         const prettyNames = Array.from(obj.names).sort();
+        const tr = document.createElement('tr');
         tr.innerHTML = `<td>${CODE_PREF[code]||code}</td><td>${obj.count}</td><td class="cards-small">${prettyNames.join(", ")}</td>`;
         prefBodyEl2.appendChild(tr);
       }
@@ -1085,7 +1101,7 @@
     }
 
     function wireMapTooltip(svg, prefLikes){
-      const tip = document.getElementById('mapTooltipSingleton') || document.getElementById('map-tooltip');
+      const tip = document.getElementById('map-tooltip');
       const show = (x,y,html)=>{
         tip.innerHTML = html;
         tip.style.display = 'block';
@@ -1127,7 +1143,6 @@
     }
 
     /************ Init ************/
-    function buildPlayerInfo(){}
     applyRandomTheme(); initTutorialToggle();
     document.getElementById("start-screen").style.display = "flex";
   </script>
