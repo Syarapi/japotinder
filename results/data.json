@@ -194,5 +194,36 @@
       "Ir a ver sumo",
       "Nabana no sato"
     ]
+  },
+  {
+    "player": "Sara",
+    "date": "16/8/2025, 22:01:49",
+    "mode": "short",
+    "accepted": [
+      "Shinkansen Hello Kitty",
+      "Shibazakura park Hokkaido",
+      "Doraemon time square",
+      "Nikko",
+      "Ir a ver sumo",
+      "Beppu",
+      "Hakone",
+      "RJ Cafe Osaka",
+      "Ushiku Daibutsu",
+      "Dormir en Onyado Nono Kyoto"
+    ],
+    "meh": [
+      "Disney Tokyo"
+    ],
+    "rejected": [
+      "Shikisai no oka",
+      "Eventos de mangas específicos",
+      "Tanuki Dori",
+      "Tienda de Chopper",
+      "Dormir en Ryokan Ookawaso",
+      "Comer en Tofuro Ginza",
+      "Ginzan Onsen",
+      "Coleccionar Manhole cards",
+      "2D Café Tokyo"
+    ]
   }
 ]
