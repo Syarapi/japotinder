@@ -53,5 +53,60 @@
       "Nabana no sato",
       "Ir a ver kabuki"
     ]
+  },
+  {
+    "player": "Alicia",
+    "date": "16/8/2025, 8:07:36",
+    "mode": "full",
+    "accepted": [
+      "Ginzan Onsen",
+      "Disney Tokyo",
+      "Museo/cafe de los yokai",
+      "Entrar a Sekaido o Itoya (90 pisos de material de arte)",
+      "Pokemon Cafe",
+      "Enoshima",
+      "Tanuki Dori",
+      "Hakone",
+      "Nabana no sato",
+      "Otaru",
+      "Gotokuji",
+      "Dormir en Ryokan Ookawaso",
+      "Katsuouji y postal de Darumas",
+      "Tienda de Chopper",
+      "Aitama Daibutsu (Buddha y moais)",
+      "Ir a ver kabuki",
+      "Nagano y monos de nieve",
+      "Ushiku Daibutsu",
+      "Doraemon time square",
+      "Coleccionar Manhole cards",
+      "Nikko",
+      "Beppu"
+    ],
+    "meh": [
+      "Museo de Nintendo",
+      "Oarai Isosaki shrine",
+      "Kumamoto",
+      "Kumachan Onsen Tokyo",
+      "Dormir en Onyado Nono Kyoto",
+      "Dormir en Toggle (cada habitación es de un único color completa)",
+      "Comer en Tofuro Ginza",
+      "2D Café Tokyo",
+      "Bandai Museum",
+      "Shinkansen Hello Kitty"
+    ],
+    "rejected": [
+      "RJ Cafe Osaka",
+      "Tarde de recreativas",
+      "Maid cafe",
+      "Dormir en Henn na hotel",
+      "Shibazakura park Hokkaido",
+      "Ir a ver sumo",
+      "Shikisai no oka",
+      "Eventos de mangas específicos",
+      "Shiroi Koibito Park",
+      "Musical Tokyo Revengers",
+      "Music box Museum",
+      "Probar los simulacros de terremotos"
+    ]
   }
 ]
