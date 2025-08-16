@@ -163,5 +163,36 @@
       "2D Café Tokyo",
       "Eventos de mangas específicos"
     ]
+  },
+  {
+    "player": "Sara",
+    "date": "16/8/2025, 20:20:38",
+    "mode": "short",
+    "accepted": [
+      "Nagano y monos de nieve",
+      "Nikko",
+      "Enoshima",
+      "Shibazakura park Hokkaido",
+      "Tanuki Dori",
+      "Eventos de mangas específicos",
+      "2D Café Tokyo",
+      "Oarai Isosaki shrine",
+      "Dormir en Toggle (cada habitación es de un único color completa)",
+      "Beppu",
+      "Hakone",
+      "Otaru",
+      "Kumamoto",
+      "Music box Museum"
+    ],
+    "meh": [
+      "Coleccionar Manhole cards",
+      "Shinkansen Hello Kitty",
+      "Museo de Nintendo"
+    ],
+    "rejected": [
+      "Tienda de Chopper",
+      "Ir a ver sumo",
+      "Nabana no sato"
+    ]
   }
 ]
