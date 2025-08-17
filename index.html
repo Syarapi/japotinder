@@ -124,7 +124,7 @@
     .accept { background: linear-gradient(180deg, var(--yes), #5fb5ef); }
     .meh { background: linear-gradient(180deg, var(--meh), #7343d8); }
     .reject { background: linear-gradient(180deg, var(--no), #ff5f93); }
-    .btn:hover { transform: translateY(-1px); box-shadow: 0 10px 20px rgba(0,0,0,.16); }
+    .btn:hover { transform: translateY总经理(-1px); box-shadow: 0 10px 20px rgba(0,0,0,.16); }
     .btn:active{ transform: translateY(0); opacity:.95; }
 
     /* Tables */
@@ -156,25 +156,26 @@
     #stats-screen { display:none; min-height:100vh; padding: 6px 10px 10px; box-sizing: border-box; overflow-y: visible; }
 
     /* Scrollbar fino y temático en áreas con overflow */
-    .top-scroll, .aff-scroll {
+    .top-scroll, .aff-scroll, .chart-scroll {
       overflow: auto;
       max-height:360px;
       padding-bottom:6px;
       scrollbar-width: thin;
       scrollbar-color: var(--accent-2) transparent;
     }
-    .top-scroll::-webkit-scrollbar, .aff-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
-    .top-scroll::-webkit-scrollbar-thumb, .aff-scroll::-webkit-scrollbar-thumb {
+    .top-scroll::-webkit-scrollbar, .aff-scroll::-webkit-scrollbar, .chart-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+    .top-scroll::-webkit-scrollbar-thumb, .aff-scroll::-webkit-scrollbar-thumb, .chart-scroll::-webkit-scrollbar-thumb {
       background: color-mix(in oklab, var(--accent-2), #000 10%);
       border-radius: 8px;
     }
-    .top-scroll::-webkit-scrollbar-track, .aff-scroll::-webkit-scrollbar-track { background: transparent; }
+    .top-scroll::-webkit-scrollbar-track, .aff-scroll::-webkit-scrollbar-track, .chart-scroll::-webkit-scrollbar-track { background: transparent; }
 
     /* Map blocks */
     .map-card, .pref-card{ background: var(--card-bg); border: 2px solid var(--accent-1); border-radius: 16px; padding: 8px; box-shadow: var(--map-shadow); }
     .map-pref-grid{ width: 100%; max-width: 1100px; display: grid; grid-template-columns: 1.1fr .9fr; gap: 16px; align-items: start; }
     .map-container{ width: 100%; aspect-ratio: 570/755; position: relative; display:flex; justify-content:center; align-items:center; }
-    .map-container svg{ width: 100%; height: 100%; display: block; }
+    .stats-map-container { width: 80%; aspect-ratio: 570/755; position: relative; display:flex; justify-content:center; align-items:center; }
+    .map-container svg, .stats-map-container svg{ width: 100%; height: 100%; display: block; }
     .map-legend{ display:flex; gap:10px; flex-wrap:wrap; font-size: 12px; margin-top: 8px; align-items:center; justify-content:center; }
     .legend-chip{ display:inline-flex; align-items:center; gap:6px; }
     .legend-swatch{ width: 16px; height: 16px; border-radius: 4px; border: 1px solid rgba(0,0,0,.12); box-shadow: 0 1px 0 rgba(0,0,0,.06) inset; }
@@ -195,10 +196,16 @@
 
     /* Layout helpers */
     .chart-card, .top-card, .aff-card { background:var(--card-bg); border:2px solid var(--accent-1); border-radius:16px; padding:8px; }
-    .chart-scroll { overflow-x: auto; overflow-y: hidden; }
 
-    @media (max-width: 900px){
-      .map-pref-grid{ grid-template-columns: 1fr; }
+    /* Mode screen split with different filters */
+    .mode-split .half.left { background: linear-gradient(to bottom, rgba(255,255,255,0.1), rgba(255,255,255,0.3)); }
+    .mode-split .half.right { background: linear-gradient(to bottom, color-mix(in oklab, var(--accent-1), transparent 70%), color-mix(in oklab, var(--accent-1), transparent 50%)); }
+
+    /* Results layout */
+    .results-layout { width: 100%; max-width: 980px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+    @media (max-width: 900px) {
+      .results-layout { grid-template-columns: 1fr; }
+      .map-pref-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -273,19 +280,21 @@
     <h2>Resultados</h2>
     <p id="player-info" style="margin:4px 0 8px;"></p>
 
-    <div class="results-table" style="width:100%;">
-      <table>
-        <thead><tr><th>Aquí sí</th><th>Me da igual</th><th>Pasando</th></tr></thead>
-        <tbody id="results-body"></tbody>
-      </table>
-    </div>
+    <div class="results-layout">
+      <div class="results-table">
+        <table>
+          <thead><tr><th>Aquí sí</th><th>Me da igual</th><th>Pasando</th></tr></thead>
+          <tbody id="results-body"></tbody>
+        </table>
+      </div>
 
-    <!-- Mapa de resultados -->
-    <div class="map-card" style="margin-top:12px; width:100%;">
-      <h3 style="margin:6px 0 8px;">Mapa de prefecturas con "Aquí sí"</h3>
-      <div class="map-container" id="resultsMap"></div>
-      <div class="map-legend">
-        <span class="legend-chip"><span class="legend-swatch" style="background:var(--map-l3)"></span>Prefecturas con "sí" de esta partida</span>
+      <!-- Mapa de resultados -->
+      <div class="map-card">
+        <h3 style="margin:6px 0 8px;">Mapa de prefecturas con "Aquí sí"</h3>
+        <div class="map-container" id="resultsMap"></div>
+        <div class="map-legend">
+          <span class="legend-chip"><span class="legend-swatch" style="background:var(--map-l3)"></span>Prefecturas con "sí" de esta partida</span>
+        </div>
       </div>
     </div>
 
@@ -342,7 +351,7 @@
     <div class="map-pref-grid" style="margin-top:12px;">
       <div class="map-card">
         <h3 style="margin:4px 0 8px;">Zonas con más "sí" (todas las partidas)</h3>
-        <div class="map-container" id="statsMap"></div>
+        <div class="stats-map-container" id="statsMap"></div>
         <div id="map-tooltip" class="map-tooltip" role="tooltip" aria-hidden="true"></div>
         <div class="map-legend" id="mapLegend">
           <!-- leyenda dinámica -->
@@ -380,7 +389,7 @@
       { name: "Disney Tokyo", img: "img/disney.jpg", pref: "Tokyo" },
       { name: "Gotokuji", img: "img/gotokuji.jpg", pref: "Tokyo" },
       { name: "Pokemon Cafe", img: "img/pokemon.jpg", pref: "Tokyo" },
-      { name: "Shikisai no oka", img: "img/shikisai.jpg", pref: "Hokkaido" },
+      { name: "Shikisai no oka", img: "imggreat job/shikisai.jpg", pref: "Hokkaido" },
       { name: "Shinkansen Hello Kitty", img: "img/hello-kitty.jpg", pref: ["Fukuoka","Yamaguchi"] },
       { name: "Maid cafe", img: "img/maid.jpg", pref: "Tokyo" },
       { name: "Nabana no sato", img: "img/nabana.jpg", pref: "Mie" },
@@ -400,7 +409,7 @@
       { name: "Bandai Museum", img: "img/bandai.jpg", pref: "Tochigi" },
       { name: "Tanuki Dori", img: "img/tanuki.jpg", pref: "Hokkaido" },
       { name: "Coleccionar Manhole cards", img: "img/manhole.jpg", pref: "" }, // Sin prefectura (solo tabla)
-      { name: "Entrar a Sekaido o Itoya (90 pisos de material de arte)", img: "img/sekaido.jpg", pref: "Tokyo" },
+      { name: "Entrar a Sekaido o Itoya (90 pisos de material de arte)", img: "img/se великих kaido.jpg", pref: "Tokyo" },
       { name: "Doraemon time square", img: "img/doraemon.jpg", pref: "Toyama" },
       { name: "Shiroi Koibito Park", img: "img/shiroi-koibito.jpg", pref: "Hokkaido" },
       { name: "2D Café Tokyo", img: "img/2dcafe.jpg", pref: "Tokyo" },
@@ -547,7 +556,7 @@
 
           // Marcar todas las shapes/grupos de prefecturas
           const shapes = Array.from(svg.querySelectorAll('path, polygon, polyline, rect, circle, g'));
-          let marked = 0;
+         let marked = 0;
           for (const s of shapes){
             const code = guessPrefKey(s);
             if (code){
@@ -568,7 +577,6 @@
             }
           });
           if (!marked) console.warn("No se marcaron shapes; puede variar el SVG. Revisa 'guessPrefKey'.");
-
           return svg;
         }catch(e){
           console.warn('Fallo al cargar SVG', url, e);
