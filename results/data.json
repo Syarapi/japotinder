@@ -458,5 +458,36 @@
       "Tienda de Chopper (One Piece Mugiwara Store)",
       "Thomas Land Train"
     ]
+  },
+  {
+    "player": "yoy",
+    "date": "18/8/2025, 12:54:56",
+    "mode": "short",
+    "accepted": [
+      "Tottori Sand Dunes",
+      "Café Final Fantasy Eorzea",
+      "Thomas Land Train",
+      "Simulacro de terremotos (Bousai Center)",
+      "Kabuki-za (teatro kabuki)",
+      "CupNoodles Museum",
+      "Onsen de capibaras",
+      "Mount Aso (volcán activo)",
+      "Musical Tokyo Revengers",
+      "Mikurajima",
+      "Toyosu Senkyaku Banrai (Onsen estilo Edo)",
+      "Enoshima",
+      "Shiretoko",
+      "Shibazakura Park (Festival de flores, mayo 2026)",
+      "Ryukyu Village",
+      "Tienda de Chopper (One Piece Mugiwara Store)",
+      "2D Café Tokyo",
+      "Ginzan Onsen"
+    ],
+    "meh": [
+      "Aoshima"
+    ],
+    "rejected": [
+      "Kawachi Fuji Garden"
+    ]
   }
 ]
